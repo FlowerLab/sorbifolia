@@ -34,10 +34,11 @@ func Parse(filename string) ([]*Package, error) {
 }
 
 type Package struct {
-	RepoURL string `json:"repo_url"`
-	Branch  string `json:"branch"`
-	CDN     bool   `json:"cdn"`
-	path    string
+	RepoURL    string `json:"repo_url"`
+	Branch     string `json:"branch"`
+	CDN        bool   `json:"cdn"`
+	mainModule string
+	path       string
 }
 
 func (p *Package) FindModule() ([]string, error) {
@@ -49,6 +50,7 @@ func (p *Package) FindModule() ([]string, error) {
 
 func (p Package) Output(packageName string) error {
 	return (packageData{
+		Main:    p.mainModule,
 		PkgName: packageName,
 		Repo:    p.RepoURL,
 		Branch:  p.Branch,
@@ -92,6 +94,10 @@ func (p *Package) findModule(dir string) []string {
 		if v.Name() == "go.mod" {
 			if pkgName, _ := parseModFile(filepath.Join(p.path, dir, "go.mod")); pkgName != "" {
 				arr = append(arr, pkgName)
+
+				if p.mainModule == "" || p.mainModule > pkgName {
+					p.mainModule = pkgName
+				}
 			}
 		}
 	}

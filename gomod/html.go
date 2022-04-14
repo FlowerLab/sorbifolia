@@ -14,8 +14,8 @@ const inputHTML = `
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="go-import" content="{{.PkgName}} git {{.Repo}}">
-<meta name="go-source" content="{{.PkgName}} {{.Repo}} {{.Repo}}/tree/{{.Branch}}{/dir} {{.Repo}}/blob/{{.Branch}}{/dir}/{file}#L{line}">
+<meta name="go-import" content="{{.Main}} git {{.Repo}}">
+<meta name="go-source" content="{{.Main}} {{.Repo}} {{.Repo}}/tree/{{.Branch}}{/dir} {{.Repo}}/blob/{{.Branch}}{/dir}/{file}#L{line}">
 <title>{{.PkgName}} - Golang Package</title>
 <script src="https://cdn.jsdelivr.net/npm/marked@4.0.14/marked.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.1.0/github-markdown.min.css">
@@ -114,6 +114,7 @@ xhr.send();
 `
 
 type packageData struct {
+	Main    string
 	PkgName string
 	Repo    string
 	Branch  string
