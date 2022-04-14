@@ -1,0 +1,12 @@
+[
+  {
+	"repo_url": "https://github.com/FlowerLab/blackdatura",
+	"branch": "master",
+	"cdn": true
+  },
+  {
+	"repo_url": "https://github.com/Aoang/firebase-scrypt",
+	"branch": "master",
+	"cdn": false
+  }
+]
