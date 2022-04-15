@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"go.x2ox.com/sorbifolia/random"
 	"golang.org/x/mod/modfile"
 )
 
@@ -64,7 +65,7 @@ func (p Package) Clean() error {
 
 func (p *Package) gitClone() error {
 	if p.path == "" {
-		p.path = filepath.Join(".go.mod.data") // TODO add random
+		p.path = ".go.mod.data-" + random.NewMathRand().RandString(10)
 	}
 	if _, err := git.PlainClone(p.path, false, &git.CloneOptions{
 		URL:           p.RepoURL,
