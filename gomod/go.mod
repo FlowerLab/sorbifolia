@@ -4,12 +4,8 @@ go 1.18
 
 require (
 	github.com/go-git/go-git/v5 v5.4.2
+	go.x2ox.com/sorbifolia/random v0.0.0-20220415041408-bf900f652afc
 	golang.org/x/mod v0.5.1
-	go.x2ox.com/sorbifolia/random v0.0.2
-)
-
-replace (
-	go.x2ox.com/sorbifolia/random  => ../random
 )
 
 require (
