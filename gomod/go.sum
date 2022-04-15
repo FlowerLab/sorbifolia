@@ -65,8 +65,8 @@ github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5Cc
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/xanzy/ssh-agent v0.3.0 h1:wUMzuKtKilRgBAD1sUb8gOwwRr2FGoBVumcjoOACClI=
 github.com/xanzy/ssh-agent v0.3.0/go.mod h1:3s9xbODqPuuhK9JV1R321M/FlMZSBvE5aY6eAcqrDh0=
-go.x2ox.com/sorbifolia/random v0.0.0-20220415041408-bf900f652afc h1:5tqdF3KYw4p0tYN0efiq0HJwvgHZyWsDRVjIaPA5zbs=
-go.x2ox.com/sorbifolia/random v0.0.0-20220415041408-bf900f652afc/go.mod h1:1/0wHeOYnu2JfVKgCPM7Iyw25/++QJhItE5Km0UuKWw=
+go.x2ox.com/sorbifolia/random v0.0.0-20220415072307-4f5e1081ff87 h1:A2VksDtUrZm5Qb2fbXBbCE+oWcGJHsK7vDFp5qshOGY=
+go.x2ox.com/sorbifolia/random v0.0.0-20220415072307-4f5e1081ff87/go.mod h1:1/0wHeOYnu2JfVKgCPM7Iyw25/++QJhItE5Km0UuKWw=
 golang.org/x/crypto v0.0.0-20190219172222-a4c6cb3142f2/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
 golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2/go.mod h1:T9bdIzuCu7OtxOm1hfPfRQxPLYneinmdGuTeoZ9dtd4=
 golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b h1:7mWr3k41Qtv8XlltBkDkl8LoP3mpSgBW8BUoxtEdbXg=
