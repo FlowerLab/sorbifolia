@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-const xmlNS = "https://www.sitemaps.org/schemas/sitemap/0.9/"
+const xmlNS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 
 // Sitemap
 //
@@ -85,4 +85,25 @@ func (s *Sitemap) AddOrUpdate(u *URL) {
 		return
 	}
 	s.Add(u)
+}
+
+// Merge ns has priority less than s
+func (s *Sitemap) Merge(ns *Sitemap) {
+	if ns == nil {
+		return
+	}
+	arr := make([]*URL, 0, len(ns.URL))
+	for _, nv := range ns.URL {
+		for _, v := range s.URL {
+			if nv.Loc == v.Loc {
+				goto CONTINUE
+			}
+		}
+		arr = append(arr, nv)
+	CONTINUE:
+	}
+
+	if len(arr) > 0 {
+		s.URL = append(s.URL, arr...)
+	}
 }
