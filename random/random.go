@@ -15,9 +15,6 @@ type RandString interface {
 }
 
 func Pick[T any](items []T) T {
-	if len(items) == 0 {
-		return nil
-	}
 	return items[rand.Intn(len(items))]
 }
 
