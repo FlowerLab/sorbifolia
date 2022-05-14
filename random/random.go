@@ -31,19 +31,16 @@ func Picks[T any](items []T, num int) []T {
 }
 
 func Shuffle[T any](items []T) {
-	length := len(items)
-	if length == 0 {
-		return
-	}
-
-	i := length - 1
-	for ; i > 1<<31-1-1; i-- {
-		j := int(rand.Int63n(int64(i + 1)))
+	rand.Shuffle(len(items), func(i, j int) {
 		items[i], items[j] = items[j], items[i]
-	}
+	})
+}
 
-	for ; i > 0; i-- {
-		j := int(rand.Int31n(int32(i + 1)))
-		items[i], items[j] = items[j], items[i]
+func Reverse[T any](collection []T) {
+	length := len(collection)
+
+	for i := 0; i < length/2; i = i + 1 {
+		j := length - 1 - i
+		collection[i], collection[j] = collection[j], collection[i]
 	}
 }
