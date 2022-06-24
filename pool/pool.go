@@ -26,3 +26,22 @@ func Put[T any](t *T) {
 	}
 	val.(*sync.Pool).Put(t)
 }
+
+type Pool[T any] struct {
+	pools *sync.Pool
+	put   func(*T)
+}
+
+func (p *Pool[T]) Get() *T  { return p.pools.Get().(*T) }
+func (p *Pool[T]) Put(t *T) { p.put(t); p.pools.Put(t) }
+
+func NewPool[T any](get func() *T, put func(*T)) *Pool[T] {
+	if get == nil {
+		get = func() *T { return new(T) }
+	}
+
+	return &Pool[T]{
+		pools: &sync.Pool{New: func() any { return get }},
+		put:   put,
+	}
+}
