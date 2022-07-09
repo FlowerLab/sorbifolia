@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	cacheLinePadSize          = CacheLinePadSize
 	uint64SubtractionConstant = ^uint64(0)
+	cacheLinePadSize          = (4 << (uint64SubtractionConstant >> 63)) * 8
 )
 
 func GetG() unsafe.Pointer
