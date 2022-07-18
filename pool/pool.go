@@ -39,9 +39,12 @@ func NewPool[T any](get func() *T, put func(*T)) *Pool[T] {
 	if get == nil {
 		get = func() *T { return new(T) }
 	}
+	if put == nil {
+		put = func(t *T) {}
+	}
 
 	return &Pool[T]{
-		pools: &sync.Pool{New: func() any { return get }},
+		pools: &sync.Pool{New: func() any { return get() }},
 		put:   put,
 	}
 }
