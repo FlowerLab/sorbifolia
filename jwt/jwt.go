@@ -51,7 +51,7 @@ func (j *JWT[T]) MustGenerate(claims Claims[T]) string {
 func (j *JWT[T]) Parse(tokenString string) (*Claims[T], error) {
 	token, err := jwt.ParseWithClaims(
 		tokenString,
-		j.claims,
+		new(Claims[T]),
 		func(token *jwt.Token) (any, error) { return j.publicKey, nil },
 	)
 	if err != nil {
