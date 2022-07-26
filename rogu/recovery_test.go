@@ -1,6 +1,7 @@
 package rogu
 
 import (
+	"fmt"
 	"testing"
 
 	"go.uber.org/zap"
@@ -19,4 +20,14 @@ func TestRecover(t *testing.T) {
 	Recover(func() {
 		zap.L().Panic("test")
 	})()
+
+	fmt.Println("ASDasdasd")
+	fmt.Println("\n 1 \n", string(stack()))
+	fmt.Println("\n 2 \n", string(stack()))
+	fmt.Println("\n 3 \n", string(stack()))
+	fmt.Println("\n 4 \n", string(stack()))
+	fmt.Println("\n 5 \n", string(stack()))
+	fmt.Println("\n 6 \n", string(stack()))
+	fmt.Println("\n 7 \n", string(stack()))
+
 }
