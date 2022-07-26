@@ -4,8 +4,8 @@ go 1.18
 
 require (
 	go.x2ox.com/sorbifolia/strong v0.0.0-20220628090723-5c08926d2f93
-	gorm.io/driver/postgres v1.3.7
-	gorm.io/gorm v1.23.6
+	gorm.io/driver/postgres v1.3.8
+	gorm.io/gorm v1.23.8
 )
 
 require (
