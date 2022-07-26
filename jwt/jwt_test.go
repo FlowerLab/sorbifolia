@@ -10,10 +10,10 @@ type Info struct {
 	ID int `json:"id"`
 }
 
-func TestJWT_Generate(t *testing.T) {
+func TestJWT(t *testing.T) {
 	gen := Generator{}
 	rpk, _ := gen.Ed25519()
-	j := New(jwt.SigningMethodEdDSA, rpk, rpk.Public(), Claims[Info]{})
+	j := New(EdDSA, rpk, rpk.Public(), Claims[Info]{})
 
 	ts, err := j.Generate(Claims[Info]{
 		RegisteredClaims: jwt.RegisteredClaims{
