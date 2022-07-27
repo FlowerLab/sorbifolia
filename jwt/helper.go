@@ -38,10 +38,10 @@ func (c *Claims[T]) SetExpiresAt(t time.Time) *Claims[T] {
 	return c
 }
 func (c *Claims[T]) SetNotBefore(t time.Time) *Claims[T] {
-	c.ExpiresAt = jwt.NewNumericDate(t)
+	c.NotBefore = jwt.NewNumericDate(t)
 	return c
 }
 func (c *Claims[T]) SetIssuedAt(t time.Time) *Claims[T] {
-	c.ExpiresAt = jwt.NewNumericDate(t)
+	c.IssuedAt = jwt.NewNumericDate(t)
 	return c
 }
