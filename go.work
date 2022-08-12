@@ -1,0 +1,17 @@
+go 1.18
+
+use (
+	coarsetime
+	datastructures
+	finder
+	gomod
+	gorm-datatype
+	httputils
+	jwt
+	password
+	pool
+	random
+	rogu
+	sitemap
+	strong
+)
