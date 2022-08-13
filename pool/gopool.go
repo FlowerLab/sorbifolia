@@ -1,3 +1,5 @@
+//go:build !race
+
 package pool
 
 import (
@@ -8,17 +10,14 @@ import (
 
 type GoPool[T any] struct {
 	currSize uint64
-	_p1      [cacheLinePadSize - unsafe.Sizeof(uint64(0))]byte //nolint:unused
+	_        [cacheLinePadSize - unsafe.Sizeof(uint64(0))]byte //nolint:unused
 	maxSize  uint64
-	_p2      [cacheLinePadSize - unsafe.Sizeof(uint64(0))]byte //nolint:unused
-	task     func(T)
-	_p3      [cacheLinePadSize - unsafe.Sizeof(func(T) {})]byte //nolint:unused
-	top      unsafe.Pointer
-	_p4      [cacheLinePadSize - unsafe.Sizeof(unsafe.Pointer(nil))]byte //nolint:unused
-	free     func(any)
-	_p5      [cacheLinePadSize - unsafe.Sizeof(func() {})]byte //nolint:unused
 	alloc    func() any
-	_p6      [cacheLinePadSize - unsafe.Sizeof(func() {})]byte //nolint:unused
+	free     func(any)
+	task     func(T)
+	_        [cacheLinePadSize - unsafe.Sizeof(uint64(0))]byte //nolint:unused
+	top      unsafe.Pointer
+	_        [cacheLinePadSize - unsafe.Sizeof(atomic.Pointer[dataItem[T]]{})]byte //nolint:unused
 }
 
 func NewGoPool[T any](size uint64, task func(T)) *GoPool[T] {

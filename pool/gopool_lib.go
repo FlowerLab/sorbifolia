@@ -1,3 +1,5 @@
+//go:build !race
+
 package pool
 
 import (
