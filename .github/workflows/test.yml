@@ -40,11 +40,7 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
-      - name: Choco help
-        uses: crazy-max/ghaction-chocolatey@v2
-        with:
-          args: install jq
-
+      - run: chocolatey install jq
       - run: go version
       - run: go test $(go work edit -json | jq -c -r '[.Use[].DiskPath | select(. !="gorm-datatype")] | map_values("./" + . + "/...")[]')
       - run: go test -race $(go work edit -json | jq -c -r '[.Use[].DiskPath | select(. !="gorm-datatype")] | map_values("./" + . + "/...")[]')
