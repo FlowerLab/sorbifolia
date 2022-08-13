@@ -40,10 +40,9 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
-      - run: chocolatey install jq
       - run: go version
-      - run: go test $(go work edit -json | jq -c -r '[.Use[].DiskPath | select(. !="gorm-datatype")] | map_values("./" + . + "/...")[]')
-      - run: go test -race $(go work edit -json | jq -c -r '[.Use[].DiskPath | select(. !="gorm-datatype")] | map_values("./" + . + "/...")[]')
+      - run: go test $(go work edit -json | jq -c -r "[.Use[].DiskPath | select(. !=\"gorm-datatype\")] | map_values(\"./\" + . + \"/...\")[]")
+      - run: go test -race $(go work edit -json | jq -c -r "[.Use[].DiskPath | select(. !=\"gorm-datatype\")] | map_values(\"./\" + . + \"/...\")[]")
 
   test-macos:
     strategy:
