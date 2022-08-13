@@ -46,17 +46,18 @@ func safeReady(gp unsafe.Pointer) {
 	goReady(gp, 1)
 }
 
+//nolint:unused,deadcode,varcheck
 const (
-	gIdle      = iota //nolint:unused
-	gRunnable         //nolint:unused
-	gRunning          //nolint:unused
-	gSyscall          //nolint:unused
-	gWaiting          //nolint:unused
-	gMoribund         //nolint:unused
-	gDead             //nolint:unused
-	gEnqueue          //nolint:unused
-	gCopyStack        //nolint:unused
-	gPreempted        //nolint:unused
+	gIdle = iota
+	gRunnable
+	gRunning
+	gSyscall
+	gWaiting
+	gMoribund
+	gDead
+	gEnqueue
+	gCopyStack
+	gPreempted
 
 	// This G(goroutine)'s status.
 	//

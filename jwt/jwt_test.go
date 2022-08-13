@@ -27,7 +27,7 @@ func TestJWT(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	arg := &Claims[Info]{}
+	var arg *Claims[Info]
 	if arg, err = j.Parse(ts); err != nil {
 		t.Fatal(err)
 	}
