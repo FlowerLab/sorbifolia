@@ -1,6 +1,6 @@
 module go.x2ox.com/sorbifolia/password
 
-go 1.18
+go 1.19
 
 require golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
 

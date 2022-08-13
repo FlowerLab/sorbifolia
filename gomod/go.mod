@@ -1,6 +1,6 @@
 module go.x2ox.com/sorbifolia/gomod
 
-go 1.18
+go 1.19
 
 require (
 	github.com/go-git/go-git/v5 v5.4.2

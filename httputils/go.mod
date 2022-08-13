@@ -1,6 +1,6 @@
 module go.x2ox.com/sorbifolia/httputils
 
-go 1.18
+go 1.19
 
 require github.com/valyala/fasthttp v1.38.0
 
