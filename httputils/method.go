@@ -16,7 +16,7 @@ func Trace(uri ...string) *HTTP   { return newUtil(MethodTrace, uri...) }
 
 func (h *HTTP) SetMethod(method Method) *HTTP {
 	return h.Add(func(client *fasthttp.Client, req *fasthttp.Request, resp *fasthttp.Response) error {
-		req.SetRequestURI(string(method))
+		req.Header.SetMethod(string(method))
 		return nil
 	})
 }
