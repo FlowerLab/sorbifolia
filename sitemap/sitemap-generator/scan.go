@@ -1,14 +1,14 @@
 package main
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 )
 
 func findFile(path, dir string) []string {
 	var (
-		files, err = ioutil.ReadDir(filepath.Join(path, dir))
+		files, err = os.ReadDir(filepath.Join(path, dir))
 		arr        []string
 	)
 	if err != nil {

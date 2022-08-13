@@ -3,7 +3,6 @@ package gomod
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,7 +22,7 @@ func New(repoURL, branch string, cdn bool) *Package {
 }
 
 func Parse(filename string) ([]*Package, error) {
-	data, err := ioutil.ReadFile(filename)
+	data, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +79,7 @@ func (p *Package) gitClone() error {
 
 func (p *Package) findModule(dir string) []string {
 	var (
-		files, err = ioutil.ReadDir(filepath.Join(p.path, dir))
+		files, err = os.ReadDir(filepath.Join(p.path, dir))
 		arr        []string
 	)
 	if err != nil {
@@ -116,7 +115,7 @@ func (p Package) readMe() string {
 }
 
 func parseModFile(filename string) (string, error) {
-	bts, err := ioutil.ReadFile(filename)
+	bts, err := os.ReadFile(filename)
 	if err != nil {
 		return "", err
 	}

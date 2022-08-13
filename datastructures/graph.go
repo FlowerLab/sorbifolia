@@ -66,10 +66,8 @@ func (g *Graph[T]) Degree(v T) (int, error) {
 }
 
 func (g *Graph[T]) addVertex(v T) {
-	mm, ok := g.adjacencyList[v]
-	if !ok {
-		mm = make(map[T]struct{})
-		g.adjacencyList[v] = mm
+	if _, ok := g.adjacencyList[v]; !ok {
+		g.adjacencyList[v] = make(map[T]struct{})
 		g.v++
 	}
 }

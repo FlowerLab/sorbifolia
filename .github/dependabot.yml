@@ -16,6 +16,11 @@ updates:
       interval: "daily"
 
   - package-ecosystem: "gomod"
+    directory: "/datastructures"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
     directory: "/finder"
     schedule:
       interval: "daily"
@@ -27,6 +32,11 @@ updates:
 
   - package-ecosystem: "gomod"
     directory: "/gorm-datatype"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "/httputils"
     schedule:
       interval: "daily"
 
@@ -62,10 +72,5 @@ updates:
 
   - package-ecosystem: "gomod"
     directory: "/strong"
-    schedule:
-      interval: "daily"
-
-  - package-ecosystem: "gomod"
-    directory: "/ "
     schedule:
       interval: "daily"

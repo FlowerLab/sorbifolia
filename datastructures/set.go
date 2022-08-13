@@ -31,7 +31,7 @@ func (set *Set[T]) Pop() T {
 		delete(set.items, item)
 		return item
 	}
-	return nil
+	return *new(T)
 }
 
 func (set *Set[T]) Has(items ...T) bool {

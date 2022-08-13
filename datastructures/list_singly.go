@@ -65,4 +65,9 @@ func (l *ListSingly[T]) FindIndex(fn func(T) bool) int {
 	return -1
 }
 
-func (l *ListSingly[T]) Map(f func(T) T) []T { return append(l.next.Map(f), f(l.Data)) }
+func (l *ListSingly[T]) Map(f func(T) T) []T {
+	if l.Empty() {
+		return nil
+	}
+	return append(l.next.Map(f), f(l.Data))
+}
