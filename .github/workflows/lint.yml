@@ -50,3 +50,7 @@ jobs:
           golangci-lint run --out-format=github-actions -- \
             $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values(. + "/...")[]')
 
+      - name: Run Gosec Security Scanner
+        uses: securego/gosec@master
+        with:
+          args: '-exclude=G304,G404 ./...'

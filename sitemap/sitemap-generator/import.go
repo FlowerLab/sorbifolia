@@ -11,6 +11,7 @@ func importURL(u string) *sitemap.Sitemap {
 	if u == "" {
 		return nil
 	}
+	/* #nosec G107 */
 	resp, err := http.Get(u)
 	if err != nil {
 		log.Panicln(err)

@@ -37,11 +37,15 @@ func main() {
 				SetPriority(1.0),
 			)
 		}
-		file, err := os.OpenFile(filepath.Join(config.OutputDirectory, "sitemap.xml"), os.O_CREATE|os.O_WRONLY, 0644)
+		file, err := os.OpenFile(filepath.Join(config.OutputDirectory, "sitemap.xml"), os.O_CREATE|os.O_WRONLY, 0600)
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer file.Close()
+		defer func() {
+			if err = file.Close(); err != nil {
+				log.Printf("Error closing file: %s\n", err)
+			}
+		}()
 
 		if err = sm.Write(file); err != nil {
 			log.Fatal(err)
@@ -58,11 +62,15 @@ func main() {
 				SetChangeFreq(sitemap.Daily),
 		)
 	}
-	file, err := os.OpenFile(filepath.Join(config.OutputDirectory, "sitemap.xml"), os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(filepath.Join(config.OutputDirectory, "sitemap.xml"), os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
+	defer func() {
+		if err = file.Close(); err != nil {
+			log.Printf("Error closing file: %s\n", err)
+		}
+	}()
 
 	if err = sm.Write(file); err != nil {
 		log.Fatal(err)
@@ -70,11 +78,16 @@ func main() {
 }
 
 func parseConfig() error {
+	/* #nosec G304 */
 	file, err := os.Open(filename)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() {
+		if err = file.Close(); err != nil {
+			log.Printf("Error closing file: %s\n", err)
+		}
+	}()
 
 	if err = json.NewDecoder(file).Decode(&config); err != nil {
 		return err
