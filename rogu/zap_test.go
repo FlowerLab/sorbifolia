@@ -7,6 +7,7 @@ import (
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"go.x2ox.com/sorbifolia/coarsetime"
 )
 
 func TestDefaultZapConfig(t *testing.T) {
@@ -53,13 +54,22 @@ func TestMustReplaceGlobals(t *testing.T) {
 		[]string{"stderr"}))
 	zap.L().Info("test")
 
-	Recover(func() {
-		MustReplaceGlobals(zap.Config{
-			Level: zap.AtomicLevel{},
-			EncoderConfig: zapcore.EncoderConfig{
-				TimeKey:    "1",
-				EncodeTime: nil,
-			},
-		})
+	defer func() {
+		if err := recover(); err != nil {
+			zap.L().Error("Recovery",
+				zap.Time("time", coarsetime.FloorTime()),
+				zap.Any("error", err),
+				zap.String("stack", string(stack())),
+			)
+		}
+	}()
+
+	MustReplaceGlobals(zap.Config{
+		Level: zap.AtomicLevel{},
+		EncoderConfig: zapcore.EncoderConfig{
+			TimeKey:    "1",
+			EncodeTime: nil,
+		},
 	})
+
 }
