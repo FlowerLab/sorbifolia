@@ -12,7 +12,10 @@ jobs:
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
-
+    strategy:
+      matrix:
+        go-version: [1.19.x]
+        os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
