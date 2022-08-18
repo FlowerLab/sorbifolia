@@ -28,6 +28,11 @@ jobs:
       - run: go version
       - run: go test $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values("./" + . + "/...")[]')
       - run: go test -race $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values("./" + . + "/...")[]')
+      - run: go test -race -coverprofile=coverage.txt -covermode=atomic $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values("./" + . + "/...")[]')
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          flags: ${{ matrix.os }},go-${{ matrix.go }}
 
   test-windows:
     strategy:
@@ -43,6 +48,11 @@ jobs:
       - run: go version
       - run: go test $(go work edit -json | jq -c -r "[.Use[].DiskPath | select(. != \""gorm-datatype\"")]  | map_values(\""./\"" + . + \""/...\"")[]")
       - run: go test -race $(go work edit -json | jq -c -r "[.Use[].DiskPath | select(. != \""gorm-datatype\"")]  | map_values(\""./\"" + . + \""/...\"")[]")
+      - run: go test -race -coverprofile=coverage.txt -covermode=atomic $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values("./" + . + "/...")[]')
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          flags: ${{ matrix.os }},go-${{ matrix.go }}
 
   test-macos:
     strategy:
@@ -59,3 +69,8 @@ jobs:
       - run: go version
       - run: go test $(go work edit -json | jq -c -r '[.Use[].DiskPath | select(. !="gorm-datatype")] | map_values("./" + . + "/...")[]')
       - run: go test -race $(go work edit -json | jq -c -r '[.Use[].DiskPath | select(. !="gorm-datatype")] | map_values("./" + . + "/...")[]')
+      - run: go test -race -coverprofile=coverage.txt -covermode=atomic $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values("./" + . + "/...")[]')
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          flags: ${{ matrix.os }},go-${{ matrix.go }}
