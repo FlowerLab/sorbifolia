@@ -15,7 +15,7 @@ func init() {
 	rand.Seed(coarsetime.FloorTime().UnixNano())
 }
 
-func NewMathRand() *MathRand {
+func NewMathRand() RandString {
 	return &MathRand{
 		randBytes:    []byte(randBytes),
 		randBytesLen: randBytesLen,
@@ -31,6 +31,12 @@ func (r MathRand) RandString(length int) string {
 }
 
 func (r MathRand) SetRandBytes(data []byte) RandString {
+	if len(data) > 256 {
+		panic("data too long")
+	}
+	if hasRepeat(data) {
+		panic("not repeatable")
+	}
 	r.randBytes = data
 	r.randBytesLen = len(data)
 	return r
