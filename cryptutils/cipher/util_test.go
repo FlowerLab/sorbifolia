@@ -7,13 +7,13 @@ import (
 
 func TestSliceForAppend(t *testing.T) {
 	if head, tail := sliceForAppend(make([]byte, 10), 5); len(head) != cap(head) ||
-		cap(tail) != cap(tail) ||
+		len(tail) != cap(tail) ||
 		len(head) != 15 || len(tail) != 5. {
 		t.Error("fail")
 	}
 
 	if head, tail := sliceForAppend(make([]byte, 0, 10), 5); len(head) != cap(head) ||
-		cap(tail) != cap(tail) ||
+		len(tail) != cap(tail) ||
 		len(head) != 5 || len(tail) != 10 {
 		t.Error("fail")
 	}
