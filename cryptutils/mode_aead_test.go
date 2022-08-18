@@ -14,8 +14,8 @@ var (
 	_aes24key = append(_aes16key, []byte{17, 18, 19, 20, 21, 22, 23, 24}...)
 	_aes32key = append(_aes24key, []byte{25, 26, 27, 28, 29, 30, 31, 32}...)
 
-	_aesKey             = [][]byte{_aes16key, _aes24key, _aes32key}
-	_iv16, _iv24, _iv32 = _aes16key, _aes24key, _aes32key
+	_aesKey = [][]byte{_aes16key, _aes24key, _aes32key}
+	_iv16   = _aes16key
 )
 
 func TestCCM(t *testing.T) {
@@ -78,7 +78,7 @@ func testAEAD(t *testing.T, fn func(block cipher.Block) AEAD) {
 			t.Error("err")
 		}
 
-		if bytes.Compare(plaintext, decData) != 0 {
+		if !bytes.Equal(plaintext, decData) {
 			t.Error("TestCCM err")
 		}
 	}

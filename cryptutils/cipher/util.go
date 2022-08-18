@@ -88,5 +88,5 @@ func shiftNBytesLeft(dst, x []byte, n int) {
 	dst[l-1] = dst[l-1] << bits
 
 	// Append trailing zeroes
-	dst = append(dst, make([]byte, n/8)...)
+	dst = append(dst, make([]byte, n/8)...) //nolint:all
 }

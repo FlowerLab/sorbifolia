@@ -88,10 +88,7 @@ func TestOcbOpenIncorrectNonceLength(t *testing.T) {
 		}
 	}()
 	longNonce := make([]byte, o.NonceSize()+1)
-	_, err = o.Open(nil, longNonce, nil, nil)
-	// Let the Open procedure panic
-	if err != nil {
-	}
+	_, _ = o.Open(nil, longNonce, nil, nil)
 }
 
 func TestOcbOpenShortCiphertext(t *testing.T) {
@@ -306,9 +303,7 @@ func TestOcbEncryptDecryptVectorsWithPreviousDataRandomizeSlow(t *testing.T) {
 		// Populate items with crypto/rand
 		itemsToPopulate := [][]byte{pt, header, key, nonce, previousData}
 		for _, item := range itemsToPopulate {
-			_, err := rand.Read(item)
-			if err != nil {
-			}
+			_, _ = rand.Read(item)
 		}
 		aesCipher, err := aes.NewCipher(key)
 		if err != nil {
@@ -342,9 +337,7 @@ func TestOcbRejectTamperedCiphertextRandomizeSlow(t *testing.T) {
 	nonce := make([]byte, ocbBlockLength-1)
 	itemsToPopulate := [][]byte{pt, header, key, nonce}
 	for _, item := range itemsToPopulate {
-		_, err := rand.Read(item)
-		if err != nil {
-		}
+		_, _ = rand.Read(item)
 	}
 	aesCipher, err := aes.NewCipher(key)
 	if err != nil {
@@ -414,9 +407,7 @@ func BenchmarkOcbEncrypt(b *testing.B) {
 	nonce := make([]byte, ocbBlockLength-1)
 	itemsToPopulate := [][]byte{pt, header, key, nonce}
 	for _, item := range itemsToPopulate {
-		_, err := rand.Read(item)
-		if err != nil {
-		}
+		_, _ = rand.Read(item)
 	}
 	aesCipher, err := aes.NewCipher(key)
 	if err != nil {
@@ -440,9 +431,7 @@ func BenchmarkOcbDecrypt(b *testing.B) {
 	nonce := make([]byte, ocbBlockLength-1)
 	itemsToPopulate := [][]byte{pt, header, key, nonce}
 	for _, item := range itemsToPopulate {
-		_, err := rand.Read(item)
-		if err != nil {
-		}
+		_, _ = rand.Read(item)
 	}
 	aesCipher, err := aes.NewCipher(key)
 	if err != nil {

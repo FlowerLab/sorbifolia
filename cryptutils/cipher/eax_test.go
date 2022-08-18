@@ -152,10 +152,7 @@ func TestEaxOpenIncorrectNonceLength(t *testing.T) {
 		}
 	}()
 	longNonce := make([]byte, e.NonceSize()+1)
-	_, err = e.Open(nil, longNonce, nil, nil)
-	// Let the Open procedure panic
-	if err != nil {
-	}
+	_, _ = e.Open(nil, longNonce, nil, nil)
 }
 
 func TestEaxOpenShortCiphertext(t *testing.T) {

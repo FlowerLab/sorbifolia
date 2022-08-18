@@ -26,7 +26,7 @@ func testBlock(t *testing.T, cb CryptBlock) {
 	encData := cryptBlockEncrypt(cb, src)
 	decData := cryptBlockDecrypt(cb, encData)
 
-	if bytes.Compare(src, decData) != 0 {
+	if !bytes.Equal(src, decData) {
 		t.Error("testBlock err")
 	}
 }

@@ -36,7 +36,7 @@ func testStream(t *testing.T, cs CryptStream) {
 	cryptStreamEncrypt(cs, encData, src)
 	cryptStreamDecrypt(cs, decData, encData)
 
-	if bytes.Compare(src, decData) != 0 {
+	if !bytes.Equal(src, decData) {
 		t.Error("testStream err")
 	}
 }

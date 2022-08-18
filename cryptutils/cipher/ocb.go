@@ -139,7 +139,7 @@ func (o *ocb) crypt(instruction int, Y, nonce, adata, X []byte) []byte {
 	truncatedNonce := make([]byte, len(nonce))
 	copy(truncatedNonce, nonce)
 	truncatedNonce[len(truncatedNonce)-1] &= 192
-	Ktop := make([]byte, blockSize)
+	Ktop := make([]byte, blockSize) //nolint:staticcheck
 	if bytes.Equal(truncatedNonce, o.reusableKtop.noncePrefix) {
 		Ktop = o.reusableKtop.Ktop
 	} else {
