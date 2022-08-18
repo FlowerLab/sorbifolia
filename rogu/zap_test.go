@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func TestDefaultZapConfig(t *testing.T) {
@@ -51,4 +52,14 @@ func TestMustReplaceGlobals(t *testing.T) {
 		[]string{"stdout"},
 		[]string{"stderr"}))
 	zap.L().Info("test")
+
+	Recover(func() {
+		MustReplaceGlobals(zap.Config{
+			Level: zap.AtomicLevel{},
+			EncoderConfig: zapcore.EncoderConfig{
+				TimeKey:    "1",
+				EncodeTime: nil,
+			},
+		})
+	})
 }
