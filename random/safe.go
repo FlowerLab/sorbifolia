@@ -9,7 +9,7 @@ type SafeRand struct {
 	randBytesLen int
 }
 
-func NewSafeRand() *SafeRand {
+func NewSafeRand() RandString {
 	return &SafeRand{
 		randBytes:    []byte(randBytes),
 		randBytesLen: randBytesLen,
@@ -28,6 +28,12 @@ func (r SafeRand) RandString(length int) string {
 }
 
 func (r SafeRand) SetRandBytes(data []byte) RandString {
+	if len(data) > 256 {
+		panic("data too long")
+	}
+	if hasRepeat(data) {
+		panic("not repeatable")
+	}
 	r.randBytes = data
 	r.randBytesLen = len(data)
 	return r
