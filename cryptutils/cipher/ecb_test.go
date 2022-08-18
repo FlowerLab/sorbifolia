@@ -134,7 +134,7 @@ func TestECBDecrypterAESFail(t *testing.T) {
 		t.Fatalf("fail %s", err)
 	}
 
-	NewECBEncrypter(c).CryptBlocks(nil, nil)
+	NewECBDecrypter(c).CryptBlocks(nil, nil)
 
 	data := make([]byte, c.BlockSize()+1)
 	NewECBEncrypter(c).CryptBlocks(data, data)
@@ -146,12 +146,12 @@ func TestECBDecrypterAESInputNotFullBlocks(t *testing.T) {
 		t.Fatalf("fail %s", err)
 	}
 	dst := []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
-	NewECBEncrypter(c).CryptBlocks(dst, nil)
+	NewECBDecrypter(c).CryptBlocks(dst, nil)
 	if !bytes.Equal(dst, []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}) {
 		t.Error("fail")
 	}
 
-	NewECBEncrypter(c).CryptBlocks(dst, []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16})
+	NewECBDecrypter(c).CryptBlocks(dst, []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16})
 	if bytes.Equal(dst, []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}) {
 		t.Error("fail")
 	}
@@ -172,7 +172,7 @@ func TestECBDecrypterAESOutputSmallerThanInput(t *testing.T) {
 
 		data := make([]byte, c.BlockSize())
 		dst := make([]byte, c.BlockSize()-1)
-		NewECBEncrypter(c).CryptBlocks(dst, data)
+		NewECBDecrypter(c).CryptBlocks(dst, data)
 	})
 	t.Run("TestECBDecrypterAESOutputSmallerThanInput", func(t *testing.T) {
 		defer func() {
@@ -188,7 +188,7 @@ func TestECBDecrypterAESOutputSmallerThanInput(t *testing.T) {
 
 		data := make([]byte, c.BlockSize())
 		dst := make([]byte, c.BlockSize())
-		NewECBEncrypter(c).CryptBlocks(dst, data)
+		NewECBDecrypter(c).CryptBlocks(dst, data)
 	})
 }
 
