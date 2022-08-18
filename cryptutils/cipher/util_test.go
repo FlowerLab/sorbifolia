@@ -12,9 +12,9 @@ func TestSliceForAppend(t *testing.T) {
 		t.Error("fail")
 	}
 
-	if head, tail := sliceForAppend(make([]byte, 0, 10), 5); len(head) != cap(head) ||
-		len(tail) != cap(tail) ||
-		len(head) != 5 || len(tail) != 10 {
+	if head, tail := sliceForAppend(make([]byte, 0, 10), 5); len(head) != len(tail) ||
+		cap(head) != cap(tail) ||
+		len(head) != 5 || cap(head) != 10 {
 		t.Error("fail")
 	}
 }
