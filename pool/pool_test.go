@@ -32,8 +32,8 @@ func TestPoolStore(t *testing.T) {
 		}
 	}()
 
-	p := sync.Pool{New: func() interface{} { return new(string) }}
+	p := sync.Pool{New: func() interface{} { return new(string) }} //nolint:unused
 	p.Put(0)
-	pools.Store(0, &p)
+	pools.Store(0, &p) //nolint:unused
 	Get[int]()
 }
