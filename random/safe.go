@@ -18,9 +18,7 @@ func NewSafeRand() RandString {
 
 func (r SafeRand) RandString(length int) string {
 	arr := make([]byte, length)
-	if _, err := cr.Read(arr); err != nil {
-		return ""
-	}
+	_, _ = cr.Read(arr)
 	for i := range arr {
 		arr[i] = r.randBytes[int(arr[i])%r.randBytesLen]
 	}
