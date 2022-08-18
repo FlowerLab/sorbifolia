@@ -51,6 +51,6 @@ jobs:
             $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values(. + "/...")[]')
 
       - name: Run Gosec Security Scanner
-        uses: securego/gosec@master
-        with:
-          args: '-exclude=G304,G404 ./...'
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@79a5b13bdb954de78c643f86d26f6451882a22bd
+          gosec -exclude=G304,G404 ./...
