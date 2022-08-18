@@ -26,6 +26,19 @@ func TestOCBImplementsAEADInterface(t *testing.T) {
 	}
 }
 
+type testNewOCBWithNonceAndTagSize struct{}
+
+func (t testNewOCBWithNonceAndTagSize) BlockSize() int          { return 0 }
+func (t testNewOCBWithNonceAndTagSize) Encrypt(dst, src []byte) {}
+func (t testNewOCBWithNonceAndTagSize) Decrypt(dst, src []byte) {}
+
+func TestNewOCBWithNonceAndTagSize(t *testing.T) {
+	_, err := NewOCBWithNonceAndTagSize(testNewOCBWithNonceAndTagSize{}, 0, 0)
+	if err == nil {
+		t.Error("fail: Block cipher must have 128-bit blocks")
+	}
+}
+
 func TestOcbZeroHash(t *testing.T) {
 	// Key is shared by all test vectors
 	aesCipher, err := aes.NewCipher(ocbTestKey)
