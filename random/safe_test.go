@@ -23,7 +23,7 @@ func TestSafeRandRepeatable(t *testing.T) {
 		}
 	}()
 
-	NewFastRand().SetRandBytes([]byte("11")).RandString(1)
+	NewSafeRand().SetRandBytes([]byte("11")).RandString(1)
 }
 
 func TestSafeRandTooLong(t *testing.T) {
@@ -33,5 +33,5 @@ func TestSafeRandTooLong(t *testing.T) {
 		}
 	}()
 
-	NewFastRand().SetRandBytes(make([]byte, 257)).RandString(1)
+	NewSafeRand().SetRandBytes(make([]byte, 257)).RandString(1)
 }

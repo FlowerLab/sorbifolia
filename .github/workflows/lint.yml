@@ -47,8 +47,7 @@ jobs:
       - run: diff -u <(echo -n) <(gofmt -d .)
       - name: Run golangci-lint
         run: | # https://github.com/golangci/golangci-lint/issues/2654
-          golangci-lint run --out-format=github-actions -- \
-            $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values(. + "/...")[]')
+          golangci-lint run --out-format=github-actions -- $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values(. + "/...")[]')
 
       - name: Run Gosec Security Scanner
         run: |

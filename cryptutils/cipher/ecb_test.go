@@ -7,7 +7,6 @@ import (
 )
 
 var ecbAESTests = []ecbTest{
-
 	{
 		"ECB-AES128",
 		commonKey128,
@@ -53,6 +52,10 @@ func TestECBEncrypterAES(t *testing.T) {
 				t.Fatalf("%s: NewCipher(%d bytes) = %s", tc.name, len(tc.key), err)
 			}
 			encrypter := NewECBEncrypter(c)
+			if encrypter.BlockSize() != c.BlockSize() {
+				t.Error("fail")
+			}
+
 			data := make([]byte, len(tc.in))
 			copy(data, tc.in)
 			encrypter.CryptBlocks(data, data)
@@ -71,6 +74,10 @@ func TestECBDecrypterAES(t *testing.T) {
 				t.Fatalf("%s: NewCipher(%d bytes) = %s", tc.name, len(tc.key), err)
 			}
 			decrypter := NewECBDecrypter(c)
+			if decrypter.BlockSize() != c.BlockSize() {
+				t.Error("fail")
+			}
+
 			data := make([]byte, len(tc.out))
 			copy(data, tc.out)
 			decrypter.CryptBlocks(data, data)
@@ -79,6 +86,110 @@ func TestECBDecrypterAES(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestECBEncrypterAESFail(t *testing.T) {
+	defer func() {
+		if err := recover(); err == nil {
+			t.Error("fail")
+		}
+	}()
+
+	c, err := aes.NewCipher(commonKey128)
+	if err != nil {
+		t.Fatalf("fail %s", err)
+	}
+
+	data := make([]byte, c.BlockSize()+1)
+	NewECBEncrypter(c).CryptBlocks(data, data)
+}
+
+func TestECBEncrypterAESOutputSmallerThanInput(t *testing.T) {
+	defer func() {
+		if err := recover(); err == nil {
+			t.Error("fail")
+		}
+	}()
+
+	c, err := aes.NewCipher(commonKey128)
+	if err != nil {
+		t.Fatalf("fail %s", err)
+	}
+
+	data := make([]byte, c.BlockSize())
+	dst := make([]byte, c.BlockSize()-1)
+	NewECBEncrypter(c).CryptBlocks(dst, data)
+
+}
+
+func TestECBDecrypterAESFail(t *testing.T) {
+	defer func() {
+		if err := recover(); err == nil {
+			t.Error("fail")
+		}
+	}()
+
+	c, err := aes.NewCipher(commonKey128)
+	if err != nil {
+		t.Fatalf("fail %s", err)
+	}
+
+	NewECBDecrypter(c).CryptBlocks(nil, nil)
+
+	data := make([]byte, c.BlockSize()+1)
+	NewECBEncrypter(c).CryptBlocks(data, data)
+}
+
+func TestECBDecrypterAESInputNotFullBlocks(t *testing.T) {
+	c, err := aes.NewCipher(commonKey128)
+	if err != nil {
+		t.Fatalf("fail %s", err)
+	}
+	dst := []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+	NewECBDecrypter(c).CryptBlocks(dst, nil)
+	if !bytes.Equal(dst, []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}) {
+		t.Error("fail")
+	}
+
+	NewECBDecrypter(c).CryptBlocks(dst, []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16})
+	if bytes.Equal(dst, []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}) {
+		t.Error("fail")
+	}
+}
+
+func TestECBDecrypterAESOutputSmallerThanInput(t *testing.T) {
+	t.Run("TestECBDecrypterAESOutputSmallerThanInput", func(t *testing.T) {
+		defer func() {
+			if err := recover(); err == nil {
+				t.Error("fail")
+			}
+		}()
+
+		c, err := aes.NewCipher(commonKey128)
+		if err != nil {
+			t.Fatalf("fail %s", err)
+		}
+
+		data := make([]byte, c.BlockSize())
+		dst := make([]byte, c.BlockSize()-1)
+		NewECBDecrypter(c).CryptBlocks(dst, data)
+	})
+	t.Run("TestECBDecrypterAESOutputSmallerThanInput", func(t *testing.T) {
+		defer func() {
+			if err := recover(); err != nil {
+				t.Error("fail")
+			}
+		}()
+
+		c, err := aes.NewCipher(commonKey128)
+		if err != nil {
+			t.Fatalf("fail %s", err)
+		}
+
+		data := make([]byte, c.BlockSize())
+		dst := make([]byte, c.BlockSize())
+		NewECBDecrypter(c).CryptBlocks(dst, data)
+	})
 }
 
 type ecbTest struct {
