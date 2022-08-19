@@ -22,6 +22,9 @@ func init() {
 	}()
 }
 
+// CeilingTime
+//
+// Deprecated: As of Go 1.17, Performance is lower than time.Now().
 func CeilingTime() time.Time {
 	tp := coarseTime.Load().(*time.Time)
 	return (*tp).Add(frequency)
