@@ -131,6 +131,7 @@ func TestFormat(t *testing.T) {
 }
 
 func TestAppend(t *testing.T) {
+	Append(nil, true)
 	arr := []struct {
 		t any
 		v string
