@@ -30,4 +30,10 @@ func TestArgon2_CompareFail(t *testing.T) {
 			t.Error("fail")
 		}
 	})
+
+	t.Run("", func(t *testing.T) {
+		if g.Compare("AAAAAQABAAABAAAALZP/dD6HbO0SPK8Zijd/ivOT/3G3Wj1SKzrkIKs3REnw", "1") {
+			t.Error("fail")
+		}
+	})
 }
