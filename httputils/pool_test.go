@@ -26,7 +26,7 @@ func TestGetHTTPBufferPut(t *testing.T) {
 
 func TestPoolNil(t *testing.T) {
 	t.Run("", func(t *testing.T) {
-		r := getHttpBuffer()
+		r := getHttpBuffer() //nolint:all
 		r = nil
 		r.Put()
 		n := getHttpBuffer()
@@ -44,7 +44,7 @@ func TestPoolNil(t *testing.T) {
 		}
 	})
 	t.Run("", func(t *testing.T) {
-		r := getRequestBuffer()
+		r := getRequestBuffer() //nolint:all
 		r = nil
 		r.Put()
 		n := getRequestBuffer()
