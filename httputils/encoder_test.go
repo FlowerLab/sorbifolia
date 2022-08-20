@@ -64,7 +64,7 @@ func TestFormDataEncoder(t *testing.T) {
 	})
 	var buf = new(bytes.Buffer)
 
-	if err := e(buf); err != nil {
+	if err := e(buf); err == nil {
 		t.Error("error")
 	}
 }
