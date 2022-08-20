@@ -35,3 +35,52 @@ func TestJWT(t *testing.T) {
 		t.Fatal("err")
 	}
 }
+
+func TestJWT_MustGenerate(t *testing.T) {
+	type TestData struct {
+		A, B chan struct{}
+	}
+
+	gen := Generator{}
+	rpk, _ := gen.Ed25519()
+	j := New(EdDSA, rpk, rpk.Public(), Claims[TestData]{})
+
+	_, err := j.Generate(Claims[TestData]{
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:  "Abc",
+			Subject: "",
+			ID:      "-5",
+		},
+		Data: &TestData{nil, nil},
+	})
+
+	if err == nil {
+		t.Error(err)
+	}
+}
+
+func TestJWT_Parse(t *testing.T) {
+	gen := Generator{}
+	rpk, _ := gen.Ed25519()
+	j := New(EdDSA, rpk, rpk.Public(), Claims[any]{})
+
+	if _, err := j.Parse("1.2.3"); err == nil {
+		t.Error(err)
+	}
+}
+
+func TestJWT_ParseToken(t *testing.T) {
+	gen := Generator{}
+	rpk, _ := gen.Ed25519()
+	j := New(EdDSA, rpk, rpk.Public(), Claims[any]{})
+
+	if _, err := j.ParseToken(nil); err == nil {
+		t.Error("failed to parse")
+	}
+	if _, err := j.ParseToken(&jwt.Token{}); err == nil {
+		t.Error("failed to parse")
+	}
+	if _, err := j.ParseToken(&jwt.Token{Valid: true, Claims: nil}); err == nil {
+		t.Error("failed to parse")
+	}
+}
