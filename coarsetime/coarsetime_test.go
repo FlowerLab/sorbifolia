@@ -2,6 +2,7 @@ package coarsetime
 
 import (
 	"testing"
+	"time"
 )
 
 func TestFloorTime(t *testing.T) {
@@ -21,5 +22,11 @@ func BenchmarkFloorTime(b *testing.B) {
 func BenchmarkCeilingTime(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		CeilingTime()
+	}
+}
+
+func BenchmarkTime(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		time.Now()
 	}
 }
