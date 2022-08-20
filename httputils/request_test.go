@@ -2,6 +2,8 @@ package httputils
 
 import (
 	"bufio"
+	"bytes"
+	"net/url"
 	"strings"
 	"testing"
 )
@@ -78,5 +80,41 @@ func TestHTTP_SetHost(t *testing.T) {
 	req, _, _ := h.test()
 	if string(req.Host()) != "https://ip.x2ox.com" {
 		t.Errorf("SetHost failed %s", string(req.Host()))
+	}
+}
+
+func TestHTTPSetBodyWithEncoder(t *testing.T) {
+	h := Post().SetBodyWithEncoder(JSON(), struct {
+		A string
+	}{A: "A"})
+	req, _, _ := h.test()
+	if !bytes.Equal(req.Body(), []byte("{\"A\":\"A\"}\n")) {
+		t.Error("err")
+	}
+
+	h = Post().SetBodyWithEncoder(nil, []byte("1"))
+	req, _, _ = h.test()
+	if !bytes.Equal(req.Body(), []byte("1")) {
+		t.Error("err")
+	}
+
+	h = Post().SetBodyWithEncoder(nil, "1")
+	req, _, _ = h.test()
+	if !bytes.Equal(req.Body(), []byte("1")) {
+		t.Error("err")
+	}
+
+	h = Post().SetBodyWithEncoder(nil, nil)
+	req, _, _ = h.test()
+	if !bytes.Equal(req.Body(), nil) {
+		t.Error("err")
+	}
+
+	v := url.Values{}
+	v.Add("A", "A")
+	h = Post().SetBodyWithEncoder(nil, v)
+	req, _, _ = h.test()
+	if !bytes.Equal(req.Body(), []byte(v.Encode())) {
+		t.Error("err")
 	}
 }

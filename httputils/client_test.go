@@ -39,4 +39,9 @@ func TestHTTP_SetProxy(t *testing.T) {
 		h.client.Dial != nil {
 		t.Error("SetProxy err")
 	}
+
+	if h := Get().SetProxy("un:// .x2ox.com:8888"); h.client == nil ||
+		h.client.Dial != nil {
+		t.Error("SetProxy err")
+	}
 }

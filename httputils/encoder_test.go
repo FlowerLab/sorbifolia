@@ -3,6 +3,7 @@ package httputils
 import (
 	"bytes"
 	"encoding/xml"
+	"errors"
 	"io"
 	"mime/multipart"
 	"testing"
@@ -54,5 +55,16 @@ func TestNewEncoder(t *testing.T) {
 		if buf.String() != v.Output {
 			t.Errorf("unexpected output: %s", buf.String())
 		}
+	}
+}
+
+func TestFormDataEncoder(t *testing.T) {
+	e := FormData(func(w *multipart.Writer) error {
+		return errors.New("error")
+	})
+	var buf = new(bytes.Buffer)
+
+	if err := e(buf); err == nil {
+		t.Error("error")
 	}
 }
