@@ -1,6 +1,7 @@
 package datatype
 
 import (
+	"bytes"
 	"testing"
 )
 
@@ -50,6 +51,23 @@ func TestScanLinearArrayErr(t *testing.T) {
 		_, err := scanLinearArray([]byte(tt.input), "")
 		if err == nil {
 			t.Fatalf("Expected error for %q, got none", tt.input)
+		}
+	}
+}
+
+func TestAppendArrayQuotedBytes(t *testing.T) {
+	for _, tt := range []struct {
+		input, output string
+	}{
+		{``, `""`},
+		{`\`, `"\\"`},
+		{`"`, `"\""`},
+		{`{`, `"{"`},
+		{`{asd\`, `"{asd\\"`},
+	} {
+		out := appendArrayQuotedBytes(nil, []byte(tt.input))
+		if !bytes.Equal(out, []byte(tt.output)) {
+			t.Errorf("error for %q", tt.input)
 		}
 	}
 }
