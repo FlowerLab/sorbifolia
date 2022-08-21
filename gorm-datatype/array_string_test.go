@@ -6,38 +6,16 @@ import (
 	"gorm.io/gorm"
 )
 
-type TestArrayInt struct {
-	gorm.Model
-
-	Data Array[int] `json:"data"`
-}
-
-func TestArray_Int(t *testing.T) {
-	initDB()
-	if err := db.AutoMigrate(&TestArrayInt{}); err != nil {
-		t.Error(err)
-	}
-
-	t1 := &TestArrayInt{}
-	t1.Data = []int{
-		123, 123, 123, 213, 23, 0, 32, 32, 32, 32, 32, 2, 3, 2332, 123, 23,
-	}
-
-	if err := db.Create(t1).Error; err != nil {
-		t.Error(err)
-	}
-}
-
-func TestArray_GormDataType(t *testing.T) {
-	var i Array[int]
-	if i.GormDataType() != "Array" {
+func TestArrayString_GormDataType(t *testing.T) {
+	var i ArrayString
+	if i.GormDataType() != "ArrayString" {
 		t.Error("GormDataType Array")
 	}
 }
 
-func TestArray_GormDBDataType(t *testing.T) {
+func TestArrayString_GormDBDataType(t *testing.T) {
 	var (
-		i      Array[int]
+		i      ArrayString
 		testDB = &gorm.DB{Config: &gorm.Config{Dialector: testDialector("postgres")}}
 	)
 
@@ -50,18 +28,18 @@ func TestArray_GormDBDataType(t *testing.T) {
 	}
 }
 
-func TestArray_Scan(t *testing.T) {
+func TestArrayString_Scan(t *testing.T) {
 	for _, tt := range []struct {
 		str string
-		arr []int
+		arr []string
 	}{
 		{`{}`, nil},
-		{`{1}`, []int{1}},
-		{`{3,7}`, []int{3, 7}},
-		{`{3,1,2}`, []int{3, 1, 2}},
+		{`{t}`, []string{"t"}},
+		{`{f,1}`, []string{"f", "1"}},
+		{`{"a\\b","c d",","}`, []string{"a\\b", "c d", ","}},
 	} {
 		bytes := []byte(tt.str)
-		a := Array[int]{}
+		a := ArrayString{}
 		err := a.Scan(bytes)
 
 		if err != nil {
@@ -71,14 +49,14 @@ func TestArray_Scan(t *testing.T) {
 
 	for _, tt := range []struct {
 		str string
-		arr []int
+		arr []string
 	}{
 		{`{}`, nil},
-		{`{1}`, []int{1}},
-		{`{3,7}`, []int{3, 7}},
-		{`{3,1,2}`, []int{3, 1, 2}},
+		{`{t}`, []string{"t"}},
+		{`{f,1}`, []string{"f", "1"}},
+		{`{"a\\b","c d",","}`, []string{"a\\b", "c d", ","}},
 	} {
-		a := Array[int]{}
+		a := ArrayString{}
 		err := a.Scan(tt.str)
 
 		if err != nil {
@@ -86,7 +64,7 @@ func TestArray_Scan(t *testing.T) {
 		}
 	}
 
-	a := Array[int]{}
+	a := ArrayString{}
 	if err := a.Scan(nil); err != nil {
 		t.Errorf("expected no error for nil, got %v", err)
 	}
@@ -96,16 +74,20 @@ func TestArray_Scan(t *testing.T) {
 	}
 }
 
-func TestArray_ScanErr(t *testing.T) {
+func TestArrayString_ScanErr(t *testing.T) {
 	for _, tt := range []struct {
 		str string
-		arr []int
+		err string
 	}{
-		{`{{"1"}}`, []int{1}},
-		{`{3.3,2.7}`, []int{3, 7}},
+		{``, "unable to parse array"},
+		{`{`, "unable to parse array"},
+		{`{{a},{b}}`, "cannot convert ARRAY[2][1] to StringArray"},
+		{`{NULL}`, "parsing array element index 0: cannot convert nil to string"},
+		{`{a,NULL}`, "parsing array element index 1: cannot convert nil to string"},
+		{`{a,b,NULL}`, "parsing array element index 2: cannot convert nil to string"},
 	} {
 		bytes := []byte(tt.str)
-		a := Array[int]{}
+		a := ArrayString{}
 		err := a.Scan(bytes)
 
 		if err == nil {
@@ -114,14 +96,19 @@ func TestArray_ScanErr(t *testing.T) {
 	}
 }
 
-func TestArray_Value(t *testing.T) {
-	var a Array[int] = nil
+func TestArrayString_Value(t *testing.T) {
+	var a ArrayString = nil
 	if val, err := a.Value(); err != nil || val != nil {
 		t.Error("expected")
 	}
 
-	a = []int{}
+	a = []string{}
 	if val, err := a.Value(); err != nil || val != "{}" {
+		t.Error("expected")
+	}
+
+	a = []string{"a", "b", "c", "d", "e", "f"}
+	if val, err := a.Value(); err != nil || val != "{\"a\",\"b\",\"c\",\"d\",\"e\",\"f\"}" {
 		t.Error("expected")
 	}
 }

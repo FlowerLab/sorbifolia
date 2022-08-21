@@ -45,7 +45,6 @@ func (a *ArrayString) scanBytes(src []byte) error {
 	if *a != nil && len(elems) == 0 {
 		*a = (*a)[:0]
 	} else {
-
 		b := make([]string, len(elems))
 		for i, v := range elems {
 			if b[i] = string(v); v == nil {

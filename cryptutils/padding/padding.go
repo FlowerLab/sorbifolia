@@ -140,10 +140,7 @@ func (ANSIx923) UnPad(data []byte, size int) ([]byte, error) {
 }
 
 func padSize(dataSize, blockSize int) int {
-	if ps := blockSize - (dataSize % blockSize); ps != 0 {
-		return ps
-	}
-	return blockSize
+	return blockSize - (dataSize % blockSize)
 }
 
 func checkSize(size int) error {

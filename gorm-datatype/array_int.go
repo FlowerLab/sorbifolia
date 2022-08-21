@@ -46,7 +46,6 @@ func (a *Array[T]) scanBytes(src []byte) error {
 	if *a != nil && len(elems) == 0 {
 		*a = (*a)[:0]
 	} else {
-
 		b := make([]T, len(elems))
 		for i, v := range elems {
 			if b[i], err = strong.Parse[T](string(v)); err != nil {

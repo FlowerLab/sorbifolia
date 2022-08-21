@@ -2,21 +2,12 @@ package padding
 
 import (
 	"bytes"
+	"crypto/rand"
+	"errors"
 	"testing"
 )
 
-func TestPKCS7_Pad(t *testing.T)         { testPKCS7(t) }
-func TestPKCS7_UnPad(t *testing.T)       { testPKCS7(t) }
-func TestNoPadding_Pad(t *testing.T)     { testNoPadding(t) }
-func TestNoPadding_UnPad(t *testing.T)   { testNoPadding(t) }
-func TestZeroPadding_Pad(t *testing.T)   { testZeroPadding(t) }
-func TestZeroPadding_UnPad(t *testing.T) { testZeroPadding(t) }
-func TestISO10126_Pad(t *testing.T)      { testISO10126(t) }
-func TestISO10126_UnPad(t *testing.T)    { testISO10126(t) }
-func TestANSIx923_Pad(t *testing.T)      { testANSIx923(t) }
-func TestANSIx923_UnPad(t *testing.T)    { testANSIx923(t) }
-
-func testPKCS7(t *testing.T) {
+func TestPKCS7(t *testing.T) {
 	var p PKCS7
 	data := []byte{1, 2, 3, 4, 5}
 
@@ -37,9 +28,25 @@ func testPKCS7(t *testing.T) {
 	if !bytes.Equal(padded, []byte{1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8}) {
 		t.Fatalf("Wrong padding")
 	}
+
+	if _, err = p.UnPad(padded, 8); err != nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad(padded, 9); err == nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad([]byte{1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 7}, 8); err == nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad([]byte{1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 9}, 8); err == nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad([]byte{1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 1, 8}, 8); err == nil {
+		t.Error("fail")
+	}
 }
 
-func testNoPadding(t *testing.T) {
+func TestNoPadding(t *testing.T) {
 	var p NoPadding
 	data := []byte{1, 2, 3, 4, 5}
 
@@ -60,9 +67,13 @@ func testNoPadding(t *testing.T) {
 	if !bytes.Equal(padded, data) {
 		t.Fatalf("Wrong padding")
 	}
+
+	if _, err = p.UnPad(padded, 8); err != nil {
+		t.Error("fail")
+	}
 }
 
-func testZeroPadding(t *testing.T) {
+func TestZeroPadding(t *testing.T) {
 	var p ZeroPadding
 	data := []byte{1, 2, 3, 4, 5}
 
@@ -83,9 +94,19 @@ func testZeroPadding(t *testing.T) {
 	if !bytes.Equal(padded, []byte{1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0, 0}) {
 		t.Fatalf("Wrong padding")
 	}
+
+	if _, err = p.UnPad(padded, 8); err != nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad(padded, 9); err == nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad([]byte{1, 2, 3, 4, 5, 6, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 8); err == nil {
+		t.Error("fail")
+	}
 }
 
-func testISO10126(t *testing.T) {
+func TestISO10126(t *testing.T) {
 	var p ISO10126
 	data := []byte{1, 2, 3, 4, 5}
 
@@ -106,8 +127,24 @@ func testISO10126(t *testing.T) {
 	if padded[15] != byte(8) {
 		t.Fatalf("Wrong padding")
 	}
+
+	if _, err = p.UnPad(padded, 8); err != nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad(padded, 9); err == nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad([]byte{1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 9}, 8); err == nil {
+		t.Error("fail")
+	}
+
+	rand.Reader = errReader{}
+	if _, err = p.Pad(data, 8); err == nil {
+		t.Fatal("err")
+	}
 }
-func testANSIx923(t *testing.T) {
+
+func TestANSIx923(t *testing.T) {
 	var p ANSIx923
 	data := []byte{1, 2, 3, 4, 5}
 
@@ -128,4 +165,33 @@ func testANSIx923(t *testing.T) {
 	if !bytes.Equal(padded, []byte{1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0, 8}) {
 		t.Fatalf("Wrong padding")
 	}
+
+	if _, err = p.UnPad(padded, 8); err != nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad(padded, 9); err == nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad([]byte{1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 7}, 8); err == nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad([]byte{1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 9}, 8); err == nil {
+		t.Error("fail")
+	}
+}
+
+func TestPadding(t *testing.T) {
+	t.Run("", func(t *testing.T) {
+		for _, v := range []Padding{PKCS7{}, ZeroPadding{}, ISO10126{}, ANSIx923{}} {
+			if _, err := v.Pad(nil, -1); err == nil {
+				t.Error("err")
+			}
+		}
+	})
+}
+
+type errReader struct{}
+
+func (e errReader) Read(p []byte) (n int, err error) {
+	return 0, errors.New("OEF")
 }
