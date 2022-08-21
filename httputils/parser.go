@@ -26,14 +26,3 @@ func HeaderParser(m map[string]string) Parser {
 		return nil
 	}
 }
-
-func CookieParser(c *fasthttp.Cookie) Parser {
-	return func(resp *fasthttp.Response) error {
-		cookie := fasthttp.AcquireCookie()
-		if resp.Header.Cookie(cookie) {
-			cookie.CopyTo(c)
-		}
-		fasthttp.ReleaseCookie(cookie)
-		return nil
-	}
-}
