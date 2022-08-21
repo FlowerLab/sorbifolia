@@ -20,7 +20,7 @@ func TestPackage_FindModule(t *testing.T) {
 		}
 
 		for _, m := range ms {
-			if err = v.Output(random.FastRand{}.RandString(10)); err != nil {
+			if err = v.Output(random.SafeRand{}.RandString(10)); err != nil {
 				t.Error(m, err)
 			}
 		}
@@ -39,7 +39,7 @@ func TestParse(t *testing.T) {
 		t.Error("err")
 	}
 
-	filename := random.FastRand{}.RandString(10)
+	filename := random.SafeRand{}.RandString(10)
 
 	file, _ := os.Create(filename)
 	_, _ = file.WriteString(`{"a":}`)

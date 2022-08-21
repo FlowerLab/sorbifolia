@@ -11,7 +11,7 @@ func TestPackageData_Write(t *testing.T) {
 	var (
 		pd = packageData{
 			Main:    "a",
-			PkgName: random.FastRand{}.RandString(10),
+			PkgName: random.SafeRand{}.RandString(10),
 			Repo:    "c",
 			Branch:  "d",
 			ReadMe:  "e",
