@@ -2,6 +2,8 @@ package padding
 
 import (
 	"bytes"
+	"crypto/rand"
+	"errors"
 	"testing"
 )
 
@@ -135,6 +137,11 @@ func TestISO10126(t *testing.T) {
 	if _, err = p.UnPad([]byte{1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 9}, 8); err == nil {
 		t.Error("fail")
 	}
+
+	rand.Reader = errReader{}
+	if _, err = p.Pad(data, 8); err == nil {
+		t.Fatal("err")
+	}
 }
 
 func TestANSIx923(t *testing.T) {
@@ -181,4 +188,10 @@ func TestPadding(t *testing.T) {
 			}
 		}
 	})
+}
+
+type errReader struct{}
+
+func (e errReader) Read(p []byte) (n int, err error) {
+	return 0, errors.New("OEF")
 }
