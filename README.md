@@ -13,7 +13,7 @@
 [![Sourcegraph](https://sourcegraph.com/github.com/FlowerLab/sorbifolia/-/badge.svg)](https://sourcegraph.com/github.com/FlowerLab/sorbifolia?badge)
 [![Go Report Card](https://goreportcard.com/badge/github.com/FlowerLab/sorbifolia)](https://goreportcard.com/report/github.com/FlowerLab/sorbifolia)
 [![MIT license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/FlowerLab/sorbifolia/blob/HEAD/LICENSE)
-
+[![codecov](https://codecov.io/gh/FlowerLab/sorbifolia/branch/main/graph/badge.svg?token=6OilLcXNma)](https://codecov.io/gh/FlowerLab/sorbifolia)
 
 
 ## Sponsoring
