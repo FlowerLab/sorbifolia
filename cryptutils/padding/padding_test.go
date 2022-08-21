@@ -30,6 +30,18 @@ func TestPKCS7(t *testing.T) {
 	if _, err = p.UnPad(padded, 8); err != nil {
 		t.Error("fail")
 	}
+	if _, err = p.UnPad(padded, 9); err == nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad([]byte{1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 7}, 8); err == nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad([]byte{1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 9}, 8); err == nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad([]byte{1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 1, 8}, 8); err == nil {
+		t.Error("fail")
+	}
 }
 
 func TestNoPadding(t *testing.T) {
@@ -52,6 +64,10 @@ func TestNoPadding(t *testing.T) {
 	}
 	if !bytes.Equal(padded, data) {
 		t.Fatalf("Wrong padding")
+	}
+
+	if _, err = p.UnPad(padded, 8); err != nil {
+		t.Error("fail")
 	}
 }
 
@@ -76,6 +92,16 @@ func TestZeroPadding(t *testing.T) {
 	if !bytes.Equal(padded, []byte{1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0, 0}) {
 		t.Fatalf("Wrong padding")
 	}
+
+	if _, err = p.UnPad(padded, 8); err != nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad(padded, 9); err == nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad([]byte{1, 2, 3, 4, 5, 6, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 8); err == nil {
+		t.Error("fail")
+	}
 }
 
 func TestISO10126(t *testing.T) {
@@ -99,6 +125,16 @@ func TestISO10126(t *testing.T) {
 	if padded[15] != byte(8) {
 		t.Fatalf("Wrong padding")
 	}
+
+	if _, err = p.UnPad(padded, 8); err != nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad(padded, 9); err == nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad([]byte{1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 9}, 8); err == nil {
+		t.Error("fail")
+	}
 }
 
 func TestANSIx923(t *testing.T) {
@@ -121,6 +157,19 @@ func TestANSIx923(t *testing.T) {
 	}
 	if !bytes.Equal(padded, []byte{1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0, 8}) {
 		t.Fatalf("Wrong padding")
+	}
+
+	if _, err = p.UnPad(padded, 8); err != nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad(padded, 9); err == nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad([]byte{1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 7}, 8); err == nil {
+		t.Error("fail")
+	}
+	if _, err = p.UnPad([]byte{1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 9}, 8); err == nil {
+		t.Error("fail")
 	}
 }
 
