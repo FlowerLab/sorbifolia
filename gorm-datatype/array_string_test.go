@@ -27,3 +27,66 @@ func TestArrayString_GormDBDataType(t *testing.T) {
 		t.Error("fail")
 	}
 }
+
+func TestArrayString_Scan(t *testing.T) {
+	for _, tt := range []struct {
+		str string
+		arr []string
+	}{
+		{`{}`, nil},
+		{`{t}`, []string{"t"}},
+		{`{f,1}`, []string{"f", "1"}},
+		{`{"a\\b","c d",","}`, []string{"a\\b", "c d", ","}},
+	} {
+		bytes := []byte(tt.str)
+		a := ArrayString{}
+		err := a.Scan(bytes)
+
+		if err != nil {
+			t.Errorf("expected no error for %q, got %v", bytes, err)
+		}
+	}
+
+	a := ArrayString{}
+	if err := a.Scan(nil); err != nil {
+		t.Errorf("expected no error for nil, got %v", err)
+	}
+
+	if err := a.Scan(map[string]interface{}{}); err == nil {
+		t.Error("fail")
+	}
+}
+
+func TestArrayString_ScanErr(t *testing.T) {
+	for _, tt := range []struct {
+		str string
+		err string
+	}{
+		{``, "unable to parse array"},
+		{`{`, "unable to parse array"},
+		{`{{a},{b}}`, "cannot convert ARRAY[2][1] to StringArray"},
+		{`{NULL}`, "parsing array element index 0: cannot convert nil to string"},
+		{`{a,NULL}`, "parsing array element index 1: cannot convert nil to string"},
+		{`{a,b,NULL}`, "parsing array element index 2: cannot convert nil to string"},
+	} {
+		bytes := []byte(tt.str)
+		a := ArrayString{}
+		err := a.Scan(bytes)
+
+		if err == nil {
+			t.Errorf("expected no error for %q, got %v", bytes, err)
+		}
+	}
+}
+
+func TestArrayString_Value(t *testing.T) {
+	var a ArrayString = nil
+	if val, err := a.Value(); err != nil || val != nil {
+		t.Error("expected")
+	}
+
+	a = []string{}
+	if val, err := a.Value(); err != nil || val != "{}" {
+		t.Error("expected")
+	}
+}
