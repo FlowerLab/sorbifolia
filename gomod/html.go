@@ -132,7 +132,7 @@ func (pd packageData) WriteToFile() error {
 	dir, _ := filepath.Split(filename)
 	_ = os.MkdirAll(dir, os.ModePerm)
 
-	file, err := os.Create(filename)
+	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_EXCL, 0666)
 	if err != nil {
 		return err
 	}
