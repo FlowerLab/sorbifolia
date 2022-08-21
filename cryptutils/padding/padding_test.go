@@ -5,18 +5,7 @@ import (
 	"testing"
 )
 
-func TestPKCS7_Pad(t *testing.T)         { testPKCS7(t) }
-func TestPKCS7_UnPad(t *testing.T)       { testPKCS7(t) }
-func TestNoPadding_Pad(t *testing.T)     { testNoPadding(t) }
-func TestNoPadding_UnPad(t *testing.T)   { testNoPadding(t) }
-func TestZeroPadding_Pad(t *testing.T)   { testZeroPadding(t) }
-func TestZeroPadding_UnPad(t *testing.T) { testZeroPadding(t) }
-func TestISO10126_Pad(t *testing.T)      { testISO10126(t) }
-func TestISO10126_UnPad(t *testing.T)    { testISO10126(t) }
-func TestANSIx923_Pad(t *testing.T)      { testANSIx923(t) }
-func TestANSIx923_UnPad(t *testing.T)    { testANSIx923(t) }
-
-func testPKCS7(t *testing.T) {
+func TestPKCS7(t *testing.T) {
 	var p PKCS7
 	data := []byte{1, 2, 3, 4, 5}
 
@@ -37,9 +26,13 @@ func testPKCS7(t *testing.T) {
 	if !bytes.Equal(padded, []byte{1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8}) {
 		t.Fatalf("Wrong padding")
 	}
+
+	if _, err = p.UnPad(padded, 8); err != nil {
+		t.Error("fail")
+	}
 }
 
-func testNoPadding(t *testing.T) {
+func TestNoPadding(t *testing.T) {
 	var p NoPadding
 	data := []byte{1, 2, 3, 4, 5}
 
@@ -62,7 +55,7 @@ func testNoPadding(t *testing.T) {
 	}
 }
 
-func testZeroPadding(t *testing.T) {
+func TestZeroPadding(t *testing.T) {
 	var p ZeroPadding
 	data := []byte{1, 2, 3, 4, 5}
 
@@ -85,7 +78,7 @@ func testZeroPadding(t *testing.T) {
 	}
 }
 
-func testISO10126(t *testing.T) {
+func TestISO10126(t *testing.T) {
 	var p ISO10126
 	data := []byte{1, 2, 3, 4, 5}
 
@@ -107,7 +100,8 @@ func testISO10126(t *testing.T) {
 		t.Fatalf("Wrong padding")
 	}
 }
-func testANSIx923(t *testing.T) {
+
+func TestANSIx923(t *testing.T) {
 	var p ANSIx923
 	data := []byte{1, 2, 3, 4, 5}
 
@@ -139,14 +133,3 @@ func TestPadding(t *testing.T) {
 		}
 	})
 }
-
-// func TestPKCS7_Pad(t *testing.T)         { testPKCS7(t) }
-// func TestPKCS7_UnPad(t *testing.T)       { testPKCS7(t) }
-// func TestNoPadding_Pad(t *testing.T)     { testNoPadding(t) }
-// func TestNoPadding_UnPad(t *testing.T)   { testNoPadding(t) }
-// func TestZeroPadding_Pad(t *testing.T)   { testZeroPadding(t) }
-// func TestZeroPadding_UnPad(t *testing.T) { testZeroPadding(t) }
-// func TestISO10126_Pad(t *testing.T)      { testISO10126(t) }
-// func TestISO10126_UnPad(t *testing.T)    { testISO10126(t) }
-// func TestANSIx923_Pad(t *testing.T)      { testANSIx923(t) }
-// func TestANSIx923_UnPad(t *testing.T)    { testANSIx923(t) }
