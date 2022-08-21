@@ -129,3 +129,24 @@ func testANSIx923(t *testing.T) {
 		t.Fatalf("Wrong padding")
 	}
 }
+
+func TestPadding(t *testing.T) {
+	t.Run("", func(t *testing.T) {
+		for _, v := range []Padding{PKCS7{}, ZeroPadding{}, ISO10126{}, ANSIx923{}} {
+			if _, err := v.Pad(nil, -1); err == nil {
+				t.Error("err")
+			}
+		}
+	})
+}
+
+// func TestPKCS7_Pad(t *testing.T)         { testPKCS7(t) }
+// func TestPKCS7_UnPad(t *testing.T)       { testPKCS7(t) }
+// func TestNoPadding_Pad(t *testing.T)     { testNoPadding(t) }
+// func TestNoPadding_UnPad(t *testing.T)   { testNoPadding(t) }
+// func TestZeroPadding_Pad(t *testing.T)   { testZeroPadding(t) }
+// func TestZeroPadding_UnPad(t *testing.T) { testZeroPadding(t) }
+// func TestISO10126_Pad(t *testing.T)      { testISO10126(t) }
+// func TestISO10126_UnPad(t *testing.T)    { testISO10126(t) }
+// func TestANSIx923_Pad(t *testing.T)      { testANSIx923(t) }
+// func TestANSIx923_UnPad(t *testing.T)    { testANSIx923(t) }
