@@ -34,6 +34,17 @@ func TestJWT(t *testing.T) {
 	if arg.Data.ID != 1 {
 		t.Fatal("err")
 	}
+
+	if ts = j.MustGenerate(Claims[Info]{
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:  "Abc",
+			Subject: "",
+			ID:      "-5",
+		},
+		Data: &Info{ID: 1},
+	}); ts == "" {
+		t.Error("fail")
+	}
 }
 
 func TestJWT_MustGenerate(t *testing.T) {

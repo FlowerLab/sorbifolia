@@ -1,7 +1,9 @@
 package password
 
 import (
+	"crypto/rand"
 	"encoding/base64"
+	"errors"
 	"testing"
 )
 
@@ -36,4 +38,20 @@ func TestArgon2_CompareFail(t *testing.T) {
 			t.Error("fail")
 		}
 	})
+}
+
+type errReader struct{}
+
+func (e errReader) Read(p []byte) (n int, err error) {
+	return 0, errors.New("OEF")
+}
+
+func TestArgon2_MustGenerate(t *testing.T) {
+	defer func() { _ = recover() }()
+
+	rand.Reader = errReader{}
+	g := New()
+	g.MustGenerate("123456")
+
+	t.Error("fail")
 }
