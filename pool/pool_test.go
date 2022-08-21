@@ -23,7 +23,8 @@ func TestPool(t *testing.T) {
 func TestPut(t *testing.T) {
 	a := "1"
 	Put(&a)
-	_ = Get[string]()
+	b := "1"
+	Put(&b)
 	c := "1"
 	Put(&c)
 }
