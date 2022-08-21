@@ -21,3 +21,76 @@ func TestIndexOf(t *testing.T) {
 		t.Error("IndexOf(nil, 3) != -1")
 	}
 }
+
+func TestLastIndexOf(t *testing.T) {
+	if LastIndexOf([]int{0, 1, 2, 1, 2, 3}, 2) != 4 {
+		t.Error("LastIndexOf([]int{0, 1, 2, 1, 2, 3}, 2) != 4")
+	}
+	if LastIndexOf([]int{0, 1, 2, 1, 2, 3}, 6) != -1 {
+		t.Error("LastIndexOf([]int{0, 1, 2, 1, 2, 3}, 6) != -1")
+	}
+}
+
+func TestFind(t *testing.T) {
+	if res, ok := Find([]string{"a", "b", "c", "d"}, func(i string) bool {
+		return i == "b"
+	}); !ok || res != "b" {
+		t.Error("Find err")
+	}
+
+	if res, ok := Find([]string{"foobar"}, func(i string) bool {
+		return i == "b"
+	}); ok || res != "" {
+		t.Error("Find err")
+	}
+}
+
+func TestFindIndexOf(t *testing.T) {
+	if item, idx := FindIndexOf([]string{"a", "b", "c", "d", "b"}, func(i string) bool {
+		return i == "b"
+	}); idx != 1 || item != "b" {
+		t.Error("Find index err")
+	}
+
+	if item, idx := FindIndexOf([]string{"foobar"}, func(i string) bool {
+		return i == "b"
+	}); idx != -1 || item != "" {
+		t.Error("Find index err")
+	}
+}
+
+func TestFindLastIndexOf(t *testing.T) {
+	if item, idx := FindLastIndexOf([]string{"a", "b", "c", "d", "b"}, func(i string) bool {
+		return i == "b"
+	}); idx != 4 || item != "b" {
+		t.Error("Find index err")
+	}
+
+	if item, idx := FindLastIndexOf([]string{"foobar"}, func(i string) bool {
+		return i == "b"
+	}); idx != -1 || item != "" {
+		t.Error("Find index err")
+	}
+}
+
+func TestContains(t *testing.T) {
+	if !Contains([]string{"a", "b", "c", "d", "b"}, "b") {
+		t.Error("Contains err")
+	}
+	if Contains([]string{"a", "b", "c", "d", "b"}, "e") {
+		t.Error("Contains err")
+	}
+}
+
+func TestContainsBy(t *testing.T) {
+	if !ContainsBy([]string{"a", "b", "c", "d", "b"}, func(i string) bool {
+		return i == "b"
+	}) {
+		t.Error("ContainsBy err")
+	}
+	if ContainsBy([]string{"a", "b", "c", "d", "b"}, func(i string) bool {
+		return i == "e"
+	}) {
+		t.Error("ContainsBy err")
+	}
+}
