@@ -45,7 +45,8 @@ func TestJWT_MustGenerate(t *testing.T) {
 	rpk, _ := gen.Ed25519()
 	j := New(EdDSA, rpk, rpk.Public(), Claims[TestData]{})
 
-	_, err := j.Generate(Claims[TestData]{
+	defer func() { _ = recover() }()
+	j.MustGenerate(Claims[TestData]{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:  "Abc",
 			Subject: "",
@@ -54,9 +55,7 @@ func TestJWT_MustGenerate(t *testing.T) {
 		Data: &TestData{nil, nil},
 	})
 
-	if err == nil {
-		t.Error(err)
-	}
+	t.Error("err")
 }
 
 func TestJWT_Parse(t *testing.T) {
