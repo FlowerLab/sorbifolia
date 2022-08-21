@@ -20,6 +20,17 @@ func TestPool(t *testing.T) {
 	p.Put(a)
 }
 
+func TestPut(t *testing.T) {
+	a := "1"
+	Put(&a)
+	b := Get[string]()
+	if a != *b {
+		t.Error("err")
+	}
+	c := "1"
+	Put(&c)
+}
+
 func TestPoolStore(t *testing.T) {
 	Put[int](nil)
 	if _, ok := pools.Load(0); ok {
