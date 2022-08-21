@@ -64,7 +64,7 @@ func (p Package) Clean() error {
 
 func (p *Package) gitClone() error {
 	if p.path == "" {
-		p.path = ".go.mod.data-" + random.NewMathRand().RandString(10)
+		p.path = ".go.mod.data-" + random.NewSafeRand().RandString(10)
 	}
 	if _, err := git.PlainClone(p.path, false, &git.CloneOptions{
 		URL:           p.RepoURL,

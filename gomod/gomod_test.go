@@ -3,9 +3,12 @@ package gomod
 import (
 	"os"
 	"testing"
+
+	"go.x2ox.com/sorbifolia/random"
 )
 
 func TestPackage_FindModule(t *testing.T) {
+
 	pkg, err := Parse("example.data.json")
 	if err != nil {
 		t.Error(err)
@@ -17,7 +20,7 @@ func TestPackage_FindModule(t *testing.T) {
 		}
 
 		for _, m := range ms {
-			if err = v.Output(m); err != nil {
+			if err = v.Output(random.FastRand{}.RandString(10)); err != nil {
 				t.Error(m, err)
 			}
 		}
@@ -35,41 +38,19 @@ func TestParse(t *testing.T) {
 	if _, err := Parse("data.json"); err == nil {
 		t.Error("err")
 	}
-	file, _ := os.Create("data.json")
+
+	filename := random.FastRand{}.RandString(10)
+
+	file, _ := os.Create(filename)
 	_, _ = file.WriteString(`{"a":}`)
 	_ = file.Close()
 	defer func() {
-		_ = os.Remove("data.json")
+		_ = os.Remove(filename)
 	}()
-	if _, err := Parse("data.json"); err == nil {
+	if _, err := Parse(filename); err == nil {
 		t.Error("err")
 	}
 }
-
-// func main() {
-// 	flag.Parse()
-//
-// 	pkg, err := gomod.Parse(filename)
-// 	if err != nil {
-// 		log.Panicln(err)
-// 	}
-// 	for _, v := range pkg {
-// 		var ms []string
-// 		if ms, err = v.FindModule(); err != nil {
-// 			log.Println(err)
-// 		}
-//
-// 		for _, m := range ms {
-// 			if err = v.Output(m); err != nil {
-// 				log.Println(m, err)
-// 			}
-// 		}
-//
-// 		if err = v.Clean(); err != nil {
-// 			log.Println(err)
-// 		}
-// 	}
-// }
 
 func TestParseModFile(t *testing.T) {
 	if _, err := parseModFile(""); err == nil {

@@ -3,13 +3,15 @@ package gomod
 import (
 	"bytes"
 	"testing"
+
+	"go.x2ox.com/sorbifolia/random"
 )
 
 func TestPackageData_Write(t *testing.T) {
 	var (
 		pd = packageData{
 			Main:    "a",
-			PkgName: "b",
+			PkgName: random.FastRand{}.RandString(10),
 			Repo:    "c",
 			Branch:  "d",
 			ReadMe:  "e",
