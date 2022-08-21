@@ -23,10 +23,7 @@ func TestPool(t *testing.T) {
 func TestPut(t *testing.T) {
 	a := "1"
 	Put(&a)
-	b := Get[string]()
-	if a != *b {
-		t.Error("err")
-	}
+	_ = Get[string]()
 	c := "1"
 	Put(&c)
 }
