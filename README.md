@@ -1,13 +1,22 @@
 <h1 align="center">Sorbifolia</h1>
 
-**Sorbifolia** is a set of toolkits based on Golang 1.18.
+**Sorbifolia** is a set of toolkits based on Golang 1.19.
 
 - [_coarsetime_](https://go.x2ox.com/sorbifolia/coarsetime) is a package for getting time under high performance.
-- [_finder_](https://go.x2ox.com/sorbifolia/coarsetime) is a set of utility functions based on generics.
-- [_password_](https://go.x2ox.com/sorbifolia/coarsetime) is a password encryption based on Argon2 algorithm.
-- [_pool_](https://go.x2ox.com/sorbifolia/coarsetime) is a generics type of sync.Map.
-- [_random_](https://go.x2ox.com/sorbifolia/coarsetime) is a random generator package.
-- [_rogu_](https://go.x2ox.com/sorbifolia/coarsetime) is a zap integration, from [blackdatura](https://github.com/FlowerLab/blackdatura).
+- [_cryptutils_](https://go.x2ox.com/sorbifolia/cryptutils)
+- [_datastructures_](https://go.x2ox.com/sorbifolia/datastructures)
+- [_finder_](https://go.x2ox.com/sorbifolia/finder) is a set of utility functions based on generics.
+- [_gomod_](https://go.x2ox.com/sorbifolia/gomod)
+- [_gorm-datatype_](https://go.x2ox.com/sorbifolia/gorm-datatype)
+- [_httputils_](https://go.x2ox.com/sorbifolia/httputils)
+- [_jwt_](https://go.x2ox.com/sorbifolia/jwt)
+- [_password_](https://go.x2ox.com/sorbifolia/password) is a password encryption based on Argon2 algorithm.
+- [_pool_](https://go.x2ox.com/sorbifolia/pool) is a generics type of sync.Map.
+- [_random_](https://go.x2ox.com/sorbifolia/random) is a random generator package.
+- [_rogu_](https://go.x2ox.com/sorbifolia/rogu) is a zap integration, from [blackdatura](https://github.com/FlowerLab/blackdatura).
+- [_sitemap_](https://go.x2ox.com/sorbifolia/sitemap)
+- [_strong_](https://go.x2ox.com/sorbifolia/strong)
+
 
 [![GoDoc](https://pkg.go.dev/badge/pkg.go.dev/go.x2ox.com/sorbifolia)](https://pkg.go.dev/go.x2ox.com/sorbifolia)
 [![Sourcegraph](https://sourcegraph.com/github.com/FlowerLab/sorbifolia/-/badge.svg)](https://sourcegraph.com/github.com/FlowerLab/sorbifolia?badge)
