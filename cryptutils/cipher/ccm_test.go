@@ -3,8 +3,10 @@ package cipher
 import (
 	"bytes"
 	"crypto/aes"
+	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"io"
 	"strings"
 	"testing"
 )
@@ -118,7 +120,36 @@ func TestNewCCMWithNonceAndTagSizes(t *testing.T) {
 		a.Seal(nil, nil, nil, nil)
 		t.Error("expected")
 	})
+	t.Run("", func(t *testing.T) {
+		aead, _ := NewCCMWithNonceAndTagSizes(block, 7, 4)
+		nonce := make([]byte, aead.NonceSize())
+		if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+			panic(err)
+		}
+		plaintext := []byte("exampleplaintext")
+		add := []byte("go.x2ox.com/sorbifolia/cryptutils")
 
+		encData := aead.Seal(nil, nonce, plaintext, add)
+		decData, err := aead.Open(nil, nonce, encData, add)
+		if err != nil {
+			t.Error("err")
+		}
+
+		if !bytes.Equal(plaintext, decData) {
+			t.Error("TestCCM err")
+		}
+	})
+	t.Run("", func(t *testing.T) {
+		a, _ := NewCCMWithNonceAndTagSizes(block, 7, 4)
+		if a.NonceSize() != 7 || a.Overhead() != 4 {
+			t.Error("expected")
+		}
+
+		defer func() { _ = recover() }()
+		if _, err := a.Open(nil, nil, nil, nil); err == nil {
+			t.Error("expected")
+		}
+	})
 }
 
 type testBlock int
@@ -193,7 +224,7 @@ func TestCCM(t *testing.T) {
 
 		ct := AesCCM.Seal(nil, nonce, plaintext, adata)
 		tmp := fmt.Sprintf("%x", ct)
-		if strings.ToLower(v.ciphertext) != strings.ToLower(tmp) {
+		if strings.EqualFold(v.ciphertext, tmp) {
 			t.Errorf("AesCCM Test #%d: got\t%s, expected\t%s", i, tmp, v.ciphertext)
 			continue
 		}
@@ -239,4 +270,8 @@ func TestCCM(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestCcmGetTag(t *testing.T) {
+
 }
