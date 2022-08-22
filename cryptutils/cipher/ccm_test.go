@@ -83,3 +83,43 @@ func TestCcm(t *testing.T) {
 		}
 	}
 }
+
+func TestNewCCMWithNonceAndTagSizes(t *testing.T) {
+	block, err := aes.NewCipher([]byte{0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Run("", func(t *testing.T) {
+		if _, err = NewCCMWithNonceAndTagSizes(block, 6, 4); err == nil {
+			t.Error("expected")
+		}
+	})
+	t.Run("", func(t *testing.T) {
+		if _, err = NewCCMWithNonceAndTagSizes(block, 7, 3); err == nil {
+			t.Error("expected")
+		}
+	})
+	t.Run("", func(t *testing.T) {
+		if _, err = NewCCMWithNonceAndTagSizes(testBlock(12), 6, 4); err == nil {
+			t.Error("expected")
+		}
+	})
+	t.Run("", func(t *testing.T) {
+		a, _ := NewCCMWithNonceAndTagSizes(block, 7, 4)
+		if a.NonceSize() != 7 || a.Overhead() != 4 {
+			t.Error("expected")
+		}
+
+		defer func() { _ = recover() }()
+		a.Seal(nil, nil, nil, nil)
+		t.Error("expected")
+	})
+
+}
+
+type testBlock int
+
+func (t testBlock) BlockSize() int          { return int(t) }
+func (t testBlock) Encrypt(dst, src []byte) {}
+func (t testBlock) Decrypt(dst, src []byte) {}

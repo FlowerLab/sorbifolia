@@ -50,14 +50,8 @@ func (ccm *ccm) NonceSize() int { return ccm.nonceSize }
 func (ccm *ccm) Overhead() int  { return ccm.tagSize }
 
 func (ccm *ccm) Seal(dst, nonce, plaintext, data []byte) []byte {
-	if len(nonce) != ccm.nonceSize {
-		panic("cipher: incorrect nonce length given to CCM")
-	}
-
-	// AEAD interface doesn't provide a way to return errors.
-	// So it returns nil instead.
-	if maxUvarint(15-ccm.nonceSize) < uint64(len(plaintext)) {
-		return nil
+	if len(nonce) != ccm.nonceSize || maxUvarint(15-ccm.nonceSize) < uint64(len(plaintext)) {
+		panic("cipher: incorrect nonce length given to CCM or plaintext too large")
 	}
 
 	ret, ciphertext := sliceForAppend(dst, len(plaintext)+ccm.mac.Size())
@@ -84,16 +78,10 @@ func (ccm *ccm) Seal(dst, nonce, plaintext, data []byte) []byte {
 }
 
 func (ccm *ccm) Open(dst, nonce, ciphertext, data []byte) ([]byte, error) {
-	if len(nonce) != ccm.nonceSize {
-		panic("cipher: incorrect nonce length given to CCM")
-	}
-
-	if len(ciphertext) <= ccm.tagSize {
-		panic("cipher: incorrect ciphertext length given to CCM")
-	}
-
-	if maxUvarint(15-ccm.nonceSize) < uint64(len(ciphertext)-ccm.tagSize) {
-		return nil, errors.New("cipher: len(ciphertext)-tagSize exceeds the maximum payload size")
+	if len(nonce) != ccm.nonceSize ||
+		len(ciphertext) <= ccm.tagSize ||
+		maxUvarint(15-ccm.nonceSize) < uint64(len(ciphertext)-ccm.tagSize) {
+		return nil, errors.New("cipher: incorrect nonce or ciphertext length given to CCM or ciphertext too large")
 	}
 
 	ret, plaintext := sliceForAppend(dst, len(ciphertext)-ccm.tagSize)
