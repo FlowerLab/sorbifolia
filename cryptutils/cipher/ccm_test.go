@@ -273,5 +273,65 @@ func TestCCM(t *testing.T) {
 }
 
 func TestCcmGetTag(t *testing.T) {
+	t.Run("", func(t *testing.T) {
+		block, err := aes.NewCipher([]byte{0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f})
+		if err != nil {
+			t.Fatal(err)
+		}
 
+		a, _ := NewCCMWithNonceAndTagSizes(block, 7, 4)
+		if a.NonceSize() != 7 || a.Overhead() != 4 {
+			t.Error("expected")
+		}
+		_ccm, ok := a.(*ccm)
+		if !ok {
+			t.Error("expected")
+		}
+
+		// Formatting of the Counter Blocks are defined in A.3.
+		Ctr := make([]byte, 16)                    // Ctr0
+		Ctr[0] = byte(15 - _ccm.nonceSize - 1)     // [q-1]3
+		copy(Ctr[1:], []byte{1, 2, 3, 4, 5, 6, 7}) // N
+
+		S0 := make([]byte, 16) // S0
+		_ccm.c.Encrypt(S0, Ctr)
+
+		Ctr[15] = 1 // Ctr1
+
+		add := make([]byte, 1<<31)
+		plaintext := []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+
+		data := _ccm.getTag(Ctr, add, plaintext)
+		fmt.Println(data)
+	})
+
+	t.Run("", func(t *testing.T) {
+		block, err := aes.NewCipher([]byte{0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		a, _ := NewCCMWithNonceAndTagSizes(block, 7, 4)
+		if a.NonceSize() != 7 || a.Overhead() != 4 {
+			t.Error("expected")
+		}
+		_ccm, ok := a.(*ccm)
+		if !ok {
+			t.Error("expected")
+		}
+
+		// Formatting of the Counter Blocks are defined in A.3.
+		Ctr := make([]byte, 16)                    // Ctr0
+		Ctr[0] = byte(15 - _ccm.nonceSize - 1)     // [q-1]3
+		copy(Ctr[1:], []byte{1, 2, 3, 4, 5, 6, 7}) // N
+
+		S0 := make([]byte, 16) // S0
+		_ccm.c.Encrypt(S0, Ctr)
+
+		Ctr[15] = 1 // Ctr1
+
+		plaintext := []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+
+		_ccm.getTag(Ctr, nil, plaintext)
+	})
 }
