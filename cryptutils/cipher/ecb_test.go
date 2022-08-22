@@ -190,6 +190,22 @@ func TestECBDecrypterAESOutputSmallerThanInput(t *testing.T) {
 		dst := make([]byte, c.BlockSize())
 		NewECBDecrypter(c).CryptBlocks(dst, data)
 	})
+	t.Run("TestECBDecrypterAESOutputSmallerThanInput", func(t *testing.T) {
+		defer func() {
+			if err := recover(); err == nil {
+				t.Error("fail")
+			}
+		}()
+
+		c, err := aes.NewCipher(commonKey128)
+		if err != nil {
+			t.Fatalf("fail %s", err)
+		}
+
+		data := make([]byte, c.BlockSize()+1)
+		dst := make([]byte, c.BlockSize())
+		NewECBDecrypter(c).CryptBlocks(dst, data)
+	})
 }
 
 type ecbTest struct {
