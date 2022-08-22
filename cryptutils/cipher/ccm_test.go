@@ -298,6 +298,7 @@ func TestCcmGetTag(t *testing.T) {
 
 		Ctr[15] = 1 // Ctr1
 
+		defer func() { _ = recover() }() // recover ThreadSanitizer failed to allocate
 		add := make([]byte, 1<<31)
 		plaintext := []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
 
