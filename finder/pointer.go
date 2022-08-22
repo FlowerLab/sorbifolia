@@ -5,7 +5,7 @@ func ToPtr[T any](x T) *T {
 }
 
 func ToSlicePtr[T any](arr []T) []*T {
-	out := make([]*T, len(arr))
+	out := make([]*T, 0, len(arr))
 	for _, v := range arr {
 		out = append(out, ToPtr(v))
 	}
