@@ -224,7 +224,7 @@ func TestCCM(t *testing.T) {
 
 		ct := AesCCM.Seal(nil, nonce, plaintext, adata)
 		tmp := fmt.Sprintf("%x", ct)
-		if strings.EqualFold(v.ciphertext, tmp) {
+		if !strings.EqualFold(v.ciphertext, tmp) {
 			t.Errorf("AesCCM Test #%d: got\t%s, expected\t%s", i, tmp, v.ciphertext)
 			continue
 		}
