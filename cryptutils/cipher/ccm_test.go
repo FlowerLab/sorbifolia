@@ -299,7 +299,7 @@ func TestCcmGetTag(t *testing.T) {
 
 		Ctr[15] = 1 // Ctr1
 
-		if runtime.GOOS != "windows" {
+		if runtime.GOOS == "windows" {
 			// GitHub Action Windows ThreadSanitizer failed to allocate
 			return
 		}
