@@ -58,3 +58,7 @@ func TestNewFastRandTooLon(t *testing.T) {
 
 	NewFastRand().SetRandBytes(make([]byte, 257)).RandString(1)
 }
+
+func TestFastRand64(t *testing.T) {
+	fastRand64()
+}
