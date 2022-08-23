@@ -11,7 +11,7 @@ func (_String) Copy(s string) string {
 
 func (_String) ToBytes(s string) []byte {
 	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
-
+	//nolint:all
 	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
 		Data: sh.Data,
 		Len:  sh.Len,
