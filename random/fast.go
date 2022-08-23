@@ -20,7 +20,7 @@ func NewFastRand() RandString {
 func (r FastRand) RandString(length int) string {
 	arr := make([]byte, length)
 	for i := range arr {
-		arr[i] = r.randBytes[int(fastRand())%r.randBytesLen]
+		arr[i] = r.randBytes[uint64(fastRand())*uint64(r.randBytesLen)>>32]
 	}
 	return string(arr)
 }
@@ -40,6 +40,9 @@ func (r FastRand) SetRandBytes(data []byte) RandString {
 
 //go:linkname fastRand runtime.fastrand
 func fastRand() uint32
+
+//go:linkname fastRand64 runtime.fastrand64
+func fastRand64() uint64
 
 func hasRepeat[T comparable](arr []T) bool {
 	m := make(map[T]struct{})

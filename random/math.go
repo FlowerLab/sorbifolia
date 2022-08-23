@@ -2,8 +2,7 @@ package random
 
 import (
 	"math/rand"
-
-	"go.x2ox.com/sorbifolia/coarsetime"
+	"time"
 )
 
 type MathRand struct {
@@ -12,7 +11,7 @@ type MathRand struct {
 }
 
 func init() {
-	rand.Seed(coarsetime.FloorTime().UnixNano())
+	rand.Seed(time.Now().Unix())
 }
 
 func NewMathRand() RandString {
@@ -25,7 +24,7 @@ func NewMathRand() RandString {
 func (r MathRand) RandString(length int) string {
 	arr := make([]byte, length)
 	for i := range arr {
-		arr[i] = r.randBytes[rand.Intn(r.randBytesLen)]
+		arr[i] = r.randBytes[uint64(rand.Uint32())*uint64(r.randBytesLen)>>32]
 	}
 	return string(arr)
 }

@@ -20,7 +20,7 @@ func (r SafeRand) RandString(length int) string {
 	arr := make([]byte, length)
 	_, _ = cr.Read(arr)
 	for i := range arr {
-		arr[i] = r.randBytes[int(arr[i])%r.randBytesLen]
+		arr[i] = r.randBytes[uint64(arr[i])*uint64(r.randBytesLen)>>8]
 	}
 	return string(arr)
 }
