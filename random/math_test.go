@@ -35,3 +35,10 @@ func TestMathRandTooLong(t *testing.T) {
 
 	NewMathRand().SetRandBytes(make([]byte, 257)).RandString(1)
 }
+
+func BenchmarkMathRand(b *testing.B) {
+	r := NewMathRand()
+	for i := 0; i < b.N; i++ {
+		r.RandString(10)
+	}
+}

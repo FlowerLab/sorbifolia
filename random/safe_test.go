@@ -35,3 +35,10 @@ func TestSafeRandTooLong(t *testing.T) {
 
 	NewSafeRand().SetRandBytes(make([]byte, 257)).RandString(1)
 }
+
+func BenchmarkSafeRand(b *testing.B) {
+	fr := NewSafeRand()
+	for i := 0; i < b.N; i++ {
+		fr.RandString(10)
+	}
+}
