@@ -10,17 +10,14 @@ import (
 
 type GoPool[T any] struct {
 	currSize uint64
-	/* #nosec G103 */
-	_       [cacheLinePadSize - unsafe.Sizeof(uint64(0))]byte //nolint:unused
-	maxSize uint64
-	alloc   func() any
-	free    func(any)
-	task    func(T)
-	/* #nosec G103 */
-	_   [cacheLinePadSize - unsafe.Sizeof(uint64(0))]byte //nolint:unused
-	top unsafe.Pointer
-	/* #nosec G103 */
-	_ [cacheLinePadSize - unsafe.Sizeof(atomic.Pointer[dataItem[T]]{})]byte //nolint:unused
+	_        [cacheLinePadSize - unsafe.Sizeof(uint64(0))]byte //nolint:unused
+	maxSize  uint64
+	alloc    func() any
+	free     func(any)
+	task     func(T)
+	_        [cacheLinePadSize - unsafe.Sizeof(uint64(0))]byte //nolint:unused
+	top      unsafe.Pointer
+	_        [cacheLinePadSize - unsafe.Sizeof(atomic.Pointer[dataItem[T]]{})]byte //nolint:unused
 }
 
 func NewGoPool[T any](size uint64, task func(T)) *GoPool[T] {
@@ -84,7 +81,6 @@ func (gp *GoPool[T]) push(v *slotFunc[T]) {
 	for {
 		top = atomic.LoadPointer(&gp.top)
 		item.next = top
-		/* #nosec G103 */
 		if atomic.CompareAndSwapPointer(&gp.top, top, unsafe.Pointer(item)) {
 			return
 		}

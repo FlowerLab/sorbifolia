@@ -48,7 +48,7 @@ func safeReady(gp unsafe.Pointer) {
 	goReady(gp, 1)
 }
 
-//nolint:unused,deadcode,varcheck
+//nolint:all
 const (
 	gIdle = iota
 	gRunnable
