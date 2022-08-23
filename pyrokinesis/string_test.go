@@ -14,7 +14,7 @@ func TestString_Copy(t *testing.T) {
 
 func TestString_ToBytes(t *testing.T) {
 	s := "hello"
-	if bytes.Equal(String.ToBytes(s), []byte("hello")) {
+	if !bytes.Equal(String.ToBytes(s), []byte("hello")) {
 		t.Error("fail")
 	}
 }
