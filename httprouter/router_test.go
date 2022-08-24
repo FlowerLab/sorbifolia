@@ -32,21 +32,21 @@ func TestNewRouter(t *testing.T) {
 
 func TestRouter_AddRoute(t *testing.T) {
 	r := NewRouter[string]()
-	r.AddRoute(GET, "/api/v1/data", []HandlerFunc[string]{func(*string) {}})
-	r.AddRoute(GET, "/", []HandlerFunc[string]{func(*string) {}})
-	r.AddRoute(GET, "/api/v2/user/:id", []HandlerFunc[string]{func(*string) {}})
-	r.AddRoute(GET, "/api/v2/file/*file", []HandlerFunc[string]{func(*string) {}})
-	r.AddRoute(GET, "/api/v2/go/:id/bind", []HandlerFunc[string]{func(*string) {}})
+	r.AddRoute(GET, "/api/v1/data", []Handler[string]{func(*string) {}})
+	r.AddRoute(GET, "/", []Handler[string]{func(*string) {}})
+	r.AddRoute(GET, "/api/v2/user/:id", []Handler[string]{func(*string) {}})
+	r.AddRoute(GET, "/api/v2/file/*file", []Handler[string]{func(*string) {}})
+	r.AddRoute(GET, "/api/v2/go/:id/bind", []Handler[string]{func(*string) {}})
 
 	t.Run("", func(t *testing.T) {
 		defer func() { _ = recover() }()
-		r.AddRoute(GET, "api/v1/data", []HandlerFunc[string]{func(*string) {}})
+		r.AddRoute(GET, "api/v1/data", []Handler[string]{func(*string) {}})
 		t.Error("fail")
 	})
 
 	t.Run("", func(t *testing.T) {
 		defer func() { _ = recover() }()
-		r.AddRoute(GET, "/api/v1//data", []HandlerFunc[string]{func(*string) {}})
+		r.AddRoute(GET, "/api/v1//data", []Handler[string]{func(*string) {}})
 		t.Error("fail")
 	})
 
@@ -58,7 +58,7 @@ func TestRouter_AddRoute(t *testing.T) {
 
 	t.Run("", func(t *testing.T) {
 		defer func() { _ = recover() }()
-		r.AddRoute(Method(10), "/api/v1/data", []HandlerFunc[string]{func(*string) {}})
+		r.AddRoute(Method(10), "/api/v1/data", []Handler[string]{func(*string) {}})
 		t.Error("fail")
 	})
 }

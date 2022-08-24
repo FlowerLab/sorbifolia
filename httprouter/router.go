@@ -14,7 +14,7 @@ type Router[T any] struct {
 
 func (r *Router[T]) Method(method Method) *Node[T] { return r.method[method] }
 
-func (r *Router[T]) AddRoute(method Method, path string, handlers HandlersChain[T]) {
+func (r *Router[T]) AddRoute(method Method, path string, handlers Handlers[T]) {
 	if path[0] != '/' {
 		panic("path must begin with '/'")
 	}

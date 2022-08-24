@@ -8,15 +8,15 @@ type Node[T any] struct {
 	Path      string
 	Type      NodeType
 	Wild      bool
-	Handler   HandlersChain[T]
+	Handler   Handlers[T]
 	ChildNode []*Node[T]
 }
 
-func (n *Node[T]) AddRoute(path string, handlers HandlersChain[T]) {
+func (n *Node[T]) AddRoute(path string, handlers Handlers[T]) {
 	n.addNodeRoute(path[1:], handlers)
 }
 
-func (n *Node[T]) addNodeRoute(nodePath string, handlers HandlersChain[T]) {
+func (n *Node[T]) addNodeRoute(nodePath string, handlers Handlers[T]) {
 	var (
 		paths = strings.SplitN(nodePath, "/", 2)
 		node  = n.getOrAddChildNode(paths[0])
