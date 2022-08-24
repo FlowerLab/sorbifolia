@@ -29,5 +29,5 @@ func (r *Router[T]) AddRoute(method Method, path string, handlers Handlers[T]) {
 }
 
 func (r *Router[T]) Group() IRouter[T] {
-	return &Group[T]{BasePath: "/", route: r}
+	return &Group[T]{route: r}
 }
