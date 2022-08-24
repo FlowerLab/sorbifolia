@@ -70,6 +70,7 @@ func TestRouter_Group(t *testing.T) {
 	g.Group("/api/v1", func(*string) {})
 	g.Use(func(*string) {})
 	user := g.Group("/user")
+	user.GET("/", func(*string) {})
 	user.POST("/", func(*string) {})
 	user.DELETE("/", func(*string) {})
 	user.PATCH("/", func(*string) {})
