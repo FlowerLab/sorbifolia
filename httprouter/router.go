@@ -28,7 +28,6 @@ func (r *Router[T]) AddRoute(method Method, path string, handlers HandlersChain[
 	r.Method(method).AddRoute(path, handlers)
 }
 
-func (r *Router[T]) Sort() error {
-
-	return nil
+func (r *Router[T]) Group() IRouter[T] {
+	return &Group[T]{BasePath: "/", route: r}
 }

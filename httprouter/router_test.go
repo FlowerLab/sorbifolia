@@ -62,3 +62,22 @@ func TestRouter_AddRoute(t *testing.T) {
 		t.Error("fail")
 	})
 }
+
+func TestRouter_Group(t *testing.T) {
+	r := NewRouter[string]()
+	g := r.Group()
+
+	g.Group("/api/v1", func(*string) {})
+	g.Use(func(*string) {})
+	user := g.Group("/user")
+	user.POST("/", func(*string) {})
+	user.DELETE("/", func(*string) {})
+	user.PATCH("/", func(*string) {})
+	user.PUT("/", func(*string) {})
+	user.OPTIONS("/", func(*string) {})
+	user.HEAD("/", func(*string) {})
+	user.CONNECT("/", func(*string) {})
+	user.TRACE("/", func(*string) {})
+
+	g.Any("/file/", func(*string) {})
+}
