@@ -81,7 +81,6 @@ func checkNodeType[T any](n *Node[T]) {
 
 		checkNodeType(v)
 	}
-
 }
 
 func checkDuplication[T any](n *Node[T]) {

@@ -7,7 +7,6 @@ import (
 type Node[T any] struct {
 	Path      string
 	Type      NodeType
-	Wild      bool
 	Handler   Handlers[T]
 	ChildNode []*Node[T]
 }

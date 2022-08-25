@@ -17,9 +17,7 @@ func (g *Group[T]) CONNECT(s string, h ...Handler[T]) IRoutes[T] { return g.addR
 func (g *Group[T]) TRACE(s string, h ...Handler[T]) IRoutes[T]   { return g.addRoute(TRACE, s, h) }
 func (g *Group[T]) Use(h ...Handler[T]) IRoutes[T]               { g.Handler = append(g.Handler, h...); return g }
 func (g *Group[T]) Any(s string, h ...Handler[T]) IRoutes[T] {
-	for _, v := range []Method{
-		GET, HEAD, POST, PUT, PATCH, DELETE, CONNECT, OPTIONS, TRACE,
-	} {
+	for _, v := range methods {
 		g.addRoute(v, s, h)
 	}
 	return g
