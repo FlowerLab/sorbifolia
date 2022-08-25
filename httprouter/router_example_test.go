@@ -1,15 +1,15 @@
 package httprouter
 
 import (
+	"encoding/json"
 	"net/http"
 	"testing"
 )
 
 type Context struct {
-	Request *http.Request
-	Writer  http.ResponseWriter
-
-	server   *Server
+	Request  *http.Request
+	Writer   http.ResponseWriter
+	server   *Server //nolint:all
 	handlers Handlers[Context]
 	index    int
 }
@@ -21,6 +21,9 @@ func (c *Context) Next() {
 		c.index++
 	}
 }
+
+func (c *Context) Status(code int) *Context { c.Writer.WriteHeader(code); return c }
+func (c *Context) JSON(data interface{})    { _ = json.NewEncoder(c.Writer).Encode(data) }
 
 type Server struct {
 	IRouter[Context]
@@ -41,6 +44,7 @@ func (s Server) ListenAndServe(addr string) error {
 	return http.ListenAndServe(addr, s)
 }
 
+//nolint:all
 func testHTTPRouter(t *testing.T) {
 	server := NewServer()
 	server.GET("/", func(c *Context) {
