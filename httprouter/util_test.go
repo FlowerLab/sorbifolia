@@ -29,9 +29,7 @@ func TestCheckDuplication(t *testing.T) {
 			}},
 		},
 	}
-	if checkDuplication(n) {
-		t.Error("duplication check failed")
-	}
+	checkDuplication(n)
 
 	n = &Node[string]{
 		ChildNode: []*Node[string]{
@@ -57,113 +55,167 @@ func TestCheckDuplication(t *testing.T) {
 			}},
 		},
 	}
-	if !checkDuplication(n) {
-		t.Error("duplication check failed")
-	}
+	defer func() { _ = recover() }()
+	checkDuplication(n)
+	t.Error("duplication check failed")
 }
 
-func checkDuplication[T any](n *Node[T]) bool {
-	if n == nil || len(n.ChildNode) == 0 {
-		return false
+func BenchmarkCheckDuplication(b *testing.B) {
+	n := &Node[string]{
+		ChildNode: []*Node[string]{
+			{Path: "", ChildNode: []*Node[string]{
+				{Path: "123", ChildNode: []*Node[string]{
+					{Path: "312"},
+				}},
+				{Path: "", ChildNode: []*Node[string]{
+					{Path: "123"},
+				}},
+				{Path: "321", ChildNode: []*Node[string]{
+					{Path: "123"},
+				}},
+			}},
+			{Path: "1", ChildNode: []*Node[string]{
+				{Path: "a"},
+			}},
+			{Path: "2", ChildNode: []*Node[string]{
+				{Path: "a"},
+			}},
+			{Path: "3", ChildNode: []*Node[string]{
+				{Path: "a"},
+			}},
+		},
 	}
-
-	set := make(map[string]struct{}, len(n.ChildNode))
-	for _, v := range n.ChildNode {
-		if _, ok := set[v.Path]; ok {
-			return true
-		}
-		set[v.Path] = struct{}{}
+	for i := 0; i < b.N; i++ {
+		checkDuplication(n)
 	}
-	for _, v := range n.ChildNode {
-		if checkDuplication(v) {
-			return true
-		}
-	}
-
-	return false
 }
 
 func TestCheckNodeType(t *testing.T) {
-	n := &Node[string]{
-		Type: NodeStatic,
-		ChildNode: []*Node[string]{
-			{Type: NodeStatic},
-			{Type: NodeStatic},
-			{Type: NodeStatic},
-			{Type: NodeStatic},
-			{Type: NodeStatic, ChildNode: []*Node[string]{
-				{Type: NodeStatic},
-				{Type: NodeStatic},
-				{Type: NodeStatic},
-				{Type: NodeStatic},
-				{Type: NodeStatic},
-				{Type: NodeFixed},
-				{Type: NodeWild},
-			}},
-			{Type: NodeFixed},
-			{Type: NodeWild},
-		},
-	}
-	if checkNodeType(n) {
-		t.Error("duplication NodeType check failed")
-	}
 
-	n = &Node[string]{
-		Type: NodeStatic,
-		ChildNode: []*Node[string]{
-			{Type: NodeStatic},
-			{Type: NodeStatic},
-			{Type: NodeStatic},
-			{Type: NodeStatic},
-			{Type: NodeStatic, ChildNode: []*Node[string]{
+	t.Run("", func(t *testing.T) {
+		n := &Node[string]{
+			Type: NodeStatic,
+			ChildNode: []*Node[string]{
 				{Type: NodeStatic},
 				{Type: NodeStatic},
 				{Type: NodeStatic},
 				{Type: NodeStatic},
-				{Type: NodeFixed},
+				{Type: NodeStatic, ChildNode: []*Node[string]{
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeFixed},
+					{Type: NodeWild},
+				}},
 				{Type: NodeFixed},
 				{Type: NodeWild},
-			}},
-			{Type: NodeFixed},
-			{Type: NodeWild},
-		},
-	}
-	if !checkNodeType(n) {
-		t.Error("duplication NodeType check failed")
-	}
+			},
+		}
+		checkNodeType(n)
+	})
+
+	t.Run("", func(t *testing.T) {
+		n := &Node[string]{
+			Type: NodeStatic,
+			ChildNode: []*Node[string]{
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic, ChildNode: []*Node[string]{
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeFixed},
+					{Type: NodeFixed},
+					{Type: NodeWild},
+				}},
+				{Type: NodeFixed},
+				{Type: NodeWild},
+			},
+		}
+		defer func() { _ = recover() }()
+		checkNodeType(n)
+		t.Error("fail")
+	})
+
+	t.Run("", func(t *testing.T) {
+		n := &Node[string]{
+			Type: NodeStatic,
+			ChildNode: []*Node[string]{
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic, ChildNode: []*Node[string]{
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeFixed},
+					{Type: NodeWild},
+					{Type: NodeWild},
+				}},
+				{Type: NodeFixed},
+				{Type: NodeWild},
+			},
+		}
+		defer func() { _ = recover() }()
+		checkNodeType(n)
+		t.Error("fail")
+	})
+
+	t.Run("", func(t *testing.T) {
+		n := &Node[string]{
+			Type: NodeStatic,
+			ChildNode: []*Node[string]{
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeWild, ChildNode: []*Node[string]{
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+				}},
+				{Type: NodeFixed},
+			},
+		}
+		defer func() { _ = recover() }()
+		checkNodeType(n)
+		t.Error("fail")
+	})
 }
 
-func checkNodeType[T any](n *Node[T]) bool {
-	if n == nil || len(n.ChildNode) == 0 {
-		return false
-	}
-
-	var (
-		hasFixed, hasWild = false, false
-	)
-
-	for _, v := range n.ChildNode {
-		switch v.Type {
-		case NodeWild:
-			if hasWild {
-				return true
-			}
-			hasWild = true
-			if len(v.ChildNode) != 0 {
-				panic("wild cannot have follow-up paths")
-			}
-		case NodeFixed:
-			if hasFixed {
-				return true
-			}
-			hasFixed = true
+func TestSortName(t *testing.T) {
+	t.Run("", func(t *testing.T) {
+		n := &Node[string]{
+			Type: NodeStatic,
+			ChildNode: []*Node[string]{
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic, ChildNode: []*Node[string]{
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeFixed},
+					{Type: NodeWild},
+				}},
+				{Type: NodeFixed},
+				{Type: NodeWild},
+			},
 		}
-	}
-	for _, v := range n.ChildNode {
-		if checkNodeType(v) {
-			return true
-		}
-	}
-
-	return false
+		sortNode(n)
+	})
+	t.Run("", func(t *testing.T) {
+		n := &Node[string]{}
+		sortNode(n)
+	})
 }
