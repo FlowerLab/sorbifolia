@@ -91,8 +91,11 @@ func TestRouter_Find(t *testing.T) {
 	r.AddRoute(GET, "/api/v2/user/:id", []Handler[string]{func(*string) {}})
 	r.AddRoute(GET, "/api/v2/file/*file", []Handler[string]{func(*string) {}})
 	r.AddRoute(GET, "/api/v2/go/:id/bind", []Handler[string]{func(*string) {}})
-
-	if a, b := r.Find(GET, "/api/v1/a/b/c/d"); a == nil && b[0].Val != "c" {
+	r.Sort()
+	if a, b := r.Find(GET, "/api/v1/a/b/c/d"); a == nil || b[0].Val != "c" {
+		t.Error("fail")
+	}
+	if a, _ := r.Find(GET, "/api/v1/a/b/c/e"); a != nil {
 		t.Error("fail")
 	}
 }
