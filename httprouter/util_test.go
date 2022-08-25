@@ -91,73 +91,131 @@ func BenchmarkCheckDuplication(b *testing.B) {
 }
 
 func TestCheckNodeType(t *testing.T) {
-	n := &Node[string]{
-		Type: NodeStatic,
-		ChildNode: []*Node[string]{
-			{Type: NodeStatic},
-			{Type: NodeStatic},
-			{Type: NodeStatic},
-			{Type: NodeStatic},
-			{Type: NodeStatic, ChildNode: []*Node[string]{
-				{Type: NodeStatic},
-				{Type: NodeStatic},
-				{Type: NodeStatic},
-				{Type: NodeStatic},
-				{Type: NodeStatic},
-				{Type: NodeFixed},
-				{Type: NodeWild},
-			}},
-			{Type: NodeFixed},
-			{Type: NodeWild},
-		},
-	}
-	checkNodeType(n)
 
-	n = &Node[string]{
-		Type: NodeStatic,
-		ChildNode: []*Node[string]{
-			{Type: NodeStatic},
-			{Type: NodeStatic},
-			{Type: NodeStatic},
-			{Type: NodeStatic},
-			{Type: NodeStatic, ChildNode: []*Node[string]{
+	t.Run("", func(t *testing.T) {
+		n := &Node[string]{
+			Type: NodeStatic,
+			ChildNode: []*Node[string]{
 				{Type: NodeStatic},
 				{Type: NodeStatic},
 				{Type: NodeStatic},
 				{Type: NodeStatic},
-				{Type: NodeFixed},
+				{Type: NodeStatic, ChildNode: []*Node[string]{
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeFixed},
+					{Type: NodeWild},
+				}},
 				{Type: NodeFixed},
 				{Type: NodeWild},
-			}},
-			{Type: NodeFixed},
-			{Type: NodeWild},
-		},
-	}
-	defer func() { _ = recover() }()
-	checkNodeType(n)
-	t.Error("fail")
+			},
+		}
+		checkNodeType(n)
+	})
+
+	t.Run("", func(t *testing.T) {
+		n := &Node[string]{
+			Type: NodeStatic,
+			ChildNode: []*Node[string]{
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic, ChildNode: []*Node[string]{
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeFixed},
+					{Type: NodeFixed},
+					{Type: NodeWild},
+				}},
+				{Type: NodeFixed},
+				{Type: NodeWild},
+			},
+		}
+		defer func() { _ = recover() }()
+		checkNodeType(n)
+		t.Error("fail")
+	})
+
+	t.Run("", func(t *testing.T) {
+		n := &Node[string]{
+			Type: NodeStatic,
+			ChildNode: []*Node[string]{
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic, ChildNode: []*Node[string]{
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeFixed},
+					{Type: NodeWild},
+					{Type: NodeWild},
+				}},
+				{Type: NodeFixed},
+				{Type: NodeWild},
+			},
+		}
+		defer func() { _ = recover() }()
+		checkNodeType(n)
+		t.Error("fail")
+	})
+
+	t.Run("", func(t *testing.T) {
+		n := &Node[string]{
+			Type: NodeStatic,
+			ChildNode: []*Node[string]{
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeWild, ChildNode: []*Node[string]{
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+				}},
+				{Type: NodeFixed},
+			},
+		}
+		defer func() { _ = recover() }()
+		checkNodeType(n)
+		t.Error("fail")
+	})
 }
 
 func TestSortName(t *testing.T) {
-	n := &Node[string]{
-		Type: NodeStatic,
-		ChildNode: []*Node[string]{
-			{Type: NodeStatic},
-			{Type: NodeStatic},
-			{Type: NodeStatic},
-			{Type: NodeStatic},
-			{Type: NodeStatic, ChildNode: []*Node[string]{
+	t.Run("", func(t *testing.T) {
+		n := &Node[string]{
+			Type: NodeStatic,
+			ChildNode: []*Node[string]{
 				{Type: NodeStatic},
 				{Type: NodeStatic},
 				{Type: NodeStatic},
 				{Type: NodeStatic},
-				{Type: NodeStatic},
+				{Type: NodeStatic, ChildNode: []*Node[string]{
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeStatic},
+					{Type: NodeFixed},
+					{Type: NodeWild},
+				}},
 				{Type: NodeFixed},
 				{Type: NodeWild},
-			}},
-			{Type: NodeFixed},
-			{Type: NodeWild},
-		},
-	}
-	sortNode(n)
+			},
+		}
+		sortNode(n)
+	})
+	t.Run("", func(t *testing.T) {
+		n := &Node[string]{}
+		sortNode(n)
+	})
 }
