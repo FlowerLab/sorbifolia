@@ -1,6 +1,7 @@
 package httprouter
 
 import (
+	"strconv"
 	"testing"
 )
 
@@ -270,4 +271,46 @@ func BenchmarkSortNode(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		sortNode(n)
 	}
+}
+
+func TestCheckDuplicationDeep(t *testing.T) {
+	n := new(Node[string])
+	tmp := n
+	i := 0
+	// 当i 为 1900000时，会出现stack overflow
+	for ; i < 1800000; i++ {
+		n.ChildNode = []*Node[string]{
+			{Path: ""},
+		}
+		n = n.ChildNode[0]
+	}
+	checkDuplication(tmp)
+}
+
+func TestCheckNodeTypeDeep(t *testing.T) {
+	n := new(Node[string])
+	tmp := n
+	i := 0
+	// 当i 为 6200000，会出现stack overflow
+	for ; i < 6100000; i++ {
+		n.ChildNode = []*Node[string]{
+			{Path: ""},
+		}
+		n = n.ChildNode[0]
+	}
+	checkNodeType(tmp)
+}
+
+func TestSortNodeDeep(t *testing.T) {
+	n := new(Node[string])
+	tmp := n
+	i := 0
+	// 当i 为 6200000，会出现stack overflow
+	for ; i < 6100000; i++ {
+		n.ChildNode = []*Node[string]{
+			{Path: strconv.Itoa(i)},
+		}
+		n = n.ChildNode[0]
+	}
+	checkNodeType(tmp)
 }
