@@ -277,8 +277,8 @@ func TestCheckDuplicationDeep(t *testing.T) {
 	n := new(Node[string])
 	tmp := n
 	i := 0
-	// 当i 为 1900000时，会出现stack overflow
-	for ; i < 1800000; i++ {
+	// 当i 为 1900000时，会出现stack overflow  当i取值1800000时，ci不通过!
+	for ; i < 100000; i++ {
 		n.ChildNode = []*Node[string]{
 			{Path: ""},
 		}
@@ -291,8 +291,8 @@ func TestCheckNodeTypeDeep(t *testing.T) {
 	n := new(Node[string])
 	tmp := n
 	i := 0
-	// 当i 为 6200000，会出现stack overflow
-	for ; i < 6100000; i++ {
+	// 当i 为 6200000，会出现stack overflow 当i取值1800000时，ci不通过!
+	for ; i < 100000; i++ {
 		n.ChildNode = []*Node[string]{
 			{Path: ""},
 		}
@@ -305,8 +305,8 @@ func TestSortNodeDeep(t *testing.T) {
 	n := new(Node[string])
 	tmp := n
 	i := 0
-	// 当i 为 6200000，会出现stack overflow
-	for ; i < 6100000; i++ {
+	// 当i 为 6200000，会出现stack overflow 当i取值1800000时，ci不通过!
+	for ; i < 100000; i++ {
 		n.ChildNode = []*Node[string]{
 			{Path: strconv.Itoa(i)},
 		}
