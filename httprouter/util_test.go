@@ -219,3 +219,55 @@ func TestSortName(t *testing.T) {
 		sortNode(n)
 	})
 }
+
+func BenchmarkCheckNodeType(b *testing.B) {
+	n := &Node[string]{
+		Type: NodeStatic,
+		ChildNode: []*Node[string]{
+			{Type: NodeStatic},
+			{Type: NodeStatic},
+			{Type: NodeStatic},
+			{Type: NodeStatic},
+			{Type: NodeStatic, ChildNode: []*Node[string]{
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeFixed},
+				{Type: NodeWild},
+			}},
+			{Type: NodeFixed},
+			{Type: NodeWild},
+		},
+	}
+	for i := 0; i < b.N; i++ {
+		checkNodeType(n)
+	}
+}
+
+func BenchmarkSortNode(b *testing.B) {
+	n := &Node[string]{
+		Type: NodeStatic,
+		ChildNode: []*Node[string]{
+			{Type: NodeStatic},
+			{Type: NodeStatic},
+			{Type: NodeStatic},
+			{Type: NodeStatic},
+			{Type: NodeStatic, ChildNode: []*Node[string]{
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeStatic},
+				{Type: NodeFixed},
+				{Type: NodeWild},
+			}},
+			{Type: NodeFixed},
+			{Type: NodeWild},
+		},
+	}
+	for i := 0; i < b.N; i++ {
+		sortNode(n)
+	}
+}
