@@ -1,11 +1,7 @@
 package httprouter
 
 import (
-	"fmt"
-	"io/ioutil"
-	"net/http"
 	"testing"
-	"time"
 )
 
 func TestNewRouter(t *testing.T) {
@@ -105,26 +101,4 @@ func TestRouter_Find(t *testing.T) {
 	if a, b := r.Find(GET, "/api/v2/file/a/b/c"); a == nil || b[0].Val != "a/b/c" {
 		t.Error("fail")
 	}
-}
-
-func TestConnect(t *testing.T) {
-	go func() {
-		server := NewServer()
-		server.GET("/", func(c *Context) {
-			c.Writer.Header().Set("Content-Type", "application/json")
-			_, _ = c.Writer.Write([]byte("hello world"))
-			c.JSON("hello world!")
-		})
-		_ = server.ListenAndServe(":8080")
-	}()
-	time.Sleep(10e9)
-	url := "http://localhost:8080/"
-	resp, err := http.Get(url)
-	all, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(all)
-	if err != nil {
-		t.Error(err)
-	}
-	fmt.Println(resp)
-	time.Sleep(10e9)
 }
