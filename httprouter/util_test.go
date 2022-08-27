@@ -7,7 +7,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
-	"unsafe"
 )
 
 func TestCheckDuplication(t *testing.T) {
@@ -279,21 +278,23 @@ func BenchmarkSortNode(b *testing.B) {
 }
 
 var (
-	size                        = unsafe.Sizeof(&Node[string]{}) // and other overhead
-	maxStackSize int32          = 1 << 20                        // max stack size
-	maxCount     int32          = 0                              // recursive times
-	wg           sync.WaitGroup                                  // record and work of goroutines
+	//size                        = unsafe.Sizeof(&Node[string]{}) // and other overhead
+	maxStackSize int32          = 1 << 20 // max stack size
+	maxCount     int32          = 0       // recursive times
+	wg           sync.WaitGroup           // record and work of goroutines
 )
 
 // When the Node's depth is 1048683 or 1064946 ,ths stack is overflow.
 // Due to err of stack overflow,I have to use a file to record.
 //The other overhead is maxCount*size
 func TestCheckDuplicationDeep(t *testing.T) {
-	filepath, err := os.Getwd()
-	if err != nil {
-		panic("获取目录失败")
-	}
+	filepath := os.Getenv("GOPATH")
 	filepath += "\\log.txt"
+	//filepath, err := os.Getwd()
+	//if err != nil {
+	//	panic("获取目录失败")
+	//}
+	//filepath += "\\log.txt"
 	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
 	if err != nil {
 		panic("文件打开失败")
@@ -332,11 +333,13 @@ func TestCheckDuplicationDeep(t *testing.T) {
 
 //
 func TestCheckNodeTypeDeep(t *testing.T) {
-	filepath, err := os.Getwd()
-	if err != nil {
-		panic("获取目录失败")
-	}
+	filepath := os.Getenv("GOPATH")
 	filepath += "\\log.txt"
+	//filepath, err := os.Getwd()
+	//if err != nil {
+	//	panic("获取目录失败")
+	//}
+	//filepath += "\\log.txt"
 	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
 	if err != nil {
 		panic("文件打开失败")
@@ -375,11 +378,13 @@ func TestCheckNodeTypeDeep(t *testing.T) {
 }
 
 func TestSortNodeDeep(t *testing.T) {
-	filepath, err := os.Getwd()
-	if err != nil {
-		panic("获取目录失败")
-	}
+	filepath := os.Getenv("GOPATH")
 	filepath += "\\log.txt"
+	//filepath, err := os.Getwd()
+	//if err != nil {
+	//	panic("获取目录失败")
+	//}
+	//filepath += "\\log.txt"
 	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
 	if err != nil {
 		panic("文件打开失败")
