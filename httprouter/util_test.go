@@ -289,7 +289,10 @@ var (
 // Due to err of stack overflow,I have to use a file to record.
 //The other overhead is maxCount*size
 func TestCheckDuplicationDeep(t *testing.T) {
-	filepath, _ := os.Getwd()
+	filepath, err := os.Getwd()
+	if err != nil {
+		panic("获取目录失败")
+	}
 	filepath += "\\log.txt"
 	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
 	if err != nil {
@@ -329,7 +332,10 @@ func TestCheckDuplicationDeep(t *testing.T) {
 
 //
 func TestCheckNodeTypeDeep(t *testing.T) {
-	filepath, _ := os.Getwd()
+	filepath, err := os.Getwd()
+	if err != nil {
+		panic("获取目录失败")
+	}
 	filepath += "\\log.txt"
 	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
 	if err != nil {
