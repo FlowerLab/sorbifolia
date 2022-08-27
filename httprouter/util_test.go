@@ -369,7 +369,10 @@ func TestCheckNodeTypeDeep(t *testing.T) {
 }
 
 func TestSortNodeDeep(t *testing.T) {
-	filepath, _ := os.Getwd()
+	filepath, err := os.Getwd()
+	if err != nil {
+		panic("获取目录失败")
+	}
 	filepath += "\\log.txt"
 	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
 	if err != nil {
