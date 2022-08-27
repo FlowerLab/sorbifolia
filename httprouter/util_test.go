@@ -1,8 +1,13 @@
 package httprouter
 
 import (
+	"bufio"
+	"os"
 	"strconv"
+	"sync"
+	"sync/atomic"
 	"testing"
+	"unsafe"
 )
 
 func TestCheckDuplication(t *testing.T) {
@@ -273,44 +278,131 @@ func BenchmarkSortNode(b *testing.B) {
 	}
 }
 
+var (
+	size                        = unsafe.Sizeof(&Node[string]{}) // and other overhead
+	maxStackSize int32          = 1 << 20                        // max stack size
+	maxCount     int32          = 0                              // recursive times
+	wg           sync.WaitGroup                                  // record and work of goroutines
+)
+
+// When the Node's depth is 1048683 or 1064946 ,ths stack is overflow.
+// Due to err of stack overflow,I have to use a file to record.
+//The other overhead is maxCount*size
 func TestCheckDuplicationDeep(t *testing.T) {
+	filepath, _ := os.Getwd()
+	filepath += "\\log.txt"
+	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
+	if err != nil {
+		panic("文件打开失败")
+		return
+	}
+	defer file.Close()
+	writer := bufio.NewWriter(file)
+
 	n := new(Node[string])
 	tmp := n
-	i := 0
-	// 当i 为 1900000时，会出现stack overflow  当i取值1800000时，ci不通过!
-	for ; i < 100000; i++ {
-		n.ChildNode = []*Node[string]{
-			{Path: ""},
+	wg.Add(2)
+	ch := make(chan int32, 8)
+	go func() {
+		for maxCount <= maxStackSize {
+			checkDuplication(tmp)
+			ch <- maxCount
+			n.ChildNode = []*Node[string]{
+				{Path: ""},
+			}
+			n = n.ChildNode[0]
+			maxCount++
 		}
-		n = n.ChildNode[0]
-	}
-	checkDuplication(tmp)
+		wg.Done()
+	}()
+
+	go func() {
+		for maxCount <= maxStackSize {
+			count := <-ch
+			_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
+			_ = writer.Flush()
+		}
+		wg.Done()
+	}()
+	wg.Wait()
 }
 
+//
 func TestCheckNodeTypeDeep(t *testing.T) {
+	filepath, _ := os.Getwd()
+	filepath += "\\log.txt"
+	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
+	if err != nil {
+		panic("文件打开失败")
+		return
+	}
+	defer file.Close()
+	writer := bufio.NewWriter(file)
+
+	ch := make(chan int32, 8)
+
 	n := new(Node[string])
 	tmp := n
-	i := 0
-	// 当i 为 6200000，会出现stack overflow 当i取值1800000时，ci不通过!
-	for ; i < 100000; i++ {
-		n.ChildNode = []*Node[string]{
-			{Path: ""},
+	wg.Add(2)
+	go func() {
+		for maxCount <= maxStackSize {
+			checkNodeType(tmp)
+			ch <- maxCount
+			n.ChildNode = []*Node[string]{
+				{Path: ""},
+			}
+			n = n.ChildNode[0]
+			atomic.AddInt32(&maxCount, 1)
 		}
-		n = n.ChildNode[0]
-	}
-	checkNodeType(tmp)
+		wg.Done()
+	}()
+
+	go func() {
+		for maxCount <= maxStackSize {
+			count := <-ch
+			_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
+			_ = writer.Flush()
+		}
+		wg.Done()
+	}()
+	wg.Wait()
 }
 
 func TestSortNodeDeep(t *testing.T) {
+	filepath, _ := os.Getwd()
+	filepath += "\\log.txt"
+	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
+	if err != nil {
+		panic("文件打开失败")
+		return
+	}
+	defer file.Close()
+	writer := bufio.NewWriter(file)
+
 	n := new(Node[string])
 	tmp := n
-	i := 0
-	// 当i 为 6200000，会出现stack overflow 当i取值1800000时，ci不通过!
-	for ; i < 100000; i++ {
-		n.ChildNode = []*Node[string]{
-			{Path: strconv.Itoa(i)},
+	ch := make(chan int32, 8)
+	wg.Add(2)
+	go func() {
+		for maxCount <= maxStackSize {
+			sortNode(tmp)
+			n.ChildNode = []*Node[string]{
+				{Path: ""},
+			}
+			n = n.ChildNode[0]
+			ch <- maxCount
+			atomic.AddInt32(&maxCount, 1)
 		}
-		n = n.ChildNode[0]
-	}
-	checkNodeType(tmp)
+		wg.Done()
+	}()
+	go func() {
+		for maxCount <= maxStackSize {
+			count := <-ch
+			_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
+			_ = writer.Flush()
+		}
+
+		wg.Done()
+	}()
+	wg.Wait()
 }
