@@ -13,7 +13,7 @@
    In other words, when it still is a work in progress _(WIP)_.\
    List your TODO list, so other contributors can help you speed it up.
 
-2.❗ **Any Pull Request title needs to follow our Git commits messages
+2. ❗ **Any Pull Request title needs to follow our Git commits messages
    convention.**\
    We're using the _"Squash and merge"_ strategy, so what matters the most to us
    is the title.
