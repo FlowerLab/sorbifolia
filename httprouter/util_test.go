@@ -316,7 +316,6 @@ func TestCheckDuplicationDeep(t *testing.T) {
 			n = n.ChildNode[0]
 			atomic.AddInt32(&maxCount, 1)
 		}
-		close(ch)
 		wg.Done()
 	}()
 	go func() {
@@ -332,6 +331,7 @@ func TestCheckDuplicationDeep(t *testing.T) {
 	}()
 
 	wg.Wait()
+	close(ch)
 }
 
 func TestCheckNodeTypeDeep(t *testing.T) {
@@ -363,7 +363,6 @@ func TestCheckNodeTypeDeep(t *testing.T) {
 			n = n.ChildNode[0]
 			atomic.AddInt32(&maxCount, 1)
 		}
-		close(ch)
 		wg.Done()
 	}()
 
@@ -379,6 +378,7 @@ func TestCheckNodeTypeDeep(t *testing.T) {
 		wg.Done()
 	}()
 	wg.Wait()
+	close(ch)
 }
 
 func TestSortNodeDeep(t *testing.T) {
@@ -409,7 +409,6 @@ func TestSortNodeDeep(t *testing.T) {
 			ch <- maxCount
 			atomic.AddInt32(&maxCount, 1)
 		}
-		close(ch)
 		wg.Done()
 	}()
 	go func() {
@@ -424,4 +423,5 @@ func TestSortNodeDeep(t *testing.T) {
 		wg.Done()
 	}()
 	wg.Wait()
+	close(ch)
 }
