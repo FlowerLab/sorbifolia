@@ -319,8 +319,11 @@ func TestCheckDuplicationDeep(t *testing.T) {
 	}()
 
 	go func() {
-		for maxCount <= maxStackSize {
+		for {
 			count := <-ch
+			if count > maxStackSize {
+				break
+			}
 			_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
 			_ = writer.Flush()
 		}
@@ -362,8 +365,11 @@ func TestCheckNodeTypeDeep(t *testing.T) {
 	}()
 
 	go func() {
-		for maxCount <= maxStackSize {
+		for {
 			count := <-ch
+			if count > maxStackSize {
+				break
+			}
 			_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
 			_ = writer.Flush()
 		}
@@ -402,8 +408,11 @@ func TestSortNodeDeep(t *testing.T) {
 		wg.Done()
 	}()
 	go func() {
-		for maxCount <= maxStackSize {
+		for {
 			count := <-ch
+			if count > maxStackSize {
+				break
+			}
 			_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
 			_ = writer.Flush()
 		}
