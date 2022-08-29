@@ -298,6 +298,7 @@ func TestCheckDuplicationDeep(t *testing.T) {
 	if err != nil {
 		panic("文件打开失败")
 	}
+	defer func() { _ = recover() }()
 	defer file.Close()
 	writer := bufio.NewWriter(file)
 
@@ -315,6 +316,7 @@ func TestCheckDuplicationDeep(t *testing.T) {
 			n = n.ChildNode[0]
 			atomic.AddInt32(&maxCount, 1)
 		}
+		close(ch)
 		wg.Done()
 	}()
 	go func() {
@@ -342,6 +344,7 @@ func TestCheckNodeTypeDeep(t *testing.T) {
 	if err != nil {
 		panic("文件打开失败")
 	}
+	defer func() { _ = recover() }()
 	defer file.Close()
 	writer := bufio.NewWriter(file)
 
@@ -360,6 +363,7 @@ func TestCheckNodeTypeDeep(t *testing.T) {
 			n = n.ChildNode[0]
 			atomic.AddInt32(&maxCount, 1)
 		}
+		close(ch)
 		wg.Done()
 	}()
 
@@ -387,6 +391,7 @@ func TestSortNodeDeep(t *testing.T) {
 	if err != nil {
 		panic("文件打开失败")
 	}
+	defer func() { _ = recover() }()
 	defer file.Close()
 	writer := bufio.NewWriter(file)
 
@@ -404,6 +409,7 @@ func TestSortNodeDeep(t *testing.T) {
 			ch <- maxCount
 			atomic.AddInt32(&maxCount, 1)
 		}
+		close(ch)
 		wg.Done()
 	}()
 	go func() {
