@@ -1,6 +1,10 @@
 package httprouter
 
 import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -275,27 +279,27 @@ func BenchmarkSortNode(b *testing.B) {
 }
 
 var (
-	//size                        = unsafe.Sizeof(&Node[string]{}) // and other overhead
-	maxStackSize int32          = 1000 // max stack size 1<<20    1000 for ci
-	maxCount     int32          = 0    // recursive times
-	wg           sync.WaitGroup        // record and work of goroutines
+	// size                        = unsafe.Sizeof(&Node[string]{}) // and other overhead
+	maxStackSize int32          = 100 // max stack size 1<<20    100 for ci
+	maxCount     int32          = 0   // recursive times
+	wg           sync.WaitGroup       // record and work of goroutines
 )
 
 // When the Node's depth is 1048683 or 1064946 ,ths stack is overflow.
 // Due to err of stack overflow,I have to use a file to record.
-//The other overhead is maxCount*size
+// The other overhead is maxCount*size
 func TestCheckDuplicationDeep(t *testing.T) {
-	//filepath, err := os.Getwd()
-	//if err != nil {
-	//	panic("获取目录失败")
-	//}
-	//filepath = fmt.Sprintf("%s%s", filepath, "\\log.txt")
-	//file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
-	//if err != nil {
-	//	panic("文件打开失败")
-	//}
-	//defer file.Close()
-	//writer := bufio.NewWriter(file)
+	filepath, err := os.Getwd()
+	if err != nil {
+		panic("获取目录失败")
+	}
+	filepath = fmt.Sprintf("%s%s", filepath, "\\log.txt")
+	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
+	if err != nil {
+		panic("文件打开失败")
+	}
+	defer file.Close()
+	writer := bufio.NewWriter(file)
 
 	n := new(Node[string])
 	tmp := n
@@ -319,9 +323,8 @@ func TestCheckDuplicationDeep(t *testing.T) {
 			if count >= maxStackSize {
 				break
 			}
-			//fmt.Println("递归的深度", strconv.Itoa(int(count)))
-			//_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
-			//_ = writer.Flush()
+			_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
+			_ = writer.Flush()
 		}
 		wg.Done()
 	}()
@@ -330,17 +333,17 @@ func TestCheckDuplicationDeep(t *testing.T) {
 }
 
 func TestCheckNodeTypeDeep(t *testing.T) {
-	//filepath, err := os.Getwd()
-	//if err != nil {
-	//	panic("获取目录失败")
-	//}
-	//filepath = fmt.Sprintf("%s%s", filepath, "\\log.txt")
-	//file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
-	//if err != nil {
-	//	panic("文件打开失败")
-	//}
-	//defer file.Close()
-	//writer := bufio.NewWriter(file)
+	filepath, err := os.Getwd()
+	if err != nil {
+		panic("获取目录失败")
+	}
+	filepath = fmt.Sprintf("%s%s", filepath, "\\log.txt")
+	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
+	if err != nil {
+		panic("文件打开失败")
+	}
+	defer file.Close()
+	writer := bufio.NewWriter(file)
 
 	ch := make(chan int32, 8)
 
@@ -366,9 +369,8 @@ func TestCheckNodeTypeDeep(t *testing.T) {
 			if count >= maxStackSize {
 				break
 			}
-			//fmt.Println("递归的深度", strconv.Itoa(int(count)))
-			//_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
-			//_ = writer.Flush()
+			_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
+			_ = writer.Flush()
 		}
 		wg.Done()
 	}()
@@ -376,17 +378,17 @@ func TestCheckNodeTypeDeep(t *testing.T) {
 }
 
 func TestSortNodeDeep(t *testing.T) {
-	//filepath, err := os.Getwd()
-	//if err != nil {
-	//	panic("获取目录失败")
-	//}
-	//filepath = fmt.Sprintf("%s%s", filepath, "\\log.txt")
-	//file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
-	//if err != nil {
-	//	panic("文件打开失败")
-	//}
-	//defer file.Close()
-	//writer := bufio.NewWriter(file)
+	filepath, err := os.Getwd()
+	if err != nil {
+		panic("获取目录失败")
+	}
+	filepath = fmt.Sprintf("%s%s", filepath, "\\log.txt")
+	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
+	if err != nil {
+		panic("文件打开失败")
+	}
+	defer file.Close()
+	writer := bufio.NewWriter(file)
 
 	n := new(Node[string])
 	tmp := n
@@ -410,9 +412,8 @@ func TestSortNodeDeep(t *testing.T) {
 			if count >= maxStackSize {
 				break
 			}
-			//fmt.Println("递归的深度", strconv.Itoa(int(count)))
-			//_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
-			//_ = writer.Flush()
+			_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
+			_ = writer.Flush()
 		}
 		wg.Done()
 	}()
