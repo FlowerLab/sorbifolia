@@ -305,7 +305,7 @@ func TestCheckDuplicationDeep(t *testing.T) {
 	n := new(Node[string])
 	tmp := n
 	wg.Add(2)
-	ch := make(chan int32, 8)
+	ch := make(chan int32)
 	go func() {
 		for maxCount <= maxStackSize {
 			checkDuplication(tmp)
@@ -329,7 +329,6 @@ func TestCheckDuplicationDeep(t *testing.T) {
 		}
 		wg.Done()
 	}()
-
 	wg.Wait()
 	close(ch)
 }
@@ -348,7 +347,7 @@ func TestCheckNodeTypeDeep(t *testing.T) {
 	defer file.Close()
 	writer := bufio.NewWriter(file)
 
-	ch := make(chan int32, 8)
+	ch := make(chan int32)
 
 	n := new(Node[string])
 	tmp := n
@@ -397,7 +396,7 @@ func TestSortNodeDeep(t *testing.T) {
 
 	n := new(Node[string])
 	tmp := n
-	ch := make(chan int32, 8)
+	ch := make(chan int32)
 	wg.Add(2)
 	go func() {
 		for maxCount <= maxStackSize {
