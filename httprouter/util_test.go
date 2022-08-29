@@ -1,8 +1,6 @@
 package httprouter
 
 import (
-	"fmt"
-	"strconv"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -321,7 +319,7 @@ func TestCheckDuplicationDeep(t *testing.T) {
 			if count >= maxStackSize {
 				break
 			}
-			fmt.Println("递归的深度", strconv.Itoa(int(count)))
+			//fmt.Println("递归的深度", strconv.Itoa(int(count)))
 			//_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
 			//_ = writer.Flush()
 		}
@@ -368,7 +366,7 @@ func TestCheckNodeTypeDeep(t *testing.T) {
 			if count >= maxStackSize {
 				break
 			}
-			fmt.Println("递归的深度", strconv.Itoa(int(count)))
+			//fmt.Println("递归的深度", strconv.Itoa(int(count)))
 			//_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
 			//_ = writer.Flush()
 		}
@@ -412,11 +410,10 @@ func TestSortNodeDeep(t *testing.T) {
 			if count >= maxStackSize {
 				break
 			}
-			fmt.Println("递归的深度", strconv.Itoa(int(count)))
+			//fmt.Println("递归的深度", strconv.Itoa(int(count)))
 			//_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
 			//_ = writer.Flush()
 		}
-
 		wg.Done()
 	}()
 	wg.Wait()
