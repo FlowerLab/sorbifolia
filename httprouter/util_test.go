@@ -279,15 +279,14 @@ func BenchmarkSortNode(b *testing.B) {
 
 var (
 	// size                        = unsafe.Sizeof(&Node[string]{}) // and other overhead
-	maxStackSize int32 = 1000 // max stack size 1<<20    100 for ci
-	maxCount     int32 = 0    // recursive times
+	maxStackSize int32 = 10000 // max stack size 1<<20    100 for ci
 )
 
 // When the Node's depth is 1048683 or 1064946 ,ths stack is overflow.
 // Due to err of stack overflow,I have to use a file to record.
 // The other overhead is maxCount*size
 func TestCheckDuplicationDeep(t *testing.T) {
-	maxCount = 0
+	var maxCount int32 = 0
 	filepath, err := os.Getwd()
 	if err != nil {
 		panic("获取目录失败")
@@ -327,7 +326,7 @@ func TestCheckDuplicationDeep(t *testing.T) {
 }
 
 func TestCheckNodeTypeDeep(t *testing.T) {
-	maxCount = 0
+	var maxCount int32 = 0
 	filepath, err := os.Getwd()
 	if err != nil {
 		panic("获取目录失败")
@@ -368,7 +367,7 @@ func TestCheckNodeTypeDeep(t *testing.T) {
 }
 
 func TestSortNodeDeep(t *testing.T) {
-	maxCount = 0
+	var maxCount int32 = 0
 	filepath, err := os.Getwd()
 	if err != nil {
 		panic("获取目录失败")
