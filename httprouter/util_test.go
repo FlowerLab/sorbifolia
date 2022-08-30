@@ -287,6 +287,7 @@ var (
 // Due to err of stack overflow,I have to use a file to record.
 // The other overhead is maxCount*size
 func TestCheckDuplicationDeep(t *testing.T) {
+	maxCount = 0
 	filepath, err := os.Getwd()
 	if err != nil {
 		panic("获取目录失败")
@@ -326,6 +327,7 @@ func TestCheckDuplicationDeep(t *testing.T) {
 }
 
 func TestCheckNodeTypeDeep(t *testing.T) {
+	maxCount = 0
 	filepath, err := os.Getwd()
 	if err != nil {
 		panic("获取目录失败")
@@ -366,6 +368,7 @@ func TestCheckNodeTypeDeep(t *testing.T) {
 }
 
 func TestSortNodeDeep(t *testing.T) {
+	maxCount = 0
 	filepath, err := os.Getwd()
 	if err != nil {
 		panic("获取目录失败")
