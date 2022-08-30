@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"sync"
 	"sync/atomic"
 	"testing"
 )
@@ -280,9 +279,8 @@ func BenchmarkSortNode(b *testing.B) {
 
 var (
 	// size                        = unsafe.Sizeof(&Node[string]{}) // and other overhead
-	maxStackSize int32          = 100 // max stack size 1<<20    100 for ci
-	maxCount     int32          = 0   // recursive times
-	wg           sync.WaitGroup       // record and work of goroutines
+	maxStackSize int32 = 1000 // max stack size 1<<20    100 for ci
+	maxCount     int32 = 0    // recursive times
 )
 
 // When the Node's depth is 1048683 or 1064946 ,ths stack is overflow.
@@ -304,7 +302,6 @@ func TestCheckDuplicationDeep(t *testing.T) {
 
 	n := new(Node[string])
 	tmp := n
-	wg.Add(2)
 	ch := make(chan int32)
 	go func() {
 		for maxCount <= maxStackSize {
@@ -316,20 +313,15 @@ func TestCheckDuplicationDeep(t *testing.T) {
 			n = n.ChildNode[0]
 			atomic.AddInt32(&maxCount, 1)
 		}
-		wg.Done()
 	}()
-	go func() {
-		for {
-			count := <-ch
-			if count >= maxStackSize {
-				break
-			}
-			_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
-			_ = writer.Flush()
+	for {
+		count := <-ch
+		if count >= maxStackSize {
+			break
 		}
-		wg.Done()
-	}()
-	wg.Wait()
+		_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
+		_ = writer.Flush()
+	}
 	close(ch)
 }
 
@@ -351,7 +343,6 @@ func TestCheckNodeTypeDeep(t *testing.T) {
 
 	n := new(Node[string])
 	tmp := n
-	wg.Add(2)
 	go func() {
 		for maxCount <= maxStackSize {
 			checkNodeType(tmp)
@@ -362,21 +353,15 @@ func TestCheckNodeTypeDeep(t *testing.T) {
 			n = n.ChildNode[0]
 			atomic.AddInt32(&maxCount, 1)
 		}
-		wg.Done()
 	}()
-
-	go func() {
-		for {
-			count := <-ch
-			if count >= maxStackSize {
-				break
-			}
-			_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
-			_ = writer.Flush()
+	for {
+		count := <-ch
+		if count >= maxStackSize {
+			break
 		}
-		wg.Done()
-	}()
-	wg.Wait()
+		_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
+		_ = writer.Flush()
+	}
 	close(ch)
 }
 
@@ -397,7 +382,6 @@ func TestSortNodeDeep(t *testing.T) {
 	n := new(Node[string])
 	tmp := n
 	ch := make(chan int32)
-	wg.Add(2)
 	go func() {
 		for maxCount <= maxStackSize {
 			sortNode(tmp)
@@ -408,19 +392,14 @@ func TestSortNodeDeep(t *testing.T) {
 			ch <- maxCount
 			atomic.AddInt32(&maxCount, 1)
 		}
-		wg.Done()
 	}()
-	go func() {
-		for {
-			count := <-ch
-			if count >= maxStackSize {
-				break
-			}
-			_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
-			_ = writer.Flush()
+	for {
+		count := <-ch
+		if count >= maxStackSize {
+			break
 		}
-		wg.Done()
-	}()
-	wg.Wait()
+		_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
+		_ = writer.Flush()
+	}
 	close(ch)
 }
