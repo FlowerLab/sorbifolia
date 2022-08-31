@@ -282,19 +282,19 @@ var (
 	maxStackSize int32 = 10000 // max stack size 1<<20    100 for ci
 )
 
-// When the Node's depth is 1048683 or 1064946 ,ths stack is overflow.
+// TestCheckDuplicationDeep When the Node's depth is 1048683 or 1064946 ,ths stack is overflow.
 // Due to err of stack overflow,I have to use a file to record.
 // The other overhead is maxCount*size
 func TestCheckDuplicationDeep(t *testing.T) {
 	var maxCount int32 = 0
 	filepath, err := os.Getwd()
 	if err != nil {
-		panic("获取目录失败")
+		panic("get directory err")
 	}
 	filepath = fmt.Sprintf("%s%s", filepath, "\\log.txt")
 	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
 	if err != nil {
-		panic("文件打开失败")
+		panic("open file error")
 	}
 	defer func() { _ = recover() }()
 	defer file.Close()
@@ -319,7 +319,7 @@ func TestCheckDuplicationDeep(t *testing.T) {
 		if count >= maxStackSize {
 			break
 		}
-		_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
+		_, _ = writer.WriteString("the depth: " + strconv.Itoa(int(count)) + "\n")
 		_ = writer.Flush()
 	}
 	close(ch)
@@ -329,12 +329,12 @@ func TestCheckNodeTypeDeep(t *testing.T) {
 	var maxCount int32 = 0
 	filepath, err := os.Getwd()
 	if err != nil {
-		panic("获取目录失败")
+		panic("get directory err")
 	}
 	filepath = fmt.Sprintf("%s%s", filepath, "\\log.txt")
 	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
 	if err != nil {
-		panic("文件打开失败")
+		panic("open file error")
 	}
 	defer func() { _ = recover() }()
 	defer file.Close()
@@ -360,7 +360,7 @@ func TestCheckNodeTypeDeep(t *testing.T) {
 		if count >= maxStackSize {
 			break
 		}
-		_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
+		_, _ = writer.WriteString("the depth: " + strconv.Itoa(int(count)) + "\n")
 		_ = writer.Flush()
 	}
 	close(ch)
@@ -370,12 +370,12 @@ func TestSortNodeDeep(t *testing.T) {
 	var maxCount int32 = 0
 	filepath, err := os.Getwd()
 	if err != nil {
-		panic("获取目录失败")
+		panic("get directory err")
 	}
 	filepath = fmt.Sprintf("%s%s", filepath, "\\log.txt")
 	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
 	if err != nil {
-		panic("文件打开失败")
+		panic("open file err")
 	}
 	defer func() { _ = recover() }()
 	defer file.Close()
@@ -400,7 +400,7 @@ func TestSortNodeDeep(t *testing.T) {
 		if count >= maxStackSize {
 			break
 		}
-		_, _ = writer.WriteString("递归的深度: " + strconv.Itoa(int(count)) + "\n")
+		_, _ = writer.WriteString("the depth: " + strconv.Itoa(int(count)) + "\n")
 		_ = writer.Flush()
 	}
 	close(ch)
