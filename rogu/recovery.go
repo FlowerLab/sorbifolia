@@ -16,6 +16,7 @@ func Recovery() func() {
 				zap.Any("error", err),
 				zap.String("stack", string(stack())),
 			)
+			zap.L()
 		}
 	}
 }
