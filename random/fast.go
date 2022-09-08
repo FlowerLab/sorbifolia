@@ -5,52 +5,26 @@ import (
 	_ "unsafe"
 )
 
-type FastRand struct {
-	randBytes    []byte
-	randBytesLen int
+type fastRand struct{ *randString }
+
+func Fast() Random {
+	return &fastRand{newRandString()}
 }
 
-func NewFastRand() RandString {
-	return &FastRand{
-		randBytes:    []byte(randBytes),
-		randBytesLen: randBytesLen,
-	}
-}
-
-func (r FastRand) RandString(length int) string {
-	arr := make([]byte, length)
+func (r fastRand) RandString(length int) string {
+	arr := make([]int, length)
 	for i := range arr {
-		arr[i] = r.randBytes[uint64(fastRand())*uint64(r.randBytesLen)>>32]
+		arr[i] = int(uint64(_fastRand()) * uint64(r.randString.randBytesLen) >> 32)
 	}
-	return string(arr)
+	return r.randString.RandString(arr)
 }
 
-func (r FastRand) SetRandBytes(data []byte) RandString {
-	if len(data) > 256 {
-		panic("data too long")
-	}
-	if hasRepeat(data) {
-		panic("not repeatable")
-	}
-
-	r.randBytes = data
-	r.randBytesLen = len(data)
-	return r
+func (r fastRand) SetRandBytes(data []byte) Random {
+	return &fastRand{r.randString.SetRandBytes(data)}
 }
 
-//go:linkname fastRand runtime.fastrand
-func fastRand() uint32
+//go:linkname _fastRand runtime.fastrand
+func _fastRand() uint32
 
-//go:linkname fastRand64 runtime.fastrand64
-func fastRand64() uint64
-
-func hasRepeat[T comparable](arr []T) bool {
-	m := make(map[T]struct{})
-	for _, v := range arr {
-		if _, ok := m[v]; ok {
-			return ok
-		}
-		m[v] = struct{}{}
-	}
-	return false
-}
+//go:linkname _fastRand64 runtime.fastrand64
+func _fastRand64() uint64

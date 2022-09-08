@@ -5,7 +5,7 @@ import (
 )
 
 func TestMathRand(t *testing.T) {
-	fr := NewMathRand()
+	fr := Math()
 	if len(fr.RandString(10)) != 10 {
 		t.Error("1")
 	}
@@ -23,7 +23,7 @@ func TestMathRandRepeatable(t *testing.T) {
 		}
 	}()
 
-	NewMathRand().SetRandBytes([]byte("11")).RandString(1)
+	Math().SetRandBytes([]byte("11")).RandString(1)
 }
 
 func TestMathRandTooLong(t *testing.T) {
@@ -33,11 +33,11 @@ func TestMathRandTooLong(t *testing.T) {
 		}
 	}()
 
-	NewMathRand().SetRandBytes(make([]byte, 257)).RandString(1)
+	Math().SetRandBytes(make([]byte, 257)).RandString(1)
 }
 
 func BenchmarkMathRand(b *testing.B) {
-	r := NewMathRand()
+	r := Math()
 	for i := 0; i < b.N; i++ {
 		r.RandString(10)
 	}
