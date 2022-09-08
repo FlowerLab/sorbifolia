@@ -45,36 +45,37 @@ func (r *Router[T]) Sort() {
 	}
 }
 
-func (r *Router[T]) Find(method Method, path string) (Handlers[T], Params) {
-	node, params := r.findNode(r.Method(method), strings.Split(path, "/"))
+func (r *Router[T]) Find(method Method, path string, params *Params) Handlers[T] {
+	params.clean()
+
+	node := r.findNode(r.Method(method), strings.Split(path, "/"), params)
 	if node == nil {
-		return nil, nil
+		return nil
 	}
-	return node.Handler, params
+
+	return node.Handler
 }
 
-func (r *Router[T]) findNode(node *Node[T], path []string) (*Node[T], Params) {
-	var params Params
-
+func (r *Router[T]) findNode(node *Node[T], path []string, params *Params) *Node[T] {
 	switch node.Type {
 	case NodeWild:
-		return node, Params{{node.Path, strings.Join(path, "/")}}
+		params.Add(node.Path, strings.Join(path, "/"))
+		return node
 	case NodeFixed:
-		params = append(params, Param{node.Path, path[0]})
+		params.Add(node.Path, path[0])
 	case NodeStatic:
 		if path[0] != node.Path {
-			return nil, nil
+			return nil
 		}
 	}
 
 	if len(path) == 1 {
-		return node, params
+		return node
 	}
 	for _, v := range node.ChildNode {
-		if val, p := r.findNode(v, path[1:]); val != nil {
-			params = append(params, p...)
-			return val, params
+		if val := r.findNode(v, path[1:], params); val != nil {
+			return val
 		}
 	}
-	return nil, nil
+	return nil
 }
