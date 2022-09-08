@@ -42,13 +42,6 @@ func BenchmarkFastRand(b *testing.B) {
 	}
 }
 
-func BenchmarkFastRand2(b *testing.B) {
-	fr := Fast()
-	for i := 0; i < b.N; i++ {
-		fr.RandString(1123)
-	}
-}
-
 func TestNewFastRandTooLon(t *testing.T) {
 	defer func() {
 		if e := recover(); e == nil {
