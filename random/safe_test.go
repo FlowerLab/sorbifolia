@@ -39,6 +39,6 @@ func TestSafeRandTooLong(t *testing.T) {
 func BenchmarkSafeRand(b *testing.B) {
 	fr := Safe()
 	for i := 0; i < b.N; i++ {
-		fr.RandString(10)
+		fr.RandString(1123)
 	}
 }

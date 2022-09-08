@@ -1,7 +1,6 @@
 package random
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -43,13 +42,6 @@ func BenchmarkFastRand(b *testing.B) {
 	}
 }
 
-func BenchmarkFastRand2(b *testing.B) {
-	fr := Fast()
-	for i := 0; i < b.N; i++ {
-		fr.RandString(1123)
-	}
-}
-
 func TestNewFastRandTooLon(t *testing.T) {
 	defer func() {
 		if e := recover(); e == nil {
@@ -63,12 +55,3 @@ func TestNewFastRandTooLon(t *testing.T) {
 func TestFastRand64(t *testing.T) {
 	_fastRand64()
 }
-
-func TestA(t *testing.T) {
-	i := 123
-	fmt.Println(i % -2)
-	fmt.Println(i % 12222)
-
-}
-
-// 	fmt.Println(toP[int64](u))

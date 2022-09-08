@@ -39,6 +39,6 @@ func TestMathRandTooLong(t *testing.T) {
 func BenchmarkMathRand(b *testing.B) {
 	r := Math()
 	for i := 0; i < b.N; i++ {
-		r.RandString(10)
+		r.RandString(1123)
 	}
 }
