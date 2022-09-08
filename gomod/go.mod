@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/go-git/go-git/v5 v5.4.2
-	go.x2ox.com/sorbifolia/random v0.0.0-20220415072307-4f5e1081ff87
+	go.x2ox.com/sorbifolia/random v0.0.0-20220908024204-f7f3f4ee5338
 	golang.org/x/mod v0.5.1
 )
 
