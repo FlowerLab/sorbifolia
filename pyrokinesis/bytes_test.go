@@ -14,7 +14,7 @@ func Test_Bytes_ToNumber(t *testing.T) {
 		if n := Bytes.ToInt([]byte{123, 123, 12, 0, 0, 0, 0, 255}); n != -72057594037109893 {
 			t.Error("Bytes.ToNumber err num:", n)
 		}
-		if n := Bytes.ToUint64([]byte{123, 123, 12, 0, 0, 0, 0, 255}); n != 18374686479672441723 {
+		if n := Bytes.ToUint([]byte{123, 123, 12, 0, 0, 0, 0, 255}); n != 18374686479672441723 {
 			t.Error("Bytes.ToNumber err num:", n)
 		}
 	}
