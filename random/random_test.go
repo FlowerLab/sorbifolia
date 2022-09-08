@@ -54,3 +54,29 @@ func TestReverse(t *testing.T) {
 		t.Error("TestReverse failed: ")
 	}
 }
+
+func TestRandom_Number(t *testing.T) {
+	var arr = []Random{Safe(), Fast(), Math()}
+	for _, v := range arr {
+		v.Uint()
+		v.Uint64()
+		v.Uint32()
+		v.Uint16()
+		v.Uint8()
+		v.Int()
+		v.Int64()
+		v.Int32()
+		v.Int16()
+		v.Int8()
+		v.Uintn(12)
+		v.Uint64n(32)
+		v.Uint32n(21)
+		v.Uint16n(12)
+		v.Uint8n(33)
+		v.Intn(11)
+		v.Int64n(14)
+		v.Int32n(16)
+		v.Int16n(18)
+		v.Int8n(10)
+	}
+}

@@ -1,6 +1,7 @@
 package random
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -62,3 +63,12 @@ func TestNewFastRandTooLon(t *testing.T) {
 func TestFastRand64(t *testing.T) {
 	_fastRand64()
 }
+
+func TestA(t *testing.T) {
+	i := 123
+	fmt.Println(i % -2)
+	fmt.Println(i % 12222)
+
+}
+
+// 	fmt.Println(toP[int64](u))
