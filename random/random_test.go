@@ -78,5 +78,16 @@ func TestRandom_Number(t *testing.T) {
 		v.Int32n(16)
 		v.Int16n(18)
 		v.Int8n(10)
+
+		v.Uintn(0)
+		v.Uint64n(0)
+		v.Uint32n(0)
+		v.Uint16n(0)
+		v.Uint8n(0)
+		v.Intn(0)
+		v.Int64n(0)
+		v.Int32n(0)
+		v.Int16n(0)
+		v.Int8n(0)
 	}
 }
