@@ -5,7 +5,7 @@ import (
 )
 
 func TestNewFastRand(t *testing.T) {
-	fr := NewFastRand()
+	fr := Fast()
 	if len(fr.RandString(10)) != 10 {
 		t.Error("1")
 	}
@@ -23,7 +23,7 @@ func TestNewFastRandRepeatable(t *testing.T) {
 		}
 	}()
 
-	NewFastRand().SetRandBytes([]byte("11")).RandString(1)
+	Fast().SetRandBytes([]byte("11")).RandString(1)
 }
 
 func TestNewFastRandTooLong(t *testing.T) {
@@ -33,17 +33,17 @@ func TestNewFastRandTooLong(t *testing.T) {
 		}
 	}()
 
-	NewFastRand().SetRandBytes(make([]byte, 257)).RandString(1)
+	Fast().SetRandBytes(make([]byte, 257)).RandString(1)
 }
 
 func BenchmarkFastRand(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		NewFastRand().RandString(1123)
+		Fast().RandString(1123)
 	}
 }
 
 func BenchmarkFastRand2(b *testing.B) {
-	fr := NewFastRand()
+	fr := Fast()
 	for i := 0; i < b.N; i++ {
 		fr.RandString(1123)
 	}
@@ -56,9 +56,9 @@ func TestNewFastRandTooLon(t *testing.T) {
 		}
 	}()
 
-	NewFastRand().SetRandBytes(make([]byte, 257)).RandString(1)
+	Fast().SetRandBytes(make([]byte, 257)).RandString(1)
 }
 
 func TestFastRand64(t *testing.T) {
-	fastRand64()
+	_fastRand64()
 }

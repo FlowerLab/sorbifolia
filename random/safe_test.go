@@ -5,7 +5,7 @@ import (
 )
 
 func TestSafeRand(t *testing.T) {
-	fr := NewSafeRand()
+	fr := Safe()
 	if len(fr.RandString(10)) != 10 {
 		t.Error("1")
 	}
@@ -23,7 +23,7 @@ func TestSafeRandRepeatable(t *testing.T) {
 		}
 	}()
 
-	NewSafeRand().SetRandBytes([]byte("11")).RandString(1)
+	Safe().SetRandBytes([]byte("11")).RandString(1)
 }
 
 func TestSafeRandTooLong(t *testing.T) {
@@ -33,11 +33,11 @@ func TestSafeRandTooLong(t *testing.T) {
 		}
 	}()
 
-	NewSafeRand().SetRandBytes(make([]byte, 257)).RandString(1)
+	Safe().SetRandBytes(make([]byte, 257)).RandString(1)
 }
 
 func BenchmarkSafeRand(b *testing.B) {
-	fr := NewSafeRand()
+	fr := Safe()
 	for i := 0; i < b.N; i++ {
 		fr.RandString(10)
 	}

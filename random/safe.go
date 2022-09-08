@@ -4,35 +4,22 @@ import (
 	cr "crypto/rand"
 )
 
-type SafeRand struct {
-	randBytes    []byte
-	randBytesLen int
+type safeRand struct{ *randString }
+
+func Safe() Random {
+	return &safeRand{newRandString()}
 }
 
-func NewSafeRand() RandString {
-	return &SafeRand{
-		randBytes:    []byte(randBytes),
-		randBytesLen: randBytesLen,
-	}
-}
-
-func (r SafeRand) RandString(length int) string {
+func (r safeRand) RandString(length int) string {
 	arr := make([]byte, length)
+	arr1 := make([]int, length)
 	_, _ = cr.Read(arr)
 	for i := range arr {
-		arr[i] = r.randBytes[uint64(arr[i])*uint64(r.randBytesLen)>>8]
+		arr1[i] = int(uint64(arr[i]) * uint64(r.randBytesLen) >> 8)
 	}
-	return string(arr)
+	return r.randString.RandString(arr1)
 }
 
-func (r SafeRand) SetRandBytes(data []byte) RandString {
-	if len(data) > 256 {
-		panic("data too long")
-	}
-	if hasRepeat(data) {
-		panic("not repeatable")
-	}
-	r.randBytes = data
-	r.randBytesLen = len(data)
-	return r
+func (r safeRand) SetRandBytes(data []byte) Random {
+	return &safeRand{r.randString.SetRandBytes(data)}
 }
