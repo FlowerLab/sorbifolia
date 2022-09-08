@@ -34,10 +34,10 @@ func (r safeRand) Uint16() uint16 { return pn.Bytes.ToUint16(r.read(2)) }
 func (r safeRand) Uint8() uint8   { return pn.Bytes.ToUint8(r.read(1)) }
 
 func (r safeRand) Int() int     { return pn.Bytes.ToInt(r.read(_intSize)) }
-func (r safeRand) Int64() int64 { return pn.Bytes.ToInt64(r.read(_intSize)) }
-func (r safeRand) Int32() int32 { return pn.Bytes.ToInt32(r.read(_intSize)) }
-func (r safeRand) Int16() int16 { return pn.Bytes.ToInt16(r.read(_intSize)) }
-func (r safeRand) Int8() int8   { return pn.Bytes.ToInt8(r.read(_intSize)) }
+func (r safeRand) Int64() int64 { return pn.Bytes.ToInt64(r.read(8)) }
+func (r safeRand) Int32() int32 { return pn.Bytes.ToInt32(r.read(4)) }
+func (r safeRand) Int16() int16 { return pn.Bytes.ToInt16(r.read(2)) }
+func (r safeRand) Int8() int8   { return pn.Bytes.ToInt8(r.read(1)) }
 
 func (r safeRand) Uintn(n uint) uint       { return remainder(n, r.Uint()) }
 func (r safeRand) Uint64n(n uint64) uint64 { return remainder(n, r.Uint64()) }
