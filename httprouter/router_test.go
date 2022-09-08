@@ -97,6 +97,9 @@ func TestRouter_Find(t *testing.T) {
 	if a := r.Find(GET, "/api/v1/a/b/c/d", ps); a == nil || (*ps)[0].Val != "c" {
 		t.Error("fail")
 	}
+	if _, ok := ps.Get(":i"); ok {
+		t.Error("fail")
+	}
 	if a := r.Find(GET, "/api/v1/a/b/c/e", ps); a != nil {
 		t.Error("fail")
 	}
