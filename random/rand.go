@@ -5,7 +5,7 @@ import (
 )
 
 func Pick[T any](items []T) T {
-	return items[Fast().Intn(len(items))]
+	return items[Fast().Uintn(uint(len(items)))]
 }
 
 func Picks[T any](items []T, num int) []T {
