@@ -10,12 +10,16 @@ import (
 )
 
 func TestCBC(t *testing.T) {
+	t.Parallel()
+
 	testAESBlock(t, func(block cipher.Block, iv []byte, pad padding.Padding) CryptBlock {
 		return CBC(block, iv, pad)
 	})
 }
 
 func TestECB(t *testing.T) {
+	t.Parallel()
+
 	testAESBlock(t, func(block cipher.Block, iv []byte, pad padding.Padding) CryptBlock {
 		return ECB(block, pad)
 	})

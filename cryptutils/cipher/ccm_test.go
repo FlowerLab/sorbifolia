@@ -13,6 +13,8 @@ import (
 )
 
 func TestCcm(t *testing.T) {
+	t.Parallel()
+
 	C4A := make([]byte, 524288/8)
 	for i := range C4A {
 		C4A[i] = byte(i)
@@ -91,6 +93,8 @@ func TestCcm(t *testing.T) {
 }
 
 func TestNewCCMWithNonceAndTagSizes(t *testing.T) {
+	t.Parallel()
+
 	block, err := aes.NewCipher([]byte{0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f})
 	if err != nil {
 		t.Fatal(err)
@@ -160,6 +164,8 @@ func (t testBlock) Encrypt(dst, src []byte) {}
 func (t testBlock) Decrypt(dst, src []byte) {}
 
 func TestCCM(t *testing.T) {
+	t.Parallel()
+
 	var testDataRfc3610 = []struct {
 		key        string
 		nonce      string
@@ -274,6 +280,8 @@ func TestCCM(t *testing.T) {
 }
 
 func TestCcmGetTag(t *testing.T) {
+	t.Parallel()
+
 	t.Run("", func(t *testing.T) {
 		block, err := aes.NewCipher([]byte{0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f})
 		if err != nil {

@@ -19,6 +19,8 @@ var (
 )
 
 func TestCCM(t *testing.T) {
+	t.Parallel()
+
 	testAEAD(t, func(block cipher.Block) AEAD {
 		aead, err := CCM(block, 13, 16)
 		if err != nil {
@@ -29,6 +31,8 @@ func TestCCM(t *testing.T) {
 }
 
 func TestEAX(t *testing.T) {
+	t.Parallel()
+
 	testAEAD(t, func(block cipher.Block) AEAD {
 		aead, err := EAX(block)
 		if err != nil {
@@ -39,6 +43,8 @@ func TestEAX(t *testing.T) {
 }
 
 func TestGCM(t *testing.T) {
+	t.Parallel()
+
 	testAEAD(t, func(block cipher.Block) AEAD {
 		aead, err := GCM(block)
 		if err != nil {
@@ -49,6 +55,8 @@ func TestGCM(t *testing.T) {
 }
 
 func TestOCB(t *testing.T) {
+	t.Parallel()
+
 	testAEAD(t, func(block cipher.Block) AEAD {
 		aead, err := OCB(block)
 		if err != nil {
