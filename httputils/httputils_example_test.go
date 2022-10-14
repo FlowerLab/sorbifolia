@@ -15,6 +15,8 @@ type X2oxIPResp struct {
 }
 
 func TestHTTP(t *testing.T) {
+	t.Parallel()
+
 	var resp X2oxIPResp
 	err := Get("https://api.ip.x2ox.com/api/ip?type=json").
 		SetContentType(AppJSON).
@@ -29,6 +31,8 @@ func TestHTTP(t *testing.T) {
 }
 
 func TestHTTPRetry(t *testing.T) {
+	t.Parallel()
+
 	var resp X2oxIPResp
 	err := Get("https://api.ip.x2ox.com/api/ip?type=json").
 		SetContentType(AppJSON).
@@ -43,6 +47,8 @@ func TestHTTPRetry(t *testing.T) {
 }
 
 func TestHTTPError(t *testing.T) {
+	t.Parallel()
+
 	var resp X2oxIPResp
 	err := Post("https://api.ip.x2ox.com/api/ip?type=json").
 		SetContentType(AppJSON).

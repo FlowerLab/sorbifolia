@@ -43,6 +43,8 @@ var (
 )
 
 func TestNewEncoder(t *testing.T) {
+	t.Parallel()
+
 	var buf = new(bytes.Buffer)
 
 	for _, v := range _enc {
@@ -59,6 +61,8 @@ func TestNewEncoder(t *testing.T) {
 }
 
 func TestFormDataEncoder(t *testing.T) {
+	t.Parallel()
+
 	e := FormData(func(w *multipart.Writer) error {
 		return errors.New("error")
 	})

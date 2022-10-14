@@ -5,6 +5,8 @@ import (
 )
 
 func TestNewMethod(t *testing.T) {
+	t.Parallel()
+
 	arr := []struct {
 		m Method
 		v string

@@ -11,6 +11,8 @@ import (
 )
 
 func TestDefaultZapConfig(t *testing.T) {
+	t.Parallel()
+
 	c := DefaultZapConfig(DefaultZapEncoderConfig(), []string{"stdout"}, []string{"stderr"})
 	logger, err := c.Build()
 	if err != nil {
@@ -32,6 +34,8 @@ func (ts *TestSink) Write(p []byte) (n int, err error) {
 }
 
 func TestZapRegisterSink(t *testing.T) {
+	t.Parallel()
+
 	if err := ZapRegisterSink(new(TestSink)); err != nil {
 		t.Fatal(err)
 	}
@@ -49,6 +53,8 @@ func TestZapRegisterSink(t *testing.T) {
 }
 
 func TestMustReplaceGlobals(t *testing.T) {
+	t.Parallel()
+
 	MustReplaceGlobals(DefaultZapConfig(DefaultZapEncoderConfig(),
 		[]string{"stdout"},
 		[]string{"stderr"}))

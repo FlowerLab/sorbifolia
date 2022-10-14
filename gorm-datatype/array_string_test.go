@@ -7,6 +7,8 @@ import (
 )
 
 func TestArrayString_GormDataType(t *testing.T) {
+	t.Parallel()
+
 	var i ArrayString
 	if i.GormDataType() != "ArrayString" {
 		t.Error("GormDataType Array")
@@ -14,6 +16,8 @@ func TestArrayString_GormDataType(t *testing.T) {
 }
 
 func TestArrayString_GormDBDataType(t *testing.T) {
+	t.Parallel()
+
 	var (
 		i      ArrayString
 		testDB = &gorm.DB{Config: &gorm.Config{Dialector: testDialector("postgres")}}
@@ -29,6 +33,8 @@ func TestArrayString_GormDBDataType(t *testing.T) {
 }
 
 func TestArrayString_Scan(t *testing.T) {
+	t.Parallel()
+
 	for _, tt := range []struct {
 		str string
 		arr []string
@@ -75,6 +81,8 @@ func TestArrayString_Scan(t *testing.T) {
 }
 
 func TestArrayString_ScanErr(t *testing.T) {
+	t.Parallel()
+
 	for _, tt := range []struct {
 		str string
 		err string
@@ -97,6 +105,8 @@ func TestArrayString_ScanErr(t *testing.T) {
 }
 
 func TestArrayString_Value(t *testing.T) {
+	t.Parallel()
+
 	var a ArrayString = nil
 	if val, err := a.Value(); err != nil || val != nil {
 		t.Error("expected")

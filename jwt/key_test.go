@@ -5,6 +5,8 @@ import (
 )
 
 func TestGenerator(t *testing.T) {
+	t.Parallel()
+
 	g := Generator{}
 
 	if _, err := g.Ed25519(); err != nil {

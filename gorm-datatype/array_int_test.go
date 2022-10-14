@@ -13,6 +13,8 @@ type TestArrayInt struct {
 }
 
 func TestArray_Int(t *testing.T) {
+	t.Parallel()
+
 	initDB()
 	if err := db.AutoMigrate(&TestArrayInt{}); err != nil {
 		t.Error(err)
@@ -29,6 +31,8 @@ func TestArray_Int(t *testing.T) {
 }
 
 func TestArray_GormDataType(t *testing.T) {
+	t.Parallel()
+
 	var i Array[int]
 	if i.GormDataType() != "Array" {
 		t.Error("GormDataType Array")
@@ -36,6 +40,8 @@ func TestArray_GormDataType(t *testing.T) {
 }
 
 func TestArray_GormDBDataType(t *testing.T) {
+	t.Parallel()
+
 	var (
 		i      Array[int]
 		testDB = &gorm.DB{Config: &gorm.Config{Dialector: testDialector("postgres")}}
@@ -51,6 +57,8 @@ func TestArray_GormDBDataType(t *testing.T) {
 }
 
 func TestArray_Scan(t *testing.T) {
+	t.Parallel()
+
 	for _, tt := range []struct {
 		str string
 		arr []int
@@ -97,6 +105,8 @@ func TestArray_Scan(t *testing.T) {
 }
 
 func TestArray_ScanErr(t *testing.T) {
+	t.Parallel()
+
 	for _, tt := range []struct {
 		str string
 		arr []int
@@ -115,6 +125,8 @@ func TestArray_ScanErr(t *testing.T) {
 }
 
 func TestArray_Value(t *testing.T) {
+	t.Parallel()
+
 	var a Array[int] = nil
 	if val, err := a.Value(); err != nil || val != nil {
 		t.Error("expected")

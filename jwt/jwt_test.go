@@ -11,6 +11,8 @@ type Info struct {
 }
 
 func TestJWT(t *testing.T) {
+	t.Parallel()
+
 	gen := Generator{}
 	rpk, _ := gen.Ed25519()
 	j := New(EdDSA, rpk, rpk.Public(), Claims[Info]{})
@@ -48,6 +50,8 @@ func TestJWT(t *testing.T) {
 }
 
 func TestJWT_MustGenerate(t *testing.T) {
+	t.Parallel()
+
 	type TestData struct {
 		A, B chan struct{}
 	}
@@ -70,6 +74,8 @@ func TestJWT_MustGenerate(t *testing.T) {
 }
 
 func TestJWT_Parse(t *testing.T) {
+	t.Parallel()
+
 	gen := Generator{}
 	rpk, _ := gen.Ed25519()
 	j := New(EdDSA, rpk, rpk.Public(), Claims[any]{})
@@ -80,6 +86,8 @@ func TestJWT_Parse(t *testing.T) {
 }
 
 func TestJWT_ParseToken(t *testing.T) {
+	t.Parallel()
+
 	gen := Generator{}
 	rpk, _ := gen.Ed25519()
 	j := New(EdDSA, rpk, rpk.Public(), Claims[any]{})

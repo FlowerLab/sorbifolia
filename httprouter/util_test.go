@@ -1,15 +1,12 @@
 package httprouter
 
 import (
-	"bufio"
-	"fmt"
-	"os"
-	"strconv"
-	"sync/atomic"
 	"testing"
 )
 
 func TestCheckDuplication(t *testing.T) {
+	t.Parallel()
+
 	n := &Node[string]{
 		ChildNode: []*Node[string]{
 			{Path: "", ChildNode: []*Node[string]{
@@ -96,6 +93,8 @@ func BenchmarkCheckDuplication(b *testing.B) {
 }
 
 func TestCheckNodeType(t *testing.T) {
+
+	t.Parallel()
 
 	t.Run("", func(t *testing.T) {
 		n := &Node[string]{
@@ -196,6 +195,8 @@ func TestCheckNodeType(t *testing.T) {
 }
 
 func TestSortName(t *testing.T) {
+	t.Parallel()
+
 	t.Run("", func(t *testing.T) {
 		n := &Node[string]{
 			Type: NodeStatic,
@@ -275,133 +276,4 @@ func BenchmarkSortNode(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		sortNode(n)
 	}
-}
-
-var (
-	// size                        = unsafe.Sizeof(&Node[string]{}) // and other overhead
-	maxStackSize int32 = 10000 // max stack size 1<<20    100 for ci
-)
-
-// TestCheckDuplicationDeep When the Node's depth is 1048683 or 1064946 ,ths stack is overflow.
-// Due to err of stack overflow,I have to use a file to record.
-// The other overhead is maxCount*size
-func TestCheckDuplicationDeep(t *testing.T) {
-	var maxCount int32 = 0
-	filepath, err := os.Getwd()
-	if err != nil {
-		panic("get directory err")
-	}
-	filepath = fmt.Sprintf("%s%s", filepath, "\\log.txt")
-	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
-	if err != nil {
-		panic("open file error")
-	}
-	defer func() { _ = recover() }()
-	defer file.Close()
-	writer := bufio.NewWriter(file)
-
-	n := new(Node[string])
-	tmp := n
-	ch := make(chan int32)
-	go func() {
-		for maxCount <= maxStackSize {
-			checkDuplication(tmp)
-			ch <- maxCount
-			n.ChildNode = []*Node[string]{
-				{Path: ""},
-			}
-			n = n.ChildNode[0]
-			atomic.AddInt32(&maxCount, 1)
-		}
-	}()
-	for {
-		count := <-ch
-		if count >= maxStackSize {
-			break
-		}
-		_, _ = writer.WriteString("the depth: " + strconv.Itoa(int(count)) + "\n")
-		_ = writer.Flush()
-	}
-	close(ch)
-}
-
-func TestCheckNodeTypeDeep(t *testing.T) {
-	var maxCount int32 = 0
-	filepath, err := os.Getwd()
-	if err != nil {
-		panic("get directory err")
-	}
-	filepath = fmt.Sprintf("%s%s", filepath, "\\log.txt")
-	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
-	if err != nil {
-		panic("open file error")
-	}
-	defer func() { _ = recover() }()
-	defer file.Close()
-	writer := bufio.NewWriter(file)
-
-	ch := make(chan int32)
-
-	n := new(Node[string])
-	tmp := n
-	go func() {
-		for maxCount <= maxStackSize {
-			checkNodeType(tmp)
-			ch <- maxCount
-			n.ChildNode = []*Node[string]{
-				{Path: ""},
-			}
-			n = n.ChildNode[0]
-			atomic.AddInt32(&maxCount, 1)
-		}
-	}()
-	for {
-		count := <-ch
-		if count >= maxStackSize {
-			break
-		}
-		_, _ = writer.WriteString("the depth: " + strconv.Itoa(int(count)) + "\n")
-		_ = writer.Flush()
-	}
-	close(ch)
-}
-
-func TestSortNodeDeep(t *testing.T) {
-	var maxCount int32 = 0
-	filepath, err := os.Getwd()
-	if err != nil {
-		panic("get directory err")
-	}
-	filepath = fmt.Sprintf("%s%s", filepath, "\\log.txt")
-	file, err := os.OpenFile(filepath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0766)
-	if err != nil {
-		panic("open file err")
-	}
-	defer func() { _ = recover() }()
-	defer file.Close()
-	writer := bufio.NewWriter(file)
-
-	n := new(Node[string])
-	tmp := n
-	ch := make(chan int32)
-	go func() {
-		for maxCount <= maxStackSize {
-			sortNode(tmp)
-			n.ChildNode = []*Node[string]{
-				{Path: ""},
-			}
-			n = n.ChildNode[0]
-			ch <- maxCount
-			atomic.AddInt32(&maxCount, 1)
-		}
-	}()
-	for {
-		count := <-ch
-		if count >= maxStackSize {
-			break
-		}
-		_, _ = writer.WriteString("the depth: " + strconv.Itoa(int(count)) + "\n")
-		_ = writer.Flush()
-	}
-	close(ch)
 }

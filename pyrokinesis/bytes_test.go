@@ -6,10 +6,14 @@ import (
 )
 
 func TestBytes_ToString(t *testing.T) {
+	t.Parallel()
+
 	Bytes.ToString([]byte("hello"))
 }
 
 func Test_Bytes_ToNumber(t *testing.T) {
+	t.Parallel()
+
 	if strconv.IntSize == 64 {
 		if n := Bytes.ToInt([]byte{123, 123, 12, 0, 0, 0, 0, 255}); n != -72057594037109893 {
 			t.Error("Bytes.ToNumber err num:", n)

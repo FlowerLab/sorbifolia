@@ -20,6 +20,8 @@ func (h *HTTP) test() (*fasthttp.Request, *fasthttp.Response, error) {
 }
 
 func TestHTTP_Add(t *testing.T) {
+	t.Parallel()
+
 	h := Post().Add(nil)
 	if len(h.fn) != 2 {
 		t.Error("Add err")

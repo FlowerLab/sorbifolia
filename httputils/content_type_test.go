@@ -5,12 +5,16 @@ import (
 )
 
 func TestNewContentType(t *testing.T) {
+	t.Parallel()
+
 	if NewContentType("foo") != "foo" {
 		t.Errorf("NewContentType err")
 	}
 }
 
 func TestContentType_SetCharset(t *testing.T) {
+	t.Parallel()
+
 	if TextHTML.SetCharset("utf-8") != "text/html; charset=utf-8" {
 		t.Error("SetCharset err")
 	}
@@ -30,6 +34,8 @@ func TestContentType_SetCharset(t *testing.T) {
 }
 
 func TestContentType_SetBoundary(t *testing.T) {
+	t.Parallel()
+
 	if MultiFormData.SetBoundary("go.x2ox.com/sorbifolia/httputils/encoder.FormDataEncoder") !=
 		"multipart/form-data; boundary=go.x2ox.com/sorbifolia/httputils/encoder.FormDataEncoder" {
 		t.Error("SetBoundary err")
@@ -37,6 +43,8 @@ func TestContentType_SetBoundary(t *testing.T) {
 }
 
 func TestHTTP_SetContentType(t *testing.T) {
+	t.Parallel()
+
 	h := Trace().SetContentType(AppJSON)
 	req, _, _ := h.test()
 	if string(req.Header.ContentType()) != "application/json" {

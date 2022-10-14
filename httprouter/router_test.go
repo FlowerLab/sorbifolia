@@ -5,6 +5,8 @@ import (
 )
 
 func TestNewRouter(t *testing.T) {
+	t.Parallel()
+
 	r := NewRouter[string]()
 	if len(r.method) != 9 {
 		t.Error("fail")
@@ -31,6 +33,8 @@ func TestNewRouter(t *testing.T) {
 }
 
 func TestRouter_AddRoute(t *testing.T) {
+	t.Parallel()
+
 	r := NewRouter[string]()
 	r.AddRoute(GET, "/api/v1/data", []Handler[string]{func(*string) {}})
 	r.AddRoute(GET, "/", []Handler[string]{func(*string) {}})
@@ -64,6 +68,8 @@ func TestRouter_AddRoute(t *testing.T) {
 }
 
 func TestRouter_Group(t *testing.T) {
+	t.Parallel()
+
 	r := NewRouter[string]()
 	g := r.Group()
 
@@ -84,6 +90,8 @@ func TestRouter_Group(t *testing.T) {
 }
 
 func TestRouter_Find(t *testing.T) {
+	t.Parallel()
+
 	r := NewRouter[string]()
 	r.AddRoute(GET, "/api/v1/data", []Handler[string]{func(*string) {}})
 	r.AddRoute(GET, "/api/v1/a/b/:id/d", []Handler[string]{func(*string) {}})

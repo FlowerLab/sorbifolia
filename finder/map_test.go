@@ -7,6 +7,8 @@ import (
 )
 
 func TestKeys(t *testing.T) {
+	t.Parallel()
+
 	keys := Keys(map[string]int{"foo": 1, "bar": 2})
 	sort.Strings(keys)
 
@@ -16,6 +18,8 @@ func TestKeys(t *testing.T) {
 }
 
 func TestValues(t *testing.T) {
+	t.Parallel()
+
 	values := Values(map[string]int{"foo": 1, "bar": 2})
 	sort.Ints(values)
 
@@ -25,6 +29,8 @@ func TestValues(t *testing.T) {
 }
 
 func TestPickBy(t *testing.T) {
+	t.Parallel()
+
 	val := PickBy(map[string]int{"foo": 1, "bar": 2, "baz": 3}, func(key string, value int) bool {
 		return value > 2
 	})
@@ -34,6 +40,8 @@ func TestPickBy(t *testing.T) {
 }
 
 func TestPickByKeys(t *testing.T) {
+	t.Parallel()
+
 	val := PickByKeys(map[string]int{"foo": 1, "bar": 2, "baz": 3}, []string{"foo", "baz"})
 
 	if len(val) != 2 {
@@ -42,6 +50,8 @@ func TestPickByKeys(t *testing.T) {
 }
 
 func TestPickByValues(t *testing.T) {
+	t.Parallel()
+
 	val := PickByValues(map[string]int{"foo": 1, "bar": 2, "baz": 3}, []int{1, 3})
 
 	if len(val) != 2 {
@@ -50,6 +60,8 @@ func TestPickByValues(t *testing.T) {
 }
 
 func TestOmitBy(t *testing.T) {
+	t.Parallel()
+
 	val := OmitBy(map[string]int{"foo": 1, "bar": 2, "baz": 3}, func(key string, value int) bool {
 		return value%2 == 1
 	})
@@ -60,6 +72,8 @@ func TestOmitBy(t *testing.T) {
 }
 
 func TestOmitByKeys(t *testing.T) {
+	t.Parallel()
+
 	val := OmitByKeys(map[string]int{"foo": 1, "bar": 2, "baz": 3}, []string{"foo", "baz"})
 
 	if len(val) != 1 || Keys(val)[0] != "bar" {
@@ -68,6 +82,8 @@ func TestOmitByKeys(t *testing.T) {
 }
 
 func TestOmitByValues(t *testing.T) {
+	t.Parallel()
+
 	val := OmitByValues(map[string]int{"foo": 1, "bar": 2, "baz": 3}, []int{1, 3})
 
 	if len(val) != 1 || Keys(val)[0] != "bar" {
@@ -76,6 +92,8 @@ func TestOmitByValues(t *testing.T) {
 }
 
 func TestInvert(t *testing.T) {
+	t.Parallel()
+
 	v1 := Invert(map[string]int{"a": 1, "b": 2})
 	v2 := Invert(map[string]int{"a": 1, "b": 2, "c": 1})
 
@@ -85,6 +103,8 @@ func TestInvert(t *testing.T) {
 }
 
 func TestAssign(t *testing.T) {
+	t.Parallel()
+
 	v := Assign(map[string]int{"a": 1, "b": 2}, map[string]int{"b": 3, "c": 4})
 
 	if len(v) != 3 {
@@ -93,6 +113,8 @@ func TestAssign(t *testing.T) {
 }
 
 func TestMapKeys(t *testing.T) {
+	t.Parallel()
+
 	v1 := MapKeys(map[int]int{1: 1, 2: 2, 3: 3, 4: 4}, func(_ int, _ int) string {
 		return "a"
 	})
@@ -106,6 +128,8 @@ func TestMapKeys(t *testing.T) {
 }
 
 func TestMapValues(t *testing.T) {
+	t.Parallel()
+
 	v1 := MapValues(map[int]int{1: 1, 2: 2, 3: 3, 4: 4}, func(x int, _ int) string {
 		return "Hello"
 	})

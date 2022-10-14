@@ -5,6 +5,8 @@ import (
 )
 
 func TestSafeRand(t *testing.T) {
+	t.Parallel()
+
 	fr := Safe()
 	if len(fr.RandString(10)) != 10 {
 		t.Error("1")
@@ -17,6 +19,8 @@ func TestSafeRand(t *testing.T) {
 }
 
 func TestSafeRandRepeatable(t *testing.T) {
+	t.Parallel()
+
 	defer func() {
 		if e := recover(); e == nil {
 			t.Error("test fail")
@@ -27,6 +31,8 @@ func TestSafeRandRepeatable(t *testing.T) {
 }
 
 func TestSafeRandTooLong(t *testing.T) {
+	t.Parallel()
+
 	defer func() {
 		if e := recover(); e == nil {
 			t.Error("test fail")
