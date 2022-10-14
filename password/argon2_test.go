@@ -2,9 +2,11 @@ package password
 
 import (
 	"crypto/rand"
+	_ "crypto/rand"
 	"encoding/base64"
 	"errors"
 	"testing"
+	"time"
 )
 
 func testCompare(t *testing.T, g Generator, password string) {
@@ -12,14 +14,16 @@ func testCompare(t *testing.T, g Generator, password string) {
 	if !g.Compare(hash, password) {
 		t.Errorf("%s | %s not match", password, hash)
 	}
-	t.Logf("%s | %s", password, hash)
 }
 
 func TestArgon2(t *testing.T) {
+	t.Parallel()
 	testCompare(t, New(), "password")
 }
 
 func TestArgon2_CompareFail(t *testing.T) {
+	t.Parallel()
+
 	g := New()
 	t.Run("", func(t *testing.T) {
 		if g.Compare("", "") {
@@ -42,15 +46,20 @@ func TestArgon2_CompareFail(t *testing.T) {
 
 type errReader struct{}
 
-func (e errReader) Read(p []byte) (n int, err error) {
+func (e errReader) Read([]byte) (n int, err error) {
 	return 0, errors.New("OEF")
 }
 
 func TestArgon2_MustGenerate(t *testing.T) {
-	defer func() { _ = recover() }()
+	t.Parallel()
+
+	time.Sleep(time.Second) // It changes rand.Reader
+	g := New()
 
 	rand.Reader = errReader{}
-	g := New()
+
+	defer func() { _ = recover() }()
+
 	g.MustGenerate("123456")
 
 	t.Error("fail")
