@@ -5,26 +5,36 @@ import (
 )
 
 func TestGetRequestBuffer(t *testing.T) {
+	t.Parallel()
+
 	r := getRequestBuffer()
 	r.Put()
 }
 
 func TestGetRequestBufferPut(t *testing.T) {
+	t.Parallel()
+
 	r := getRequestBuffer()
 	r.Put()
 }
 
 func TestGetHTTPBuffer(t *testing.T) {
+	t.Parallel()
+
 	r := getHttpBuffer()
 	r.Put()
 }
 
 func TestGetHTTPBufferPut(t *testing.T) {
+	t.Parallel()
+
 	r := getHttpBuffer()
 	r.Put()
 }
 
 func TestPoolNil(t *testing.T) {
+	t.Parallel()
+
 	t.Run("", func(t *testing.T) {
 		r := getHttpBuffer() //nolint:all
 		r = nil

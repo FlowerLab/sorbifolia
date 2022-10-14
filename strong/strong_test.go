@@ -6,6 +6,8 @@ import (
 )
 
 func TestParse(t *testing.T) {
+	t.Parallel()
+
 	t.Run("", func(t *testing.T) {
 		if val, err := Parse[bool]("t"); err != nil || val != true {
 			t.Log("parse error")
@@ -104,6 +106,8 @@ func TestParse(t *testing.T) {
 }
 
 func TestFormat(t *testing.T) {
+	t.Parallel()
+
 	Format[bool](true)
 
 	arr := []struct {
@@ -131,6 +135,8 @@ func TestFormat(t *testing.T) {
 }
 
 func TestAppend(t *testing.T) {
+	t.Parallel()
+
 	Append(nil, true)
 	arr := []struct {
 		t any

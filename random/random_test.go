@@ -5,6 +5,8 @@ import (
 )
 
 func TestShuffleAl(t *testing.T) {
+	t.Parallel()
+
 	a := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
 	b := make([]int, len(a))
 	copy(b, a)
@@ -32,6 +34,8 @@ func isEqual(item1, item2 []int) bool {
 }
 
 func TestPicks(t *testing.T) {
+	t.Parallel()
+
 	arr := []int{123, 21, 21, 21, 3, 1233, 21, 321, 423, 4, 32, 43, 543, 5, 43}
 	if len(Picks(arr, 3)) != 3 {
 		t.Error("test fail")
@@ -48,6 +52,8 @@ func TestPicks(t *testing.T) {
 }
 
 func TestReverse(t *testing.T) {
+	t.Parallel()
+
 	arr := []int{1, 2, 3, 4, 5, 6}
 	Reverse(arr)
 	if !isEqual(arr, []int{6, 5, 4, 3, 2, 1}) {
@@ -56,6 +62,8 @@ func TestReverse(t *testing.T) {
 }
 
 func TestRandom_Number(t *testing.T) {
+	t.Parallel()
+
 	var arr = []Random{Safe(), Fast(), Math()}
 	for _, v := range arr {
 		v.Uint()

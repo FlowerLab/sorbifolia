@@ -18,6 +18,8 @@ const (
 )
 
 func TestOCBImplementsAEADInterface(t *testing.T) {
+	t.Parallel()
+
 	var ocbInstance ocb
 	var aux interface{} = &ocbInstance
 	_, ok := aux.(cipher.AEAD)
@@ -33,6 +35,8 @@ func (t testNewOCBWithNonceAndTagSize) Encrypt(dst, src []byte) {}
 func (t testNewOCBWithNonceAndTagSize) Decrypt(dst, src []byte) {}
 
 func TestNewOCBWithNonceAndTagSize(t *testing.T) {
+	t.Parallel()
+
 	_, err := NewOCBWithNonceAndTagSize(testNewOCBWithNonceAndTagSize{}, 0, 0)
 	if err == nil {
 		t.Error("fail: Block cipher must have 128-bit blocks")
@@ -40,6 +44,8 @@ func TestNewOCBWithNonceAndTagSize(t *testing.T) {
 }
 
 func TestOcbZeroHash(t *testing.T) {
+	t.Parallel()
+
 	// Key is shared by all test vectors
 	aesCipher, err := aes.NewCipher(ocbTestKey)
 	if err != nil {
@@ -58,6 +64,8 @@ func TestOcbZeroHash(t *testing.T) {
 }
 
 func TestNewOCBIncorrectNonceLength(t *testing.T) {
+	t.Parallel()
+
 	aesCipher, err := aes.NewCipher(make([]byte, 16))
 	if err != nil {
 		t.Fatal(err)
@@ -69,6 +77,8 @@ func TestNewOCBIncorrectNonceLength(t *testing.T) {
 }
 
 func TestOcbSealIncorrectNonceLength(t *testing.T) {
+	t.Parallel()
+
 	aesCipher, err := aes.NewCipher(make([]byte, 16))
 	if err != nil {
 		t.Fatal(err)
@@ -87,6 +97,8 @@ func TestOcbSealIncorrectNonceLength(t *testing.T) {
 }
 
 func TestOcbOpenIncorrectNonceLength(t *testing.T) {
+	t.Parallel()
+
 	aesCipher, err := aes.NewCipher(make([]byte, 16))
 	if err != nil {
 		t.Fatal(err)
@@ -105,6 +117,8 @@ func TestOcbOpenIncorrectNonceLength(t *testing.T) {
 }
 
 func TestOcbOpenShortCiphertext(t *testing.T) {
+	t.Parallel()
+
 	aesCipher, err := aes.NewCipher(make([]byte, 16))
 	if err != nil {
 		t.Fatal(err)
@@ -121,6 +135,8 @@ func TestOcbOpenShortCiphertext(t *testing.T) {
 }
 
 func TestOcbEncryptDecryptRFC7253TestVectors(t *testing.T) {
+	t.Parallel()
+
 	// Key is shared by all test vectors
 	aesCipher, err := aes.NewCipher(ocbTestKey)
 	if err != nil {
@@ -167,6 +183,8 @@ func TestOcbEncryptDecryptRFC7253TestVectors(t *testing.T) {
 }
 
 func TestOcbEncryptDecryptRFC7253TagLen96(t *testing.T) {
+	t.Parallel()
+
 	test := rfc7253TestVectorTaglen96
 	key, _ := hex.DecodeString(test.key)
 	nonce, _ := hex.DecodeString(test.nonce)
@@ -206,6 +224,8 @@ func TestOcbEncryptDecryptRFC7253TagLen96(t *testing.T) {
 
 // This test algorithm is defined in RFC7253, Appendix A
 func TestOcbEncryptDecryptRFC7253DifferentKeySizes(t *testing.T) {
+	t.Parallel()
+
 	for _, testCase := range rfc7253AlgorithmTest {
 		keyLen := testCase.KEYLEN
 		tagLen := testCase.TAGLEN
@@ -256,6 +276,8 @@ func TestOcbEncryptDecryptRFC7253DifferentKeySizes(t *testing.T) {
 }
 
 func TestOcbEncryptDecryptGoTestVectors(t *testing.T) {
+	t.Parallel()
+
 	for _, test := range ocbRandomVectors {
 		key, _ := hex.DecodeString(test.key)
 		aesCipher, err := aes.NewCipher(key)
@@ -304,6 +326,8 @@ func TestOcbEncryptDecryptGoTestVectors(t *testing.T) {
 }
 
 func TestOcbEncryptDecryptVectorsWithPreviousDataRandomizeSlow(t *testing.T) {
+	t.Parallel()
+
 	mathrand.Seed(time.Now().UnixNano())
 	allowedKeyLengths := []int{16, 24, 32}
 	for _, keyLength := range allowedKeyLengths {
@@ -343,6 +367,8 @@ func TestOcbEncryptDecryptVectorsWithPreviousDataRandomizeSlow(t *testing.T) {
 }
 
 func TestOcbRejectTamperedCiphertextRandomizeSlow(t *testing.T) {
+	t.Parallel()
+
 	pt := make([]byte, mathrand.Intn(ocbMaxLength))
 	header := make([]byte, mathrand.Intn(ocbMaxLength))
 	key := make([]byte, ocbBlockLength)
@@ -376,6 +402,8 @@ func TestOcbRejectTamperedCiphertextRandomizeSlow(t *testing.T) {
 }
 
 func TestOcbParameters(t *testing.T) {
+	t.Parallel()
+
 	blockLength := 16
 	key := make([]byte, blockLength)
 	aesCipher, err := aes.NewCipher(key)

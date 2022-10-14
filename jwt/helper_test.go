@@ -8,6 +8,8 @@ import (
 )
 
 func TestNewClaims(t *testing.T) {
+	t.Parallel()
+
 	type TestData struct {
 		Data string `json:"data"`
 	}

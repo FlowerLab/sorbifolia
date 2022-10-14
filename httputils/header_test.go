@@ -5,6 +5,8 @@ import (
 )
 
 func TestHTTP_AddHeader(t *testing.T) {
+	t.Parallel()
+
 	h := Head().AddHeader("foo", "bar")
 
 	req, _, _ := h.test()
@@ -21,6 +23,8 @@ func TestHTTP_AddHeader(t *testing.T) {
 }
 
 func TestHTTP_SetHeader(t *testing.T) {
+	t.Parallel()
+
 	h := Head().SetHeader("foo", "bar")
 
 	req, _, _ := h.test()
@@ -37,6 +41,8 @@ func TestHTTP_SetHeader(t *testing.T) {
 }
 
 func TestHTTP_DelHeader(t *testing.T) {
+	t.Parallel()
+
 	h := Head().SetHeader("foo", "bar").DelHeader("foo")
 
 	req, _, _ := h.test()
@@ -46,6 +52,8 @@ func TestHTTP_DelHeader(t *testing.T) {
 }
 
 func TestHTTP_SetReferer(t *testing.T) {
+	t.Parallel()
+
 	h := Head().SetReferer("foo")
 
 	req, _, _ := h.test()
@@ -55,6 +63,8 @@ func TestHTTP_SetReferer(t *testing.T) {
 }
 
 func TestHTTP_SetUserAgent(t *testing.T) {
+	t.Parallel()
+
 	h := Head().SetUserAgent("foo")
 
 	req, _, _ := h.test()
@@ -64,6 +74,8 @@ func TestHTTP_SetUserAgent(t *testing.T) {
 }
 
 func TestHTTP_SetProtocol(t *testing.T) {
+	t.Parallel()
+
 	h := Patch().SetProtocol("foo")
 
 	req, _, _ := h.test()
@@ -73,6 +85,8 @@ func TestHTTP_SetProtocol(t *testing.T) {
 }
 
 func TestHTTP_SetByteRange(t *testing.T) {
+	t.Parallel()
+
 	h := Head().SetByteRange(1, 123)
 
 	req, _, _ := h.test()
@@ -82,6 +96,8 @@ func TestHTTP_SetByteRange(t *testing.T) {
 }
 
 func TestHTTP_SetContentLength(t *testing.T) {
+	t.Parallel()
+
 	h := Put().SetContentLength(123)
 
 	req, _, _ := h.test()
@@ -91,6 +107,8 @@ func TestHTTP_SetContentLength(t *testing.T) {
 }
 
 func TestHTTP_SetContentEncoding(t *testing.T) {
+	t.Parallel()
+
 	h := Head().SetContentEncoding("br")
 
 	req, _, _ := h.test()
@@ -100,6 +118,8 @@ func TestHTTP_SetContentEncoding(t *testing.T) {
 }
 
 func TestHTTP_SetMultipartFormBoundary(t *testing.T) {
+	t.Parallel()
+
 	h := Head().SetMultipartFormBoundary("go.x2ox.com/sorbifolia/httputils/encoder.FormDataEncoder")
 
 	req, _, _ := h.test()

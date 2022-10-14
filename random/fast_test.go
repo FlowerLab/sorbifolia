@@ -5,6 +5,8 @@ import (
 )
 
 func TestNewFastRand(t *testing.T) {
+	t.Parallel()
+
 	fr := Fast()
 	if len(fr.RandString(10)) != 10 {
 		t.Error("1")
@@ -17,6 +19,8 @@ func TestNewFastRand(t *testing.T) {
 }
 
 func TestNewFastRandRepeatable(t *testing.T) {
+	t.Parallel()
+
 	defer func() {
 		if e := recover(); e == nil {
 			t.Error("test fail")
@@ -27,6 +31,8 @@ func TestNewFastRandRepeatable(t *testing.T) {
 }
 
 func TestNewFastRandTooLong(t *testing.T) {
+	t.Parallel()
+
 	defer func() {
 		if e := recover(); e == nil {
 			t.Error("test fail")
@@ -43,6 +49,8 @@ func BenchmarkFastRand(b *testing.B) {
 }
 
 func TestNewFastRandTooLon(t *testing.T) {
+	t.Parallel()
+
 	defer func() {
 		if e := recover(); e == nil {
 			t.Error("test fail")
@@ -53,5 +61,7 @@ func TestNewFastRandTooLon(t *testing.T) {
 }
 
 func TestFastRand64(t *testing.T) {
+	t.Parallel()
+
 	_fastRand64()
 }

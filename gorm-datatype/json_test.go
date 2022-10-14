@@ -29,6 +29,8 @@ type Test1 struct {
 }
 
 func TestJSON(t *testing.T) {
+	t.Parallel()
+
 	initDB()
 	if err := db.AutoMigrate(&Test1{}); err != nil {
 		t.Error(err)
@@ -48,6 +50,8 @@ func TestJSON(t *testing.T) {
 }
 
 func TestJSON_Value(t *testing.T) {
+	t.Parallel()
+
 	var i JSON
 	if val, err := i.Value(); err != nil || val != nil {
 		t.Error("fail")
@@ -60,6 +64,8 @@ func TestJSON_Value(t *testing.T) {
 }
 
 func TestJSON_Scan(t *testing.T) {
+	t.Parallel()
+
 	var i JSON
 
 	if err := i.Scan(nil); err != nil {
@@ -77,6 +83,8 @@ func TestJSON_Scan(t *testing.T) {
 }
 
 func TestJSON_MarshalJSON(t *testing.T) {
+	t.Parallel()
+
 	var i JSON
 	if err := i.UnmarshalJSON([]byte(`{"a":"a"}`)); err != nil {
 		t.Error(err)
@@ -87,6 +95,8 @@ func TestJSON_MarshalJSON(t *testing.T) {
 }
 
 func TestJSON_GormDataType(t *testing.T) {
+	t.Parallel()
+
 	var i JSON
 	if i.GormDataType() != "json" {
 		t.Error("GormDataType json")
@@ -94,6 +104,8 @@ func TestJSON_GormDataType(t *testing.T) {
 }
 
 func TestJSON_GormDBDataType(t *testing.T) {
+	t.Parallel()
+
 	var (
 		i      JSON
 		testDB = &gorm.DB{Config: &gorm.Config{Dialector: testDialector("postgres")}}

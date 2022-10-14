@@ -6,10 +6,14 @@ import (
 )
 
 func TestFloorTime(t *testing.T) {
+	t.Parallel()
+
 	FloorTime()
 }
 
 func TestCeilingTime(t *testing.T) {
+	t.Parallel()
+
 	CeilingTime()
 }
 

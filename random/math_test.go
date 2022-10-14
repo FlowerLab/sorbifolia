@@ -5,6 +5,8 @@ import (
 )
 
 func TestMathRand(t *testing.T) {
+	t.Parallel()
+
 	fr := Math()
 	if len(fr.RandString(10)) != 10 {
 		t.Error("1")
@@ -17,6 +19,8 @@ func TestMathRand(t *testing.T) {
 }
 
 func TestMathRandRepeatable(t *testing.T) {
+	t.Parallel()
+
 	defer func() {
 		if e := recover(); e == nil {
 			t.Error("test fail")
@@ -27,6 +31,8 @@ func TestMathRandRepeatable(t *testing.T) {
 }
 
 func TestMathRandTooLong(t *testing.T) {
+	t.Parallel()
+
 	defer func() {
 		if e := recover(); e == nil {
 			t.Error("test fail")

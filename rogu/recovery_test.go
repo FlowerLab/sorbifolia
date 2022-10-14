@@ -8,6 +8,8 @@ import (
 )
 
 func TestRecovery(t *testing.T) {
+	t.Parallel()
+
 	MustReplaceGlobals(DefaultZapConfig(DefaultZapEncoderConfig(), []string{"stdout"}, []string{"stderr"}))
 
 	defer Recovery()()
@@ -15,6 +17,8 @@ func TestRecovery(t *testing.T) {
 }
 
 func TestRecover(t *testing.T) {
+	t.Parallel()
+
 	MustReplaceGlobals(DefaultZapConfig(DefaultZapEncoderConfig(), []string{"stdout"}, []string{"stderr"}))
 
 	Recover(func() {

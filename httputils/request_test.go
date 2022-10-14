@@ -9,6 +9,8 @@ import (
 )
 
 func TestHTTP_AppendBody(t *testing.T) {
+	t.Parallel()
+
 	h := Get().AppendBody([]byte("hello")).AppendBodyString(" world")
 	req, _, _ := h.test()
 	if string(req.Body()) != "hello world" {
@@ -17,6 +19,8 @@ func TestHTTP_AppendBody(t *testing.T) {
 }
 
 func TestHTTP_AppendBodyString(t *testing.T) {
+	t.Parallel()
+
 	h := Get().AppendBody([]byte("hello")).AppendBodyString(" world")
 	req, _, _ := h.test()
 	if string(req.Body()) != "hello world" {
@@ -25,6 +29,8 @@ func TestHTTP_AppendBodyString(t *testing.T) {
 }
 
 func TestHTTP_ReadBody(t *testing.T) {
+	t.Parallel()
+
 	r := bufio.NewReader(strings.NewReader("hello world"))
 	h := Get().ReadBody(r, 5, 123)
 	req, _, _ := h.test()
@@ -34,6 +40,8 @@ func TestHTTP_ReadBody(t *testing.T) {
 }
 
 func TestHTTP_SetBody(t *testing.T) {
+	t.Parallel()
+
 	h := Get().SetBody([]byte("hello"))
 	req, _, _ := h.test()
 	if string(req.Body()) != "hello" {
@@ -42,6 +50,8 @@ func TestHTTP_SetBody(t *testing.T) {
 }
 
 func TestHTTP_SetBodyStream(t *testing.T) {
+	t.Parallel()
+
 	r := strings.NewReader("hello world")
 
 	h := Get().SetBodyStream(r, 11)
@@ -52,6 +62,8 @@ func TestHTTP_SetBodyStream(t *testing.T) {
 }
 
 func TestHTTP_SetBodyString(t *testing.T) {
+	t.Parallel()
+
 	h := Get().SetBodyString("hello world")
 	req, _, _ := h.test()
 	if string(req.Body()) != "hello world" {
@@ -60,6 +72,8 @@ func TestHTTP_SetBodyString(t *testing.T) {
 }
 
 func TestHTTP_SetConnectionClose(t *testing.T) {
+	t.Parallel()
+
 	h := Get().SetConnectionClose()
 	req, _, _ := h.test()
 	if !req.Header.ConnectionClose() {
@@ -68,6 +82,8 @@ func TestHTTP_SetConnectionClose(t *testing.T) {
 }
 
 func TestHTTP_SetRequestURI(t *testing.T) {
+	t.Parallel()
+
 	h := Get().SetRequestURI("https://ip.x2ox.com")
 	req, _, _ := h.test()
 	if req.URI().String() != "https://ip.x2ox.com/" {
@@ -76,6 +92,8 @@ func TestHTTP_SetRequestURI(t *testing.T) {
 }
 
 func TestHTTP_SetHost(t *testing.T) {
+	t.Parallel()
+
 	h := Get().SetHost("https://ip.x2ox.com")
 	req, _, _ := h.test()
 	if string(req.Host()) != "https://ip.x2ox.com" {
@@ -84,6 +102,8 @@ func TestHTTP_SetHost(t *testing.T) {
 }
 
 func TestHTTPSetBodyWithEncoder(t *testing.T) {
+	t.Parallel()
+
 	h := Post().SetBodyWithEncoder(JSON(), struct {
 		A string
 	}{A: "A"})

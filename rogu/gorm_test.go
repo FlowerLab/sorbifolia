@@ -7,6 +7,8 @@ import (
 )
 
 func TestGorm(t *testing.T) {
+	t.Parallel()
+
 	MustReplaceGlobals(DefaultZapConfig(DefaultZapEncoderConfig(), []string{"stdout"}, []string{"stderr"}))
 
 	g := Gorm(nil)

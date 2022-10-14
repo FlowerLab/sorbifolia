@@ -6,6 +6,8 @@ import (
 )
 
 func TestScanLinearArray(t *testing.T) {
+	t.Parallel()
+
 	for _, tt := range []struct {
 		input string
 		dims  []int
@@ -28,6 +30,8 @@ func TestScanLinearArray(t *testing.T) {
 }
 
 func TestScanLinearArrayErr(t *testing.T) {
+	t.Parallel()
+
 	for _, tt := range []struct {
 		input, err string
 	}{
@@ -56,6 +60,8 @@ func TestScanLinearArrayErr(t *testing.T) {
 }
 
 func TestAppendArrayQuotedBytes(t *testing.T) {
+	t.Parallel()
+
 	for _, tt := range []struct {
 		input, output string
 	}{

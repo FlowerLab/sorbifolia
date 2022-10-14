@@ -8,18 +8,24 @@ import (
 )
 
 func TestOFB(t *testing.T) {
+	t.Parallel()
+
 	testAESStream(t, func(block cipher.Block, iv []byte) CryptStream {
 		return OFB(block, iv)
 	})
 }
 
 func TestCFB(t *testing.T) {
+	t.Parallel()
+
 	testAESStream(t, func(block cipher.Block, iv []byte) CryptStream {
 		return CFB(block, iv)
 	})
 }
 
 func TestCTR(t *testing.T) {
+	t.Parallel()
+
 	testAESStream(t, func(block cipher.Block, iv []byte) CryptStream {
 		return CTR(block, iv)
 	})

@@ -9,6 +9,8 @@ import (
 )
 
 func TestHTTP_ParseData(t *testing.T) {
+	t.Parallel()
+
 	var resp X2oxIPResp
 	err := Get("https://api.ip.x2ox.com/api/ip?type=json").
 		SetContentType(AppJSON).

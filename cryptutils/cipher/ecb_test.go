@@ -45,6 +45,8 @@ var ecbAESTests = []ecbTest{
 }
 
 func TestECBEncrypterAES(t *testing.T) {
+	t.Parallel()
+
 	for _, tc := range ecbAESTests {
 		t.Run(tc.name, func(t *testing.T) {
 			c, err := aes.NewCipher(tc.key)
@@ -67,6 +69,8 @@ func TestECBEncrypterAES(t *testing.T) {
 }
 
 func TestECBDecrypterAES(t *testing.T) {
+	t.Parallel()
+
 	for _, tc := range ecbAESTests {
 		c, err := aes.NewCipher(tc.key)
 		t.Run(tc.name, func(t *testing.T) {
@@ -89,6 +93,8 @@ func TestECBDecrypterAES(t *testing.T) {
 }
 
 func TestECBEncrypterAESFail(t *testing.T) {
+	t.Parallel()
+
 	defer func() {
 		if err := recover(); err == nil {
 			t.Error("fail")
@@ -105,6 +111,8 @@ func TestECBEncrypterAESFail(t *testing.T) {
 }
 
 func TestECBEncrypterAESOutputSmallerThanInput(t *testing.T) {
+	t.Parallel()
+
 	defer func() {
 		if err := recover(); err == nil {
 			t.Error("fail")
@@ -119,10 +127,11 @@ func TestECBEncrypterAESOutputSmallerThanInput(t *testing.T) {
 	data := make([]byte, c.BlockSize())
 	dst := make([]byte, c.BlockSize()-1)
 	NewECBEncrypter(c).CryptBlocks(dst, data)
-
 }
 
 func TestECBDecrypterAESFail(t *testing.T) {
+	t.Parallel()
+
 	defer func() {
 		if err := recover(); err == nil {
 			t.Error("fail")
@@ -141,6 +150,8 @@ func TestECBDecrypterAESFail(t *testing.T) {
 }
 
 func TestECBDecrypterAESInputNotFullBlocks(t *testing.T) {
+	t.Parallel()
+
 	c, err := aes.NewCipher(commonKey128)
 	if err != nil {
 		t.Fatalf("fail %s", err)
@@ -158,6 +169,8 @@ func TestECBDecrypterAESInputNotFullBlocks(t *testing.T) {
 }
 
 func TestECBDecrypterAESOutputSmallerThanInput(t *testing.T) {
+	t.Parallel()
+
 	t.Run("TestECBDecrypterAESOutputSmallerThanInput", func(t *testing.T) {
 		defer func() {
 			if err := recover(); err == nil {

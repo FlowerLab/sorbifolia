@@ -8,6 +8,8 @@ import (
 )
 
 func TestGoPool(t *testing.T) {
+	t.Parallel()
+
 	wg := sync.WaitGroup{}
 	gp := NewGoPool(30, func(_ int) {
 		wg.Done()

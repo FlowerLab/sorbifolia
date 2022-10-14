@@ -5,6 +5,8 @@ import (
 )
 
 func TestAsync(t *testing.T) {
+	t.Parallel()
+
 	fn := func() string { return "async" }
 	ch := Async(fn)
 	s := <-ch
@@ -12,6 +14,8 @@ func TestAsync(t *testing.T) {
 }
 
 func TestAsyncOR(t *testing.T) {
+	t.Parallel()
+
 	fn := func() string { return "async" }
 	ch := AsyncOR(fn)
 	s := <-ch
@@ -19,6 +23,8 @@ func TestAsyncOR(t *testing.T) {
 }
 
 func TestAsyncC(t *testing.T) {
+	t.Parallel()
+
 	fn := func() string { return "async" }
 	ch := AsyncC(fn)
 	s := <-ch

@@ -16,6 +16,8 @@ const (
 )
 
 func TestEaxImplementsAEADInterface(t *testing.T) {
+	t.Parallel()
+
 	var eaxInstance eax
 	var aux interface{} = &eaxInstance
 	_, ok := aux.(cipher.AEAD)
@@ -26,6 +28,8 @@ func TestEaxImplementsAEADInterface(t *testing.T) {
 
 // Test vectors from https://web.cs.ucdavis.edu/~rogaway/papers/eax.pdf
 func TestEaxEncryptDecryptEAXTestVectors(t *testing.T) {
+	t.Parallel()
+
 	for _, test := range eaxTestVectors {
 		adata, _ := hex.DecodeString(test.header)
 		key, _ := hex.DecodeString(test.key)
@@ -68,6 +72,8 @@ func TestEaxEncryptDecryptEAXTestVectors(t *testing.T) {
 
 // Test vectors from generated file
 func TestEaxEncryptDecryptGoTestVectors(t *testing.T) {
+	t.Parallel()
+
 	for _, test := range eaxRandomVectors {
 		adata, _ := hex.DecodeString(test.header)
 		key, _ := hex.DecodeString(test.key)
@@ -109,6 +115,8 @@ func TestEaxEncryptDecryptGoTestVectors(t *testing.T) {
 }
 
 func TestNewEaxIncorrectNonceLength(t *testing.T) {
+	t.Parallel()
+
 	aesCipher, err := aes.NewCipher(make([]byte, 16))
 	if err != nil {
 		t.Fatal(err)
@@ -120,6 +128,8 @@ func TestNewEaxIncorrectNonceLength(t *testing.T) {
 }
 
 func TestEaxSealIncorrectNonceLength(t *testing.T) {
+	t.Parallel()
+
 	aesCipher, err := aes.NewCipher(make([]byte, 16))
 	if err != nil {
 		t.Fatal(err)
@@ -138,6 +148,8 @@ func TestEaxSealIncorrectNonceLength(t *testing.T) {
 }
 
 func TestEaxOpenIncorrectNonceLength(t *testing.T) {
+	t.Parallel()
+
 	aesCipher, err := aes.NewCipher(make([]byte, 16))
 	if err != nil {
 		t.Fatal(err)
@@ -156,6 +168,8 @@ func TestEaxOpenIncorrectNonceLength(t *testing.T) {
 }
 
 func TestEaxOpenShortCiphertext(t *testing.T) {
+	t.Parallel()
+
 	aesCipher, err := aes.NewCipher(make([]byte, 16))
 	if err != nil {
 		t.Fatal(err)
@@ -173,6 +187,8 @@ func TestEaxOpenShortCiphertext(t *testing.T) {
 
 // Generates random examples and tests correctness
 func TestEaxEncryptDecryptVectorsWithPreviousDataRandomizeSlow(t *testing.T) {
+	t.Parallel()
+
 	// Considering AES
 	allowedKeyLengths := []int{16, 24, 32}
 	for _, keyLength := range allowedKeyLengths {
@@ -214,6 +230,8 @@ func TestEaxEncryptDecryptVectorsWithPreviousDataRandomizeSlow(t *testing.T) {
 }
 
 func TestEaxRejectTamperedCiphertextRandomizeSlow(t *testing.T) {
+	t.Parallel()
+
 	pt := make([]byte, mathRand.Intn(eaxMaxLength))
 	header := make([]byte, mathRand.Intn(eaxMaxLength))
 	key := make([]byte, eaxBlockLength)
@@ -247,6 +265,8 @@ func TestEaxRejectTamperedCiphertextRandomizeSlow(t *testing.T) {
 }
 
 func TestEaxParameters(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Should return error on too long tagSize", func(st *testing.T) {
 		tagSize := eaxBlockLength + 1 + mathRand.Intn(12)
 		nonceSize := 1 + mathRand.Intn(16)

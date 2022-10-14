@@ -7,6 +7,8 @@ import (
 )
 
 func TestJSONParser(t *testing.T) {
+	t.Parallel()
+
 	var (
 		m    = make(map[string]string)
 		resp = &fasthttp.Response{}
@@ -24,6 +26,8 @@ func TestJSONParser(t *testing.T) {
 }
 
 func TestHeaderParser(t *testing.T) {
+	t.Parallel()
+
 	var (
 		m    = make(map[string]string)
 		resp = &fasthttp.Response{}

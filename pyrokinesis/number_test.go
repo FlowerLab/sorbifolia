@@ -5,6 +5,8 @@ import (
 )
 
 func TestNumber_ToBytes(t *testing.T) {
+	t.Parallel()
+
 	Number[int]{}.ToBytes(1)
 	Number[int64]{}.ToBytes(1)
 	Number[int32]{}.ToBytes(1)

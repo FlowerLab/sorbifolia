@@ -6,6 +6,8 @@ import (
 )
 
 func TestString_Copy(t *testing.T) {
+	t.Parallel()
+
 	s := "hello"
 	if String.Copy(s) != s {
 		t.Error("fail")
@@ -13,6 +15,8 @@ func TestString_Copy(t *testing.T) {
 }
 
 func TestString_ToBytes(t *testing.T) {
+	t.Parallel()
+
 	s := "hello"
 	if !bytes.Equal(String.ToBytes(s), []byte("hello")) {
 		t.Error("fail")
