@@ -16,6 +16,8 @@ func (e errReader) Read([]byte) (n int, err error) {
 }
 
 func TestArgon2_MustGenerate(t *testing.T) {
+	t.Parallel()
+
 	time.Sleep(time.Second) // It changes rand.Reader
 	g := New()
 
