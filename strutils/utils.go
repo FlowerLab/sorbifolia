@@ -1,30 +1,4 @@
-package coarsetime
-
-import (
-	"fmt"
-)
-
-func checkLastUTF8Len(p []byte) int {
-	var (
-		len4 = checkUTF8Len(p)
-		len3 = checkUTF8Len(p[1:])
-		len2 = checkUTF8Len(p[2:])
-		len1 = checkUTF8Len(p[3:])
-	)
-	fmt.Println(len4, len3, len2, len1)
-
-	/*
-		1:
-			0zzzzzzz（00-7F）
-		2:
-			110yyyyy（C0-DF） 10zzzzzz（80-BF）
-		3:
-			1110xxxx（E0-EF） 10yyyyyy 10zzzzzz
-		4:
-			11110www（F0-F7） 10xxxxxx 10yyyyyy 10zzzzzz
-	*/
-	return 0
-}
+package strutils
 
 func checkUTF8Len(p []byte) int {
 	n := len(p)
@@ -66,22 +40,6 @@ func checkUTF8Len(p []byte) int {
 }
 
 const (
-	t1 = 0b00000000
-	tx = 0b10000000
-	t2 = 0b11000000
-	t3 = 0b11100000
-	t4 = 0b11110000
-	t5 = 0b11111000
-
-	maskx = 0b00111111
-	mask2 = 0b00011111
-	mask3 = 0b00001111
-	mask4 = 0b00000111
-
-	rune1Max = 1<<7 - 1
-	rune2Max = 1<<11 - 1
-	rune3Max = 1<<16 - 1
-
 	// The default lowest and highest continuation byte.
 	locb = 0b10000000
 	hicb = 0b10111111
