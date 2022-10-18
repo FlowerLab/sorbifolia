@@ -40,7 +40,6 @@ func Test_checkUTF8Len(t *testing.T) {
 	t.Parallel()
 
 	for _, v := range checkUTF8LenTests {
-		// _, size := utf8.DecodeRune(v.b)
 		if checkUTF8Len(v.b) != v.size {
 			t.Error("fail")
 		}
