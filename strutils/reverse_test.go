@@ -29,6 +29,24 @@ func TestReverseBytes(t *testing.T) {
 	}
 }
 
+func TestCoverage(t *testing.T) {
+	t.Parallel()
+	b := []byte{}
+	ReverseBytes(b)
+	if !bytes.Equal(b, []byte{}) {
+		t.Error("fail")
+	}
+}
+
+func TestBoundary(t *testing.T) {
+	t.Parallel()
+	b := []byte{0xe0, 0b10110001, 0b00110001}
+	ReverseBytes(b)
+	if !bytes.Equal(b, []byte{0b00110001, 0b10110001, 0xe0}) {
+		t.Error("fail")
+	}
+}
+
 func BenchmarkReverse(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		Reverse(testStr1a)
