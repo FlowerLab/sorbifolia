@@ -30,10 +30,9 @@ func ReverseBytes(str []byte) {
 		case as:
 			utf8Len = 0
 		case s1, s2, s3, s4, s5, s6, s7:
-			if utf8Len >= 4 {
+			utf8Len++
+			if utf8Len > 4 {
 				utf8Len = 4
-			} else {
-				utf8Len++
 			}
 			char := str[i+1-utf8Len : i+1]
 			charLen := len(char)
