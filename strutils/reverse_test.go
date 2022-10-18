@@ -29,9 +29,9 @@ func TestReverseBytes(t *testing.T) {
 	}
 }
 
-func TestCoverage(t *testing.T) {
+func Test_ReverseBytesEmpty(t *testing.T) {
 	t.Parallel()
-	b := []byte{}
+	var b []byte
 	ReverseBytes(b)
 	if !bytes.Equal(b, []byte{}) {
 		t.Error("fail")
