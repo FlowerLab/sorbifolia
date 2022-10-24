@@ -70,11 +70,6 @@ func (r *Router[T]) findNode(node *Node[T], path []string, params *Params) *Node
 	}
 
 	switch len(path) {
-	case 0:
-		if len(node.Handler) != 0 {
-			return node
-		}
-		return nil
 	case 1:
 		if len(node.Handler) != 0 || len(node.ChildNode) == 0 {
 			return node
