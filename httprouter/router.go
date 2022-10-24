@@ -69,13 +69,24 @@ func (r *Router[T]) findNode(node *Node[T], path []string, params *Params) *Node
 		}
 	}
 
-	if len(path) == 1 {
-		return node
-	}
-	for _, v := range node.ChildNode {
-		if val := r.findNode(v, path[1:], params); val != nil {
-			return val
+	switch len(path) {
+	case 0:
+		if len(node.Handler) != 0 {
+			return node
+		}
+		return nil
+	case 1:
+		if len(node.Handler) != 0 || len(node.ChildNode) == 0 {
+			return node
+		}
+		return nil
+	default:
+		for _, v := range node.ChildNode {
+			if val := r.findNode(v, path[1:], params); val != nil {
+				return val
+			}
 		}
 	}
+
 	return nil
 }

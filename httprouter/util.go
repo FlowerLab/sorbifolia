@@ -16,7 +16,7 @@ func (n priorityNodes[T]) Less(i, j int) bool { return n[i].priority < n[j].prio
 func (n priorityNodes[T]) Swap(i, j int)      { n[i], n[j] = n[j], n[i] }
 
 func sortNode[T any](n *Node[T]) {
-	if len(n.ChildNode) <= 1 {
+	if len(n.ChildNode) < 1 {
 		return
 	}
 
@@ -37,7 +37,7 @@ func sortNode[T any](n *Node[T]) {
 
 	for i, v := range arr {
 		n.ChildNode[i] = v.node
-		if len(v.node.ChildNode) > 1 {
+		if len(v.node.ChildNode) > 0 {
 			sortNode(v.node)
 		}
 	}

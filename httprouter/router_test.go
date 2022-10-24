@@ -118,3 +118,35 @@ func TestRouter_Find(t *testing.T) {
 		t.Error("fail")
 	}
 }
+
+func TestRouter_Sort(t *testing.T) {
+	t.Parallel()
+
+	r := NewRouter[string]()
+
+	f := r.Group().Group("/api/v1/file")
+	f.GET("/*download", func(s *string) { *s = "Wild" })
+	f.GET("/:id/download", func(s *string) { *s = "Fixed" })
+	f.GET("/search", func(s *string) { *s = "search" })
+	f.GET("/query", func(s *string) { *s = "query" })
+
+	r.Sort()
+
+	var (
+		s  string
+		ps = &Params{}
+	)
+
+	if r.Find(GET, "/api/v1/file/search", ps)[0](&s); s != "search" {
+		t.Error("fail")
+	}
+	if r.Find(GET, "/api/v1/file/query", ps)[0](&s); s != "query" {
+		t.Error("fail")
+	}
+	if r.Find(GET, "/api/v1/file/1/download", ps)[0](&s); s != "Fixed" {
+		t.Error("fail")
+	}
+	if r.Find(GET, "/api/v1/file/asd", ps)[0](&s); s != "Wild" {
+		t.Error("fail")
+	}
+}
