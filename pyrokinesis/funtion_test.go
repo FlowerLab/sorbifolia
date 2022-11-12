@@ -21,7 +21,7 @@ func TestCallFail(t *testing.T) {
 	t.Run("Test Call Fail cases", func(t *testing.T) {
 		t.Parallel()
 
-		defer func() { recover() }()
+		defer func() { _ = recover() }()
 
 		Call(map[string]int{}, "A", nil)
 		t.Error("Err")
@@ -30,7 +30,7 @@ func TestCallFail(t *testing.T) {
 	t.Run("Test Call Fail cases", func(t *testing.T) {
 		t.Parallel()
 
-		defer func() { recover() }()
+		defer func() { _ = recover() }()
 
 		Call(new(int), "A", nil)
 		t.Error("Err")
@@ -39,7 +39,7 @@ func TestCallFail(t *testing.T) {
 	t.Run("Test Call Fail cases", func(t *testing.T) {
 		t.Parallel()
 
-		defer func() { recover() }()
+		defer func() { _ = recover() }()
 
 		Call(&testCall{}, "C", nil)
 		t.Error("Err")
