@@ -132,6 +132,7 @@ func TestDialector_ORM(t *testing.T) {
 	type DataTable struct {
 		ID   uint    `json:"id" gorm:"primarykey;autoIncrement"`
 		Info string  `json:"info"`
+		BB   bool    `json:"bb"`
 		F    float32 `json:"f"`
 		B    []byte  `json:"b" gorm:"type:bytes"`
 	}
