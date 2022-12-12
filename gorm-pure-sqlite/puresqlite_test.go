@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"modernc.org/sqlite"
 )
 
@@ -106,11 +107,11 @@ func TestDialector_ORM(t *testing.T) {
 		t.Error(err)
 	}
 
+	db.Exec("PRAGMA foreign_keys = 1")
+
 	if db, err = gorm.Open(d, &gorm.Config{}); err != nil {
 		t.Error(err)
 	}
-
-	db.Exec("PRAGMA foreign_keys = 1")
 
 	type TestTable struct {
 		gorm.Model
@@ -123,12 +124,25 @@ func TestDialector_ORM(t *testing.T) {
 		t.Error(err)
 	}
 
-	if err = db.AutoMigrate(&TestTable{}); err != nil {
+	type UserTable struct {
+		Username string `json:"username" gorm:"primarykey"`
+		Info     string `json:"info"`
+	}
+
+	if err = db.AutoMigrate(&TestTable{}, &UserTable{}); err != nil {
 		t.Error(err)
 	}
 	if err = db.Migrator().DropTable(&TestTable{}); err != nil {
 		t.Error(err)
 	}
 
-	db.Unscoped()
+	db.Create(&UserTable{
+		Username: "a",
+		Info:     "a",
+	})
+	db.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "username"}}, DoNothing: true}).
+		Create(&UserTable{
+			Username: "a",
+			Info:     "a",
+		})
 }
