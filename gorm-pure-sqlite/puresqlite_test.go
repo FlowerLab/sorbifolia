@@ -129,7 +129,12 @@ func TestDialector_ORM(t *testing.T) {
 		Info     string `json:"info"`
 	}
 
-	if err = db.AutoMigrate(&TestTable{}, &UserTable{}); err != nil {
+	type DataTable struct {
+		ID   uint64 `json:"id" gorm:"primarykey;type:autoIncrement"`
+		Info string `json:"info"`
+	}
+
+	if err = db.AutoMigrate(&TestTable{}, &UserTable{}, &DataTable{}); err != nil {
 		t.Error(err)
 	}
 	if err = db.Migrator().DropTable(&TestTable{}); err != nil {
