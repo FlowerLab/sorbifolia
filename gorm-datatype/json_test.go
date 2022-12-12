@@ -29,8 +29,6 @@ type Test1 struct {
 }
 
 func TestJSON(t *testing.T) {
-	t.Parallel()
-
 	initDB()
 	if err := db.AutoMigrate(&Test1{}); err != nil {
 		t.Error(err)

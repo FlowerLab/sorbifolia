@@ -13,8 +13,6 @@ type TestArrayInt struct {
 }
 
 func TestArray_Int(t *testing.T) {
-	t.Parallel()
-
 	initDB()
 	if err := db.AutoMigrate(&TestArrayInt{}); err != nil {
 		t.Error(err)

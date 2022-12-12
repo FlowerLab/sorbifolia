@@ -47,6 +47,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           flags: ${{ matrix.os }},go-${{ matrix.go-version }}
+          gcov_ignore: gorm-pure-sqlite
 
   test-windows:
     strategy:
@@ -81,6 +82,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           flags: ${{ matrix.os }},go-${{ matrix.go-version }}
+          gcov_ignore: gorm-pure-sqlite
 
   test-macos:
     strategy:
@@ -115,3 +117,4 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           flags: ${{ matrix.os }},go-${{ matrix.go-version }}
+          gcov_ignore: gorm-pure-sqlite
