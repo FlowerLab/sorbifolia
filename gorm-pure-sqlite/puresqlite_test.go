@@ -265,11 +265,13 @@ type TestAC1 struct {
 
 	Name string `json:"name"`
 }
+
 type TestAC2 struct {
 	gorm.Model
 
 	Name string `json:"name"`
 	Info string `json:"info"`
+	Arr  []byte `json:"arr" gorm:"autoIncrement;default:null"`
 }
 
 func (TestAC1) TableName() string { return "tac" }
@@ -282,4 +284,36 @@ func TestDialector_AlterColumn(t *testing.T) {
 	}
 	_ = db.AutoMigrate(&TestAC1{})
 	_ = db.AutoMigrate(&TestAC2{})
+}
+
+func TestDialector_DefaultValueOf(t *testing.T) {
+	db, err := gorm.Open(Open("file:testdbdvo?mode=memory&cache=shared"), &gorm.Config{})
+	if err != nil {
+		t.Error(err)
+	}
+
+	type TestDvo struct {
+		ID uint `json:"id" gorm:"default:1;primarykey;autoIncrement;"`
+
+		Name string `json:"name"`
+		Info string `json:"info"`
+		Arr  []byte `json:"arr" gorm:"autoIncrement;default:null"`
+	}
+
+	_ = db.AutoMigrate(&TestDvo{})
+	arr := make([]TestDvo, 2)
+	arr[0].Arr = []byte("test")
+	db.Create(&arr)
+
+	type TestDvo1 struct {
+		ID uint `json:"id" gorm:"default:1;primarykey;autoIncrement;"`
+
+		Name string `json:"name"`
+		Info string `json:"info"`
+		Arr  []byte `json:"arr" gorm:"default:null"`
+	}
+	_ = db.AutoMigrate(&TestDvo1{})
+	arr1 := make([]TestDvo1, 2)
+	arr1[0].Arr = []byte("test")
+	db.Create(&arr1)
 }
