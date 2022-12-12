@@ -97,17 +97,24 @@ func TestDialector(t *testing.T) {
 	}
 }
 
+func TestDialector_PreConn(t *testing.T) {
+	d := Open("file:testdb1?mode=memory&cache=shared")
+	db, err := gorm.Open(d, &gorm.Config{})
+	if err != nil {
+		t.Error(err)
+	}
+	db.Exec("PRAGMA foreign_keys = 1")
+	d.(*Dialector).Conn = db.ConnPool
+	if err = d.Initialize(db); err != nil {
+		t.Error(err)
+	}
+}
+
 func TestDialector_ORM(t *testing.T) {
 	d := Open("file:testdb?mode=memory&cache=shared")
 	t.Log(d.Name())
 	db, err := gorm.Open(d, &gorm.Config{})
 	if err != nil {
-		t.Error(err)
-	}
-
-	db.Exec("PRAGMA foreign_keys = 1")
-
-	if db, err = gorm.Open(d, &gorm.Config{}); err != nil {
 		t.Error(err)
 	}
 
@@ -172,4 +179,18 @@ func TestDialector_ORM(t *testing.T) {
 
 	var tut UserTable
 	db.Clauses(clause.Locking{Strength: "UPDATE"}).First(&tut, "username = ?", "a")
+
+	_ = db.Transaction(func(tx *gorm.DB) error {
+		tx.SavePoint("a1")
+		tx.Create(&UserTable{Username: "a1", Info: "a"})
+		tx.SavePoint("a2")
+		tx.Create(&UserTable{Username: "a2", Info: "a"})
+
+		if err = tx.Create(&UserTable{Username: "a1", Info: "a"}).Error; err != nil {
+			tx.RollbackTo("a1")
+		}
+
+		return nil
+	})
+
 }
