@@ -20,4 +20,5 @@ func TestNow(t *testing.T) {
 	t.Parallel()
 
 	Now()
+	Ptr()
 }
