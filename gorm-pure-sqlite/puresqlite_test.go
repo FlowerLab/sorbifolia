@@ -190,6 +190,12 @@ func TestDialector_ORM(t *testing.T) {
 
 	var tut UserTable
 	db.Clauses(clause.Locking{Strength: "UPDATE"}).First(&tut, "username = ?", "a")
+	db.Clauses(testLocking{Strength: "UPDATE"}).First(&tut, "username = ?", "a")
+	db.Clauses(testInsert{}).Create(&UserTable{Username: "c", Info: "c"})
+	{
+		var arr []UserTable
+		db.Offset(1).Find(&arr)
+	}
 
 	_ = db.Transaction(func(tx *gorm.DB) error {
 		tx.SavePoint("a1")
@@ -203,4 +209,52 @@ func TestDialector_ORM(t *testing.T) {
 
 		return nil
 	})
+}
+
+type testLocking struct {
+	Strength string
+	Table    clause.Table
+	Options  string
+}
+
+// Name where clause name
+func (locking testLocking) Name() string                      { return "FOR" }
+func (locking testLocking) Build(_ clause.Builder)            {}
+func (locking testLocking) MergeClause(clause *clause.Clause) { clause.Expression = locking }
+
+type testInsert struct {
+	Table    clause.Table
+	Modifier string
+}
+
+func (insert testInsert) Name() string { return "INSERT" }
+
+func (insert testInsert) Build(builder clause.Builder) {
+	if stmt, ok := builder.(*gorm.Statement); ok {
+		_, _ = stmt.WriteString("INSERT ")
+		if insert.Modifier != "" {
+			_, _ = stmt.WriteString(insert.Modifier)
+			_ = stmt.WriteByte(' ')
+		}
+
+		_, _ = stmt.WriteString("INTO ")
+		if insert.Table.Name == "" {
+			stmt.WriteQuoted(stmt.Table)
+		} else {
+			stmt.WriteQuoted(insert.Table)
+		}
+	}
+}
+
+// MergeClause merge insert clause
+func (insert testInsert) MergeClause(clause *clause.Clause) {
+	if v, ok := clause.Expression.(testInsert); ok {
+		if insert.Modifier == "" {
+			insert.Modifier = v.Modifier
+		}
+		if insert.Table.Name == "" {
+			insert.Table = v.Table
+		}
+	}
+	clause.Expression = insert
 }
