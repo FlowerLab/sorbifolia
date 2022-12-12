@@ -99,10 +99,17 @@ func TestDialector(t *testing.T) {
 func TestDialector_ORM(t *testing.T) {
 	t.Parallel()
 
-	db, err := gorm.Open(Open("file:testdb?mode=memory&cache=shared"), &gorm.Config{})
+	d := Open("file:testdb?mode=memory&cache=shared")
+	t.Log(d.Name())
+	db, err := gorm.Open(d, &gorm.Config{})
 	if err != nil {
 		t.Error(err)
 	}
+
+	if db, err = gorm.Open(d, &gorm.Config{}); err != nil {
+		t.Error(err)
+	}
+
 	db.Exec("PRAGMA foreign_keys = 1")
 
 	type TestTable struct {
@@ -117,6 +124,9 @@ func TestDialector_ORM(t *testing.T) {
 	}
 
 	if err = db.AutoMigrate(&TestTable{}); err != nil {
+		t.Error(err)
+	}
+	if err = db.Migrator().DropTable(&TestTable{}); err != nil {
 		t.Error(err)
 	}
 
