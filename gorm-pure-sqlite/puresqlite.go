@@ -1,7 +1,6 @@
 package puresqlite
 
 import (
-	"context"
 	"database/sql"
 	"strconv"
 	"strings"
@@ -47,23 +46,13 @@ func (d Dialector) Initialize(db *gorm.DB) error {
 		db.ConnPool = conn
 	}
 
-	var version string
-	if err := db.ConnPool.QueryRowContext(context.Background(), "select sqlite_version()").Scan(&version); err != nil {
-		return err
-	}
-	// https://www.sqlite.org/releaselog/3_35_0.html
-	if compareVersion(version, "3.35.0") >= 0 {
-		callbacks.RegisterDefaultCallbacks(db, &callbacks.Config{
-			CreateClauses:        []string{"INSERT", "VALUES", "ON CONFLICT", "RETURNING"},
-			UpdateClauses:        []string{"UPDATE", "SET", "WHERE", "RETURNING"},
-			DeleteClauses:        []string{"DELETE", "FROM", "WHERE", "RETURNING"},
-			LastInsertIDReversed: true,
-		})
-	} else {
-		callbacks.RegisterDefaultCallbacks(db, &callbacks.Config{
-			LastInsertIDReversed: true,
-		})
-	}
+	// When modifying this code, the sqlite version is 3.40.0
+	callbacks.RegisterDefaultCallbacks(db, &callbacks.Config{
+		CreateClauses:        []string{"INSERT", "VALUES", "ON CONFLICT", "RETURNING"},
+		UpdateClauses:        []string{"UPDATE", "SET", "WHERE", "RETURNING"},
+		DeleteClauses:        []string{"DELETE", "FROM", "WHERE", "RETURNING"},
+		LastInsertIDReversed: true,
+	})
 
 	for k, v := range d.ClauseBuilders() {
 		db.ClauseBuilders[k] = v
