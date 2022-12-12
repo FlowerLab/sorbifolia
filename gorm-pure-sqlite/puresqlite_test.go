@@ -98,8 +98,6 @@ func TestDialector(t *testing.T) {
 }
 
 func TestDialector_ORM(t *testing.T) {
-	t.Parallel()
-
 	d := Open("file:testdb?mode=memory&cache=shared")
 	t.Log(d.Name())
 	db, err := gorm.Open(d, &gorm.Config{})
@@ -112,6 +110,8 @@ func TestDialector_ORM(t *testing.T) {
 	if db, err = gorm.Open(d, &gorm.Config{}); err != nil {
 		t.Error(err)
 	}
+
+	db.Exec("PRAGMA foreign_keys = 1")
 
 	type TestTable struct {
 		gorm.Model
@@ -139,6 +139,13 @@ func TestDialector_ORM(t *testing.T) {
 	}
 	if err = db.Migrator().DropTable(&TestTable{}); err != nil {
 		t.Error(err)
+	}
+	if err = db.Migrator().DropTable(&TestTable{}); err != nil {
+		t.Error(err)
+	}
+
+	if err = db.Migrator().DropTable("SQLITE_MASTER"); err == nil {
+		t.Fail()
 	}
 
 	db.Create(&UserTable{
