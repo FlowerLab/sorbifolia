@@ -63,12 +63,24 @@ func TestParseDDL(t *testing.T) {
 				},
 			},
 		},
+
+		{"escaped quote", []string{`CREATE TABLE """""test" ("id" INT NOT NULL)`}, 1,
+			[]migrator.ColumnType{
+				{
+					NameValue:         sql.NullString{String: "id", Valid: true},
+					DataTypeValue:     sql.NullString{String: "INT", Valid: true},
+					ColumnTypeValue:   sql.NullString{String: "INT", Valid: true},
+					NullableValue:     sql.NullBool{Bool: false, Valid: true},
+					DefaultValueValue: sql.NullString{Valid: false},
+					UniqueValue:       sql.NullBool{Valid: true},
+					PrimaryKeyValue:   sql.NullBool{Valid: true},
+				},
+			},
+		},
 	}
 
 	for _, p := range params {
 		t.Run(p.name, func(t *testing.T) {
-			t.Parallel()
-
 			ddl, err := parseDDL(p.sql...)
 
 			if err != nil {
@@ -96,8 +108,6 @@ func TestParseDDL_error(t *testing.T) {
 
 	for _, p := range params {
 		t.Run(p.name, func(t *testing.T) {
-			t.Parallel()
-
 			_, err := parseDDL(p.sql)
 			if err == nil {
 				t.Fail()
