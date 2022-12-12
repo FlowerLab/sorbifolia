@@ -76,13 +76,13 @@ func (d Dialector) ClauseBuilders() map[string]clause.ClauseBuilder {
 		"INSERT": func(c clause.Clause, builder clause.Builder) {
 			if insert, ok := c.Expression.(clause.Insert); ok {
 				if stmt, ok := builder.(*gorm.Statement); ok {
-					stmt.WriteString("INSERT ")
+					_, _ = stmt.WriteString("INSERT ")
 					if insert.Modifier != "" {
-						stmt.WriteString(insert.Modifier)
-						stmt.WriteByte(' ')
+						_, _ = stmt.WriteString(insert.Modifier)
+						_ = stmt.WriteByte(' ')
 					}
 
-					stmt.WriteString("INTO ")
+					_, _ = stmt.WriteString("INTO ")
 					if insert.Table.Name == "" {
 						stmt.WriteQuoted(stmt.Table)
 					} else {
@@ -101,12 +101,12 @@ func (d Dialector) ClauseBuilders() map[string]clause.ClauseBuilder {
 					lmt = *limit.Limit
 				}
 				if lmt >= 0 || limit.Offset > 0 {
-					builder.WriteString("LIMIT ")
-					builder.WriteString(strconv.Itoa(lmt))
+					_, _ = builder.WriteString("LIMIT ")
+					_, _ = builder.WriteString(strconv.Itoa(lmt))
 				}
 				if limit.Offset > 0 {
-					builder.WriteString(" OFFSET ")
-					builder.WriteString(strconv.Itoa(limit.Offset))
+					_, _ = builder.WriteString(" OFFSET ")
+					_, _ = builder.WriteString(strconv.Itoa(limit.Offset))
 				}
 			}
 		},
@@ -138,22 +138,22 @@ func (d Dialector) Migrator(db *gorm.DB) gorm.Migrator {
 }
 
 func (d Dialector) BindVarTo(writer clause.Writer, stmt *gorm.Statement, v interface{}) {
-	writer.WriteByte('?')
+	_ = writer.WriteByte('?')
 }
 
 func (d Dialector) QuoteTo(writer clause.Writer, str string) {
-	writer.WriteByte('`')
+	_ = writer.WriteByte('`')
 	if strings.Contains(str, ".") {
 		for idx, str := range strings.Split(str, ".") {
 			if idx > 0 {
-				writer.WriteString(".`")
+				_, _ = writer.WriteString(".`")
 			}
-			writer.WriteString(str)
-			writer.WriteByte('`')
+			_, _ = writer.WriteString(str)
+			_ = writer.WriteByte('`')
 		}
 	} else {
-		writer.WriteString(str)
-		writer.WriteByte('`')
+		_, _ = writer.WriteString(str)
+		_ = writer.WriteByte('`')
 	}
 }
 

@@ -10,17 +10,12 @@ import (
 )
 
 func TestDialector(t *testing.T) {
-	// This is the DSN of the in-memory SQLite database for these tests.
-	const InMemoryDSN = "file:testdatabase?mode=memory&cache=shared"
-	// This is the custom SQLite driver name.
-	const CustomDriverName = "my_custom_driver"
-
-	// Register the custom SQlite3 driver.
-	// It will have one custom function called "my_custom_function".
-
-	sql.Register(CustomDriverName,
-		&sqlite.Driver{},
+	const (
+		CustomDriverName = "my_custom_driver"
+		InMemoryDSN      = "file:testdatabase?mode=memory&cache=shared"
 	)
+
+	sql.Register(CustomDriverName, &sqlite.Driver{})
 
 	rows := []struct {
 		description  string
@@ -56,16 +51,6 @@ func TestDialector(t *testing.T) {
 			},
 			openSuccess: false,
 		},
-		// {
-		// 	description: "Explicit default driver, custom function",
-		// 	dialector: &Dialector{
-		// 		DriverName: DriverName,
-		// 		DSN:        InMemoryDSN,
-		// 	},
-		// 	openSuccess:  true,
-		// 	query:        "SELECT my_custom_function()",
-		// 	querySuccess: false,
-		// },
 		{
 			description: "Custom driver",
 			dialector: &Dialector{
@@ -76,17 +61,8 @@ func TestDialector(t *testing.T) {
 			query:        "SELECT 1",
 			querySuccess: true,
 		},
-		// {
-		// 	description: "Custom driver, custom function",
-		// 	dialector: &Dialector{
-		// 		DriverName: CustomDriverName,
-		// 		DSN:        InMemoryDSN,
-		// 	},
-		// 	openSuccess:  true,
-		// 	query:        "SELECT my_custom_function()",
-		// 	querySuccess: true,
-		// },
 	}
+
 	for rowIndex, row := range rows {
 		t.Run(fmt.Sprintf("%d/%s", rowIndex, row.description), func(t *testing.T) {
 			db, err := gorm.Open(row.dialector, &gorm.Config{})

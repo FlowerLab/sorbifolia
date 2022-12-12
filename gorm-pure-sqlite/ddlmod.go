@@ -210,7 +210,7 @@ func (d *ddl) hasConstraint(name string) bool {
 }
 
 func (d *ddl) getColumns() []string {
-	res := []string{}
+	var res []string
 
 	for _, f := range d.fields {
 		fUpper := strings.ToUpper(f)

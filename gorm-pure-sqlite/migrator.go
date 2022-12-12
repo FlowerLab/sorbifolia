@@ -29,7 +29,7 @@ func (m *Migrator) RunWithoutForeignKey(fc func() error) error {
 
 func (m Migrator) HasTable(value interface{}) bool {
 	var count int
-	m.Migrator.RunWithValue(value, func(stmt *gorm.Statement) error {
+	_ = m.Migrator.RunWithValue(value, func(stmt *gorm.Statement) error {
 		return m.DB.Raw("SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?", stmt.Table).Row().Scan(&count)
 	})
 	return count > 0
@@ -58,7 +58,7 @@ func (m Migrator) GetTables() (tableList []string, err error) {
 
 func (m Migrator) HasColumn(value interface{}, name string) bool {
 	var count int
-	m.Migrator.RunWithValue(value, func(stmt *gorm.Statement) error {
+	_ = m.Migrator.RunWithValue(value, func(stmt *gorm.Statement) error {
 		if stmt.Schema != nil {
 			if field := stmt.Schema.LookUpField(name); field != nil {
 				name = field.DBName
@@ -66,7 +66,7 @@ func (m Migrator) HasColumn(value interface{}, name string) bool {
 		}
 
 		if name != "" {
-			m.DB.Raw(
+			_ = m.DB.Raw(
 				"SELECT count(*) FROM sqlite_master WHERE type = ? AND tbl_name = ? AND (sql LIKE ? OR sql LIKE ? OR sql LIKE ? OR sql LIKE ? OR sql LIKE ?)",
 				"table", stmt.Table, `%"`+name+`" %`, `%`+name+` %`, "%`"+name+"`%", "%["+name+"]%", "%\t"+name+"\t%",
 			).Row().Scan(&count)
@@ -225,7 +225,7 @@ func (m Migrator) DropConstraint(value interface{}, name string) error {
 
 func (m Migrator) HasConstraint(value interface{}, name string) bool {
 	var count int64
-	m.RunWithValue(value, func(stmt *gorm.Statement) error {
+	_ = m.RunWithValue(value, func(stmt *gorm.Statement) error {
 		constraint, chk, table := m.GuessConstraintAndTable(stmt, name)
 		if constraint != nil {
 			name = constraint.Name
@@ -233,7 +233,7 @@ func (m Migrator) HasConstraint(value interface{}, name string) bool {
 			name = chk.Name
 		}
 
-		m.DB.Raw(
+		_ = m.DB.Raw(
 			"SELECT count(*) FROM sqlite_master WHERE type = ? AND tbl_name = ? AND (sql LIKE ? OR sql LIKE ? OR sql LIKE ? OR sql LIKE ? OR sql LIKE ?)",
 			"table", table, `%CONSTRAINT "`+name+`" %`, `%CONSTRAINT `+name+` %`, "%CONSTRAINT `"+name+"`%", "%CONSTRAINT ["+name+"]%", "%CONSTRAINT \t"+name+"\t%",
 		).Row().Scan(&count)
@@ -245,8 +245,8 @@ func (m Migrator) HasConstraint(value interface{}, name string) bool {
 }
 
 func (m Migrator) CurrentDatabase() (name string) {
-	var null interface{}
-	m.DB.Raw("PRAGMA database_list").Row().Scan(&null, &name, &null)
+	var null any
+	_ = m.DB.Raw("PRAGMA database_list").Row().Scan(&null, &name, &null)
 	return
 }
 
@@ -299,13 +299,13 @@ func (m Migrator) CreateIndex(value interface{}, name string) error {
 
 func (m Migrator) HasIndex(value interface{}, name string) bool {
 	var count int
-	m.RunWithValue(value, func(stmt *gorm.Statement) error {
+	_ = m.RunWithValue(value, func(stmt *gorm.Statement) error {
 		if idx := stmt.Schema.LookIndex(name); idx != nil {
 			name = idx.Name
 		}
 
 		if name != "" {
-			m.DB.Raw(
+			_ = m.DB.Raw(
 				"SELECT count(*) FROM sqlite_master WHERE type = ? AND tbl_name = ? AND name = ?", "index", stmt.Table, name,
 			).Row().Scan(&count)
 		}
@@ -359,7 +359,7 @@ func buildConstraint(constraint *schema.Constraint) (sql string, results []inter
 
 func (m Migrator) getRawDDL(table string) (string, error) {
 	var createSQL string
-	m.DB.Raw("SELECT sql FROM sqlite_master WHERE type = ? AND tbl_name = ? AND name = ?", "table", table, table).Row().Scan(&createSQL)
+	_ = m.DB.Raw("SELECT sql FROM sqlite_master WHERE type = ? AND tbl_name = ? AND name = ?", "table", table, table).Row().Scan(&createSQL)
 
 	if m.DB.Error != nil {
 		return "", m.DB.Error
