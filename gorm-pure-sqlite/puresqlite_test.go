@@ -95,3 +95,30 @@ func TestDialector(t *testing.T) {
 		})
 	}
 }
+
+func TestDialector_ORM(t *testing.T) {
+	t.Parallel()
+
+	db, err := gorm.Open(Open("file:testdb?mode=memory&cache=shared"), &gorm.Config{})
+	if err != nil {
+		t.Error(err)
+	}
+	db.Exec("PRAGMA foreign_keys = 1")
+
+	type TestTable struct {
+		gorm.Model
+
+		Name string `json:"name"`
+		Info string `json:"info"`
+	}
+
+	if err = db.AutoMigrate(&TestTable{}); err != nil {
+		t.Error(err)
+	}
+
+	if err = db.AutoMigrate(&TestTable{}); err != nil {
+		t.Error(err)
+	}
+
+	db.Unscoped()
+}
