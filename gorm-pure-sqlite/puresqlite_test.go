@@ -130,8 +130,10 @@ func TestDialector_ORM(t *testing.T) {
 	}
 
 	type DataTable struct {
-		ID   uint64 `json:"id" gorm:"primarykey;autoIncrement"`
-		Info string `json:"info"`
+		ID   uint    `json:"id" gorm:"primarykey;autoIncrement"`
+		Info string  `json:"info"`
+		F    float32 `json:"f"`
+		B    []byte  `json:"b" gorm:"type:bytes"`
 	}
 
 	if err = db.AutoMigrate(&TestTable{}, &UserTable{}, &DataTable{}); err != nil {
@@ -146,6 +148,15 @@ func TestDialector_ORM(t *testing.T) {
 
 	if err = db.Migrator().DropTable("SQLITE_MASTER"); err == nil {
 		t.Fail()
+	}
+
+	type AMTable struct {
+		ID uint   `json:"id" gorm:"primarykey;autoIncrement"`
+		B  []byte `json:"b" gorm:"type:aaa"`
+	}
+
+	if err = db.AutoMigrate(&AMTable{}); err != nil {
+		t.Error(err)
 	}
 
 	db.Create(&UserTable{
