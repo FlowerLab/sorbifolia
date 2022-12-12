@@ -137,16 +137,27 @@ func TestDialector_ORM(t *testing.T) {
 	}
 
 	type DataTable struct {
-		ID   uint    `json:"id" gorm:"primarykey;autoIncrement"`
-		Info string  `json:"info"`
+		ID   uint    `json:"id" gorm:"primarykey;autoIncrement;default:1"`
+		Info string  `json:"info" gorm:"default:1sdf"`
 		BB   bool    `json:"bb"`
 		F    float32 `json:"f"`
 		B    []byte  `json:"b" gorm:"type:bytes"`
 	}
-
+	type ATTable struct {
+		ID  uint `json:"id" gorm:"primarykey"`
+		Num uint `json:"num" gorm:"autoIncrement"`
+	}
+	if err = db.AutoMigrate(&ATTable{}); err == nil {
+		t.Fail()
+	}
 	if err = db.AutoMigrate(&TestTable{}, &UserTable{}, &DataTable{}); err != nil {
 		t.Error(err)
 	}
+	{
+		dt := &DataTable{BB: false}
+		db.Create(dt)
+	}
+
 	if err = db.Migrator().DropTable(&TestTable{}); err != nil {
 		t.Error(err)
 	}
@@ -192,5 +203,4 @@ func TestDialector_ORM(t *testing.T) {
 
 		return nil
 	})
-
 }
