@@ -9,8 +9,6 @@ import (
 )
 
 func TestParseDDL(t *testing.T) {
-	t.Parallel()
-
 	params := []struct {
 		name    string
 		sql     []string
@@ -234,6 +232,11 @@ func TestGetColumns(t *testing.T) {
 			columns: []string{"`ID`", "`LastName`", "`FirstName`"},
 		},
 		{
+			name:    "unique",
+			ddl:     "CREATE TABLE Persons (ID varchar(10) UNIQUE,LastName varchar(255) NOT NULL,FirstName varchar(255) UNIQUE)",
+			columns: []string{"`ID`", "`LastName`", "`FirstName`"},
+		},
+		{
 			name: "with_new_line",
 			ddl: `CREATE TABLE "tb_sys_role_menu__temp" (
   "id" integer  PRIMARY KEY AUTOINCREMENT,
@@ -241,17 +244,15 @@ func TestGetColumns(t *testing.T) {
   "updated_at" datetime NOT NULL,
   "created_by" integer NOT NULL DEFAULT 0,
   "updated_by" integer NOT NULL DEFAULT 0,
-  "role_id" integer NOT NULL,
+  "role_id" GENERATED ALWAYS AS ("id"+1) VIRTUAL,
   "menu_id" bigint NOT NULL
 )`,
-			columns: []string{"`id`", "`created_at`", "`updated_at`", "`created_by`", "`updated_by`", "`role_id`", "`menu_id`"},
+			columns: []string{"`id`", "`created_at`", "`updated_at`", "`created_by`", "`updated_by`", "`menu_id`"},
 		},
 	}
 
 	for _, p := range params {
 		t.Run(p.name, func(t *testing.T) {
-			t.Parallel()
-
 			testDDL, err := parseDDL(p.ddl)
 			if err != nil {
 				panic(err.Error())
