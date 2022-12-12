@@ -130,6 +130,7 @@ func TestDialector_ORM(t *testing.T) {
 	if err = db.AutoMigrate(&TestTable{}); err != nil {
 		t.Error(err)
 	}
+	_, _ = db.Migrator().GetTables()
 
 	type UserTable struct {
 		Username string `json:"username" gorm:"primarykey"`
@@ -257,4 +258,28 @@ func (insert testInsert) MergeClause(clause *clause.Clause) {
 		}
 	}
 	clause.Expression = insert
+}
+
+type TestAC1 struct {
+	gorm.Model
+
+	Name string `json:"name"`
+}
+type TestAC2 struct {
+	gorm.Model
+
+	Name string `json:"name"`
+	Info string `json:"info"`
+}
+
+func (TestAC1) TableName() string { return "tac" }
+func (TestAC2) TableName() string { return "tac" }
+
+func TestDialector_AlterColumn(t *testing.T) {
+	db, err := gorm.Open(Open("file:testdbac?mode=memory&cache=shared"), &gorm.Config{})
+	if err != nil {
+		t.Error(err)
+	}
+	_ = db.AutoMigrate(&TestAC1{})
+	_ = db.AutoMigrate(&TestAC2{})
 }
