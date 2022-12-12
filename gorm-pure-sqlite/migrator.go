@@ -317,7 +317,7 @@ func (m Migrator) HasIndex(value interface{}, name string) bool {
 func (m Migrator) RenameIndex(value interface{}, oldName, newName string) error {
 	return m.RunWithValue(value, func(stmt *gorm.Statement) error {
 		var sql string
-		m.DB.Raw("SELECT sql FROM sqlite_master WHERE type = ? AND tbl_name = ? AND name = ?", "index", stmt.Table, oldName).Row().Scan(&sql)
+		_ = m.DB.Raw("SELECT sql FROM sqlite_master WHERE type = ? AND tbl_name = ? AND name = ?", "index", stmt.Table, oldName).Row().Scan(&sql)
 		if sql != "" {
 			return m.DB.Exec(strings.Replace(sql, oldName, newName, 1)).Error
 		}
