@@ -99,10 +99,12 @@ func (d Dialector) ClauseBuilders() map[string]clause.ClauseBuilder {
 				}
 			}
 		},
-		// "FOR": func(c clause.Clause, builder clause.Builder) {
-		// 	// SQLite3 does not support row-level locking.
-		// 	c.Build(builder)
-		// },
+		"FOR": func(c clause.Clause, builder clause.Builder) {
+			if _, ok := c.Expression.(clause.Locking); ok {
+				return // SQLite3 does not support row-level locking.
+			}
+			c.Build(builder)
+		},
 	}
 }
 

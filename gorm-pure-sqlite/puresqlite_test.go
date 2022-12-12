@@ -145,4 +145,7 @@ func TestDialector_ORM(t *testing.T) {
 			Username: "a",
 			Info:     "a",
 		})
+
+	var tut UserTable
+	db.Clauses(clause.Locking{Strength: "UPDATE"}).First(&tut, "username = ?", "a")
 }
