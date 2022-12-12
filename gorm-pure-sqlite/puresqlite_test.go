@@ -130,7 +130,7 @@ func TestDialector_ORM(t *testing.T) {
 	}
 
 	type DataTable struct {
-		ID   uint64 `json:"id" gorm:"primarykey;type:autoIncrement"`
+		ID   uint64 `json:"id" gorm:"primarykey;autoIncrement"`
 		Info string `json:"info"`
 	}
 
