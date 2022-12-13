@@ -2,7 +2,6 @@ package puresqlite
 
 import (
 	"database/sql"
-	"log"
 	"testing"
 )
 
@@ -11,12 +10,11 @@ func TestSQLiteVersion(t *testing.T) {
 
 	db, err := sql.Open(DriverName, ":memory:")
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 
-	row := db.QueryRow("select sqlite_version()")
-	if row.Scan(&version) != nil {
-		log.Fatal(err)
+	if db.QueryRow("SELECT sqlite_version()").Scan(&version) != nil {
+		t.Fatal(err)
 	}
 
 	t.Log(version)
