@@ -210,10 +210,7 @@ func (d *ddl) getColumns() []string {
 			continue
 		}
 
-		reg := regexp.MustCompile("^[\"`']?([\\w\\d]+)[\"`']?")
-		match := reg.FindStringSubmatch(f)
-
-		if match != nil {
+		if match := regexp.MustCompile("^[\"`']?([\\w\\d]+)[\"`']?").FindStringSubmatch(f); match != nil {
 			res = append(res, "`"+match[1]+"`")
 		}
 	}
