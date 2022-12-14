@@ -8,6 +8,7 @@ use (
 	gomod
 	gorm-datatype
 	gorm-pure-sqlite
+	http
 	httprouter
 	httputils
 	jwt
