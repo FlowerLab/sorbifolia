@@ -13,13 +13,13 @@ import (
 
 var (
 	sqliteSeparator    = "`|\"|'|\t"
-	indexRegexp        = regexp.MustCompile(fmt.Sprintf("(?is)CREATE(?: UNIQUE)? INDEX [%v]?[\\w\\d-]+[%v]? ON (.*)$", sqliteSeparator, sqliteSeparator))
+	indexRegexp        = regexp.MustCompile(fmt.Sprintf(`(?is)CREATE(?: UNIQUE)? INDEX [%v]?[\w\d-]+[%v]? ON (.*)$`, sqliteSeparator, sqliteSeparator))
 	tableRegexp        = regexp.MustCompile(fmt.Sprintf(`(?is)(CREATE TABLE [%v]?[\"\w\d-]+[%v]?)(?: \((.*)\))?`, sqliteSeparator, sqliteSeparator))
 	separatorRegexp    = regexp.MustCompile(fmt.Sprintf("[%v]", sqliteSeparator))
-	columnsRegexp      = regexp.MustCompile(fmt.Sprintf("\\([%v]?([\\w\\d]+)[%v]?(?:,[%v]?([\\w\\d]+)[%v]){0,}\\)", sqliteSeparator, sqliteSeparator, sqliteSeparator, sqliteSeparator))
-	columnRegexp       = regexp.MustCompile(fmt.Sprintf("^[%v]?([\\w\\d]+)[%v]?\\s+([\\w\\(\\)\\d]+)(.*)$", sqliteSeparator, sqliteSeparator))
+	columnsRegexp      = regexp.MustCompile(fmt.Sprintf(`\([%v]?([\w\d]+)[%v]?(?:,[%v]?([\w\d]+)[%v]){0,}\)`, sqliteSeparator, sqliteSeparator, sqliteSeparator, sqliteSeparator))
+	columnRegexp       = regexp.MustCompile(fmt.Sprintf(`^[%v]?([\w\d]+)[%v]?\s+([\w\(\)\d]+)(.*)$`, sqliteSeparator, sqliteSeparator))
 	defaultValueRegexp = regexp.MustCompile(`(?i) DEFAULT \(?(.+)?\)?( |COLLATE|GENERATED|$)`)
-	regRealDataType    = regexp.MustCompile(`[^\d](\d+)[^\d]?`)
+	regRealDataType    = regexp.MustCompile(`\D(\d+)\D?`)
 )
 
 type ddl struct {
@@ -173,7 +173,7 @@ func (d *ddl) compile() string {
 	return fmt.Sprintf("%s (%s)", d.head, strings.Join(d.fields, ","))
 }
 
-func (d *ddl) addConstraint(name string, sql string) {
+func (d *ddl) addConstraint(name, sql string) {
 	reg := regexp.MustCompile("^CONSTRAINT [\"`]?" + regexp.QuoteMeta(name) + "[\"` ]")
 
 	for i := 0; i < len(d.fields); i++ {
@@ -210,10 +210,7 @@ func (d *ddl) getColumns() []string {
 			continue
 		}
 
-		reg := regexp.MustCompile("^[\"`']?([\\w\\d]+)[\"`']?")
-		match := reg.FindStringSubmatch(f)
-
-		if match != nil {
+		if match := regexp.MustCompile("^[\"`']?([\\w\\d]+)[\"`']?").FindStringSubmatch(f); match != nil {
 			res = append(res, "`"+match[1]+"`")
 		}
 	}

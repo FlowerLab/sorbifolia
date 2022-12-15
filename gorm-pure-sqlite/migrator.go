@@ -27,15 +27,15 @@ func (m *Migrator) RunWithoutForeignKey(fc func() error) error {
 	return fc()
 }
 
-func (m Migrator) HasTable(value interface{}) bool {
+func (m Migrator) HasTable(value any) bool {
 	var count int
 	_ = m.Migrator.RunWithValue(value, func(stmt *gorm.Statement) error {
-		return m.DB.Raw("SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?", stmt.Table).Row().Scan(&count)
+		return m.DB.Raw("SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = ?", stmt.Table).Row().Scan(&count)
 	})
 	return count > 0
 }
 
-func (m Migrator) DropTable(values ...interface{}) error {
+func (m Migrator) DropTable(values ...any) error {
 	return m.RunWithoutForeignKey(func() error {
 		values = m.ReorderModels(values, false)
 		tx := m.DB.Session(&gorm.Session{})
@@ -53,10 +53,10 @@ func (m Migrator) DropTable(values ...interface{}) error {
 }
 
 func (m Migrator) GetTables() (tableList []string, err error) {
-	return tableList, m.DB.Raw("SELECT name FROM sqlite_master where type=?", "table").Scan(&tableList).Error
+	return tableList, m.DB.Raw("SELECT name FROM sqlite_master where type = ?", "table").Scan(&tableList).Error
 }
 
-func (m Migrator) HasColumn(value interface{}, name string) bool {
+func (m Migrator) HasColumn(value any, name string) bool {
 	var count int
 	_ = m.Migrator.RunWithValue(value, func(stmt *gorm.Statement) error {
 		if stmt.Schema != nil {
@@ -76,7 +76,7 @@ func (m Migrator) HasColumn(value interface{}, name string) bool {
 	return count > 0
 }
 
-func (m Migrator) AlterColumn(value interface{}, name string) error {
+func (m Migrator) AlterColumn(value any, name string) error {
 	return m.RunWithoutForeignKey(func() error {
 		return m.recreateTable(value, nil, func(rawDDL string, stmt *gorm.Statement) (sql string, sqlArgs []interface{}, err error) {
 			if field := stmt.Schema.LookUpField(name); field != nil {
@@ -100,15 +100,16 @@ func (m Migrator) AlterColumn(value interface{}, name string) error {
 }
 
 // ColumnTypes return columnTypes []gorm.ColumnType and execErr error
-func (m Migrator) ColumnTypes(value interface{}) ([]gorm.ColumnType, error) {
+func (m Migrator) ColumnTypes(value any) ([]gorm.ColumnType, error) {
 	columnTypes := make([]gorm.ColumnType, 0)
-	execErr := m.RunWithValue(value, func(stmt *gorm.Statement) (err error) {
+
+	return columnTypes, m.RunWithValue(value, func(stmt *gorm.Statement) (err error) {
 		var (
 			sqls   []string
 			sqlDDL *ddl
 		)
 
-		if err := m.DB.Raw("SELECT sql FROM sqlite_master WHERE type IN ? AND tbl_name = ? AND sql IS NOT NULL order by type = ? desc", []string{"table", "index"}, stmt.Table, "table").Scan(&sqls).Error; err != nil {
+		if err = m.DB.Raw("SELECT sql FROM sqlite_master WHERE type IN ? AND tbl_name = ? AND sql IS NOT NULL order by type = ? desc", []string{"table", "index"}, stmt.Table, "table").Scan(&sqls).Error; err != nil {
 			return err
 		}
 
@@ -116,17 +117,14 @@ func (m Migrator) ColumnTypes(value interface{}) ([]gorm.ColumnType, error) {
 			return err
 		}
 
-		rows, err := m.DB.Session(&gorm.Session{}).Table(stmt.Table).Limit(1).Rows()
-		if err != nil {
+		var rows *sql.Rows
+		if rows, err = m.DB.Session(&gorm.Session{}).Table(stmt.Table).Limit(1).Rows(); err != nil {
 			return err
 		}
-		defer func() {
-			err = rows.Close()
-		}()
+		defer func() { err = rows.Close() }()
 
 		var rawColumnTypes []*sql.ColumnType
-		rawColumnTypes, err = rows.ColumnTypes()
-		if err != nil {
+		if rawColumnTypes, err = rows.ColumnTypes(); err != nil {
 			return err
 		}
 
@@ -144,28 +142,24 @@ func (m Migrator) ColumnTypes(value interface{}) ([]gorm.ColumnType, error) {
 
 		return err
 	})
-
-	return columnTypes, execErr
 }
 
-func (m Migrator) DropColumn(value interface{}, name string) error {
+func (m Migrator) DropColumn(value any, name string) error {
 	return m.recreateTable(value, nil, func(rawDDL string, stmt *gorm.Statement) (sql string, sqlArgs []interface{}, err error) {
 		if field := stmt.Schema.LookUpField(name); field != nil {
 			name = field.DBName
 		}
 
-		reg, err := regexp.Compile("(`|'|\"| |\\[)" + name + "(`|'|\"| |\\]) .*?,")
-		if err != nil {
-			return "", nil, err
+		var reg *regexp.Regexp
+		if reg, err = regexp.Compile("(`|'|\"| |\\[)" + name + "(`|'|\"| |\\]) .*?,"); err != nil {
+			return
 		}
 
-		createSQL := reg.ReplaceAllString(rawDDL, "")
-
-		return createSQL, nil, nil
+		return reg.ReplaceAllString(rawDDL, ""), nil, nil
 	})
 }
 
-func (m Migrator) CreateConstraint(value interface{}, name string) error {
+func (m Migrator) CreateConstraint(value any, name string) error {
 	return m.RunWithValue(value, func(stmt *gorm.Statement) error {
 		constraint, chk, table := m.GuessConstraintAndTable(stmt, name)
 
@@ -183,7 +177,7 @@ func (m Migrator) CreateConstraint(value interface{}, name string) error {
 				} else if chk != nil {
 					constraintName = chk.Name
 					constraintSql = "CONSTRAINT ? CHECK (?)"
-					constraintValues = []interface{}{clause.Column{Name: chk.Name}, clause.Expr{SQL: chk.Constraint}}
+					constraintValues = []any{clause.Column{Name: chk.Name}, clause.Expr{SQL: chk.Constraint}}
 				} else {
 					return "", nil, nil
 				}
@@ -200,7 +194,7 @@ func (m Migrator) CreateConstraint(value interface{}, name string) error {
 	})
 }
 
-func (m Migrator) DropConstraint(value interface{}, name string) error {
+func (m Migrator) DropConstraint(value any, name string) error {
 	return m.RunWithValue(value, func(stmt *gorm.Statement) error {
 		constraint, chk, table := m.GuessConstraintAndTable(stmt, name)
 		if constraint != nil {
@@ -210,7 +204,7 @@ func (m Migrator) DropConstraint(value interface{}, name string) error {
 		}
 
 		return m.recreateTable(value, &table,
-			func(rawDDL string, stmt *gorm.Statement) (sql string, sqlArgs []interface{}, err error) {
+			func(rawDDL string, stmt *gorm.Statement) (sql string, sqlArgs []any, err error) {
 				createDDL, err := parseDDL(rawDDL)
 				if err != nil {
 					return "", nil, err
@@ -223,7 +217,7 @@ func (m Migrator) DropConstraint(value interface{}, name string) error {
 	})
 }
 
-func (m Migrator) HasConstraint(value interface{}, name string) bool {
+func (m Migrator) HasConstraint(value any, name string) bool {
 	var count int64
 	_ = m.RunWithValue(value, func(stmt *gorm.Statement) error {
 		constraint, chk, table := m.GuessConstraintAndTable(stmt, name)
@@ -250,7 +244,7 @@ func (m Migrator) CurrentDatabase() (name string) {
 	return
 }
 
-func (m Migrator) BuildIndexOptions(opts []schema.IndexOption, stmt *gorm.Statement) (results []interface{}) {
+func (m Migrator) BuildIndexOptions(opts []schema.IndexOption, stmt *gorm.Statement) (results []any) {
 	for _, opt := range opts {
 		str := stmt.Quote(opt.DBName)
 		if opt.Expression != "" {
@@ -269,11 +263,11 @@ func (m Migrator) BuildIndexOptions(opts []schema.IndexOption, stmt *gorm.Statem
 	return
 }
 
-func (m Migrator) CreateIndex(value interface{}, name string) error {
+func (m Migrator) CreateIndex(value any, name string) error {
 	return m.RunWithValue(value, func(stmt *gorm.Statement) error {
 		if idx := stmt.Schema.LookIndex(name); idx != nil {
 			opts := m.BuildIndexOptions(idx.Fields, stmt)
-			values := []interface{}{clause.Column{Name: idx.Name}, clause.Table{Name: stmt.Table}, opts}
+			values := []any{clause.Column{Name: idx.Name}, clause.Table{Name: stmt.Table}, opts}
 
 			createIndexSQL := "CREATE "
 			if idx.Class != "" {
@@ -297,7 +291,7 @@ func (m Migrator) CreateIndex(value interface{}, name string) error {
 	})
 }
 
-func (m Migrator) HasIndex(value interface{}, name string) bool {
+func (m Migrator) HasIndex(value any, name string) bool {
 	var count int
 	_ = m.RunWithValue(value, func(stmt *gorm.Statement) error {
 		if idx := stmt.Schema.LookIndex(name); idx != nil {
@@ -314,7 +308,7 @@ func (m Migrator) HasIndex(value interface{}, name string) bool {
 	return count > 0
 }
 
-func (m Migrator) RenameIndex(value interface{}, oldName, newName string) error {
+func (m Migrator) RenameIndex(value any, oldName, newName string) error {
 	return m.RunWithValue(value, func(stmt *gorm.Statement) error {
 		var sql string
 		_ = m.DB.Raw("SELECT sql FROM sqlite_master WHERE type = ? AND tbl_name = ? AND name = ?", "index", stmt.Table, oldName).Row().Scan(&sql)
@@ -325,7 +319,7 @@ func (m Migrator) RenameIndex(value interface{}, oldName, newName string) error 
 	})
 }
 
-func (m Migrator) DropIndex(value interface{}, name string) error {
+func (m Migrator) DropIndex(value any, name string) error {
 	return m.RunWithValue(value, func(stmt *gorm.Statement) error {
 		if idx := stmt.Schema.LookIndex(name); idx != nil {
 			name = idx.Name
@@ -335,7 +329,7 @@ func (m Migrator) DropIndex(value interface{}, name string) error {
 	})
 }
 
-func buildConstraint(constraint *schema.Constraint) (sql string, results []interface{}) {
+func buildConstraint(constraint *schema.Constraint) (sql string, results []any) {
 	sql = "CONSTRAINT ? FOREIGN KEY ? REFERENCES ??"
 	if constraint.OnDelete != "" {
 		sql += " ON DELETE " + constraint.OnDelete
@@ -345,7 +339,7 @@ func buildConstraint(constraint *schema.Constraint) (sql string, results []inter
 		sql += " ON UPDATE " + constraint.OnUpdate
 	}
 
-	var foreignKeys, references []interface{}
+	var foreignKeys, references []any
 	for _, field := range constraint.ForeignKeys {
 		foreignKeys = append(foreignKeys, clause.Column{Name: field.DBName})
 	}
@@ -367,8 +361,8 @@ func (m Migrator) getRawDDL(table string) (string, error) {
 	return createSQL, nil
 }
 
-func (m Migrator) recreateTable(value interface{}, tablePtr *string,
-	getCreateSQL func(rawDDL string, stmt *gorm.Statement) (sql string, sqlArgs []interface{}, err error)) error {
+func (m Migrator) recreateTable(value any, tablePtr *string,
+	getCreateSQL func(rawDDL string, stmt *gorm.Statement) (sql string, sqlArgs []any, err error)) error {
 	return m.RunWithValue(value, func(stmt *gorm.Statement) error {
 		table := stmt.Table
 		if tablePtr != nil {

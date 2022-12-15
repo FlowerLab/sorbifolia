@@ -23,13 +23,8 @@ type Dialector struct {
 	Conn       gorm.ConnPool
 }
 
-func Open(dsn string) gorm.Dialector {
-	return &Dialector{DSN: dsn}
-}
-
-func (d Dialector) Name() string {
-	return "sqlite"
-}
+func Open(dsn string) gorm.Dialector { return &Dialector{DSN: dsn} }
+func (d Dialector) Name() string     { return "sqlite" }
 
 func (d Dialector) Initialize(db *gorm.DB) error {
 	if d.DriverName == "" {
@@ -112,9 +107,7 @@ func (d Dialector) DefaultValueOf(field *schema.Field) clause.Expression {
 	if field.AutoIncrement {
 		return clause.Expr{SQL: "NULL"}
 	}
-
-	// doesn't work, will raise error
-	return clause.Expr{SQL: "DEFAULT"}
+	return clause.Expr{SQL: "DEFAULT"} // doesn't work, will raise error
 }
 
 func (d Dialector) Migrator(db *gorm.DB) gorm.Migrator {
@@ -125,7 +118,7 @@ func (d Dialector) Migrator(db *gorm.DB) gorm.Migrator {
 	}}}
 }
 
-func (d Dialector) BindVarTo(writer clause.Writer, stmt *gorm.Statement, v interface{}) {
+func (d Dialector) BindVarTo(writer clause.Writer, _ *gorm.Statement, _ any) {
 	_ = writer.WriteByte('?')
 }
 
@@ -145,7 +138,7 @@ func (d Dialector) QuoteTo(writer clause.Writer, str string) {
 	}
 }
 
-func (d Dialector) Explain(sql string, vars ...interface{}) string {
+func (d Dialector) Explain(sql string, vars ...any) string {
 	return logger.ExplainSQL(sql, nil, `"`, vars...)
 }
 
