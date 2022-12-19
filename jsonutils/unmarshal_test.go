@@ -39,6 +39,22 @@ func TestCompareToStd(t *testing.T) {
 			t.Errorf("Unmarshal(%q): our val = %v, std val = %v", test, ourV, stdV)
 		}
 	}
+
+	for _, test := range []string{
+		"{\"abc\":\"abc\"}",
+	} {
+		b := []byte(test)
+		var ourV, stdV = make(map[int]string), make(map[int]string)
+		ourErr := Unmarshal(b, &ourV)
+		stdErr := json.Unmarshal(b, &stdV)
+		if (ourErr == nil) != (stdErr == nil) {
+			t.Errorf("Unmarshal(%q): our err = %#[2]v (%[2]T), std err = %#[3]v (%[3]T)", test, ourErr, stdErr)
+		}
+
+		if !reflect.DeepEqual(ourV, stdV) {
+			t.Errorf("Unmarshal(%q): our val = %v, std val = %v", test, ourV, stdV)
+		}
+	}
 }
 
 func BenchmarkUnmarshal(b *testing.B) {
