@@ -4,6 +4,7 @@ use (
 	coarsetime
 	cryptutils
 	datastructures
+	errors
 	finder
 	gomod
 	gorm-datatype
