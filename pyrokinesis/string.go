@@ -1,7 +1,6 @@
 package pyrokinesis
 
 import (
-	"reflect"
 	"unsafe"
 )
 
@@ -10,11 +9,12 @@ func (_String) Copy(s string) string {
 }
 
 func (_String) ToBytes(s string) []byte {
-	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
 	//nolint:all
-	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
-		Data: sh.Data,
-		Len:  sh.Len,
-		Cap:  sh.Len,
-	}))
+	b := unsafe.StringData(s)
+	if b == nil {
+		return nil
+	}
+
+	//nolint:all
+	return unsafe.Slice(b, len(s))
 }
