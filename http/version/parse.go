@@ -6,7 +6,6 @@ import (
 )
 
 var (
-	httpVersion09     = []byte("HTTP/0.9")
 	httpVersion10     = []byte("HTTP/1.0")
 	httpVersion11     = []byte("HTTP/1.1")
 	httpVersionPrefix = []byte("HTTP/")
@@ -19,8 +18,6 @@ func Parse(ver []byte) (v Version, ok bool) {
 
 func parseHTTPVersion(ver []byte) (major, minor int, ok bool) {
 	switch {
-	case bytes.Equal(ver, httpVersion09):
-		return 0, 9, true
 	case bytes.Equal(ver, httpVersion10):
 		return 1, 0, true
 	case bytes.Equal(ver, httpVersion11):
