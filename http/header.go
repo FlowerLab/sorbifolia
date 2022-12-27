@@ -25,7 +25,7 @@ type RequestHeader struct {
 	Host       []byte
 	RemoteAddr []byte
 	RequestURI []byte
-	URL        *URL
+	URL        URL
 	TLS        *tls.ConnectionState
 }
 

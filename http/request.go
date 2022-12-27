@@ -73,6 +73,8 @@ func NewFormData(a *arena.Arena, r Request) (*FormData, error) {
 		_ = cd
 		_ = kvs.Get(char.ContentType) // if it has, it's a file
 
+		// cd.QualityValues()
+
 		// content
 
 	}

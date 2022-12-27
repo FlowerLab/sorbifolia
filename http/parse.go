@@ -33,6 +33,7 @@ func (s *Server) ParseRequestHeader(conn net.Conn, a *arena.Arena) (*Request, er
 	}
 
 	req := arena.New[Request](a)
+	// req.Header.URL=
 	req.Method = method.Parse(util.ToUpper(arr[0]))
 	req.Header.RequestURI = arr[1]
 	req.ver, _ = version.Parse(arr[2])
