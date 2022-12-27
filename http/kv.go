@@ -141,8 +141,3 @@ func (ks *KVs) set(kv KV) {
 	}
 	ks.add(kv)
 }
-
-// Accept-Language: fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5
-// Set-Cookie: UserID=JohnDoe; Max-Age=3600; Version=1
-// Content-Type: text/html; charset=utf-8
-// Content-Disposition: attachment; filename="name.ext"
