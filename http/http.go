@@ -3,10 +3,9 @@
 package http
 
 import (
-	"bytes"
 	"io"
 
-	"go.x2ox.com/sorbifolia/pyrokinesis"
+	"go.x2ox.com/sorbifolia/http/render"
 )
 
 type Response struct {
@@ -15,17 +14,21 @@ type Response struct {
 }
 
 func (r *Response) SetBody(body any) {
-	switch body := body.(type) {
-	case []byte:
-		r.Body = bytes.NewReader(body)
-	case string:
-		r.Body = bytes.NewReader(pyrokinesis.String.ToBytes(body))
-	case Render:
-		r.Body = body.Render()
-		r.Header.ContentType = body.ContentType()
-	case io.Reader:
-		r.Body = body
-	default:
-		panic("unknown body")
+	if body == nil {
+		return
 	}
+
+	var rend render.Render
+	switch body := body.(type) {
+	case string:
+		rend = render.Text(body)
+	case []byte:
+		rend = render.Text(body)
+	case render.Render:
+		rend = body
+	}
+
+	r.Body = rend.Render()
+	r.Header.ContentType = rend.ContentType()
+	r.Header.ContentLength = rend.Length()
 }

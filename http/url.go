@@ -36,11 +36,11 @@ func (u *URL) Parse(host, path []byte, isTLS bool) error {
 		u.SetSchemeBytes(char.HTTP)
 	}
 
-	if n := bytes.IndexByte(host, '@'); n >= 0 {
+	if n := bytes.IndexByte(host, char.At); n >= 0 {
 		auth := host[:n]
 		host = host[n+1:]
 
-		if n = bytes.IndexByte(auth, ':'); n >= 0 {
+		if n = bytes.IndexByte(auth, char.Colon); n >= 0 {
 			u.Username = auth[:n]
 			pwd := auth[n+1:]
 			u.Password = &pwd
@@ -55,8 +55,8 @@ func (u *URL) Parse(host, path []byte, isTLS bool) error {
 		u.Host = parsedHost
 	}
 
-	queryIndex := bytes.IndexByte(path, '?')
-	fragmentIndex := bytes.IndexByte(path, '#')
+	queryIndex := bytes.IndexByte(path, char.QuestionMark)
+	fragmentIndex := bytes.IndexByte(path, char.Hashtag)
 	// Ignore query in fragment part
 	if fragmentIndex >= 0 && queryIndex > fragmentIndex {
 		queryIndex = -1
