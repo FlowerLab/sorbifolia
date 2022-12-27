@@ -4,8 +4,7 @@ package http
 
 import (
 	"arena"
-	"encoding/json"
-	"fmt"
+	"log"
 	"net"
 	"sync/atomic"
 	"time"
@@ -54,11 +53,10 @@ func (s *Server) handle(conn net.Conn) {
 		a := arena.NewArena()
 		req, err := s.ParseRequestHeader(conn, a)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
+			a.Free()
 			return
 		}
-		bbb, _ := json.Marshal(req)
-		fmt.Println(string(bbb))
 
 		ctx := s.newCtx(a, conn, req)
 		atomic.AddInt64(&s.concurrency, 1)

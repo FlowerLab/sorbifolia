@@ -49,6 +49,10 @@ func (s *Server) ParseRequestHeader(conn net.Conn, a *arena.Arena) (*Request, er
 	}
 	req.Header.KVs = (*KVs)(&kvs)
 
+	if err = req.Header.init(); err != nil {
+		return nil, err
+	}
+
 	// TODO length, check buf[ei+4:n] and conn
 	if req.Header.ContentLength == 0 {
 		req.Body = bodyio.Null()
@@ -61,9 +65,6 @@ func (s *Server) ParseRequestHeader(conn net.Conn, a *arena.Arena) (*Request, er
 	} else {
 		req.Body, err = bodyio.Memory(a, buf[ei+4:], conn, req.Header.ContentLength)
 	}
-	if err != nil {
-		return nil, err
-	}
 
-	return req, nil
+	return req, err
 }
