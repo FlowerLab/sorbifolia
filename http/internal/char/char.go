@@ -1,16 +1,27 @@
 package char
 
 var (
-	CRLF     = []byte{'\r', '\n'}
-	CRLF2    = []byte{'\r', '\n', '\r', '\n'}
-	Semi     = []byte{';'}
-	Equal    = []byte{'='}
-	Comma    = []byte{','}
+	CRLF  = []byte{'\r', '\n'}
+	CRLF2 = []byte{'\r', '\n', '\r', '\n'}
+
+	// Semis    = []byte{';'}
+	// Comma    = []byte{','}
+
 	Spaces   = []byte{' '}
 	Hashtags = []byte{'#'}
 
-	Space = byte(' ')
-	Colon = byte(':')
+	Charset  = []byte("charset")
+	Boundary = []byte("boundary")
+
+	At            = byte('@')
+	Colon         = byte(':')
+	Comma         = byte(',')
+	Equal         = byte('=')
+	Hashtag       = byte('#')
+	Space         = byte(' ')
+	Semi          = byte(';')
+	QuotationMark = byte('"')
+	QuestionMark  = byte('?')
 
 	ColonSlashSlash          = []byte("://")
 	Slash                    = []byte("/")

@@ -2,8 +2,10 @@ package http
 
 import (
 	"bytes"
+	"strconv"
 
 	"go.x2ox.com/sorbifolia/http/internal/char"
+	"go.x2ox.com/sorbifolia/pyrokinesis"
 )
 
 type KV struct {
@@ -30,14 +32,8 @@ func (kv *KV) ParseHeader(b []byte) {
 	}
 
 	kv.K = b[:idx]
-
-	length := len(b)
-
-	for {
-		idx++
-		if length < idx {
-			break
-		}
+	idx++
+	for ; idx < len(b); idx++ {
 		if b[idx] != char.Space {
 			v := b[idx:]
 			kv.V = &v
@@ -46,13 +42,62 @@ func (kv *KV) ParseHeader(b []byte) {
 	}
 }
 
-type QualityValues struct {
+type QualityValue struct {
 	Value    []byte
-	Priority float32 // 1.00 - 0.00
+	Priority float64 // 1.00 - 0.00
 }
 
-func (kv *KV) List(b []byte) {
+func (kv KV) QualityValues(b []byte) QualityValue {
+	if kv.V == nil {
+		return QualityValue{Priority: -1}
+	}
+	buf := *kv.V
 
+	for {
+		if len(buf) == 0 {
+			return QualityValue{Priority: -1}
+		}
+
+		i := bytes.IndexByte(buf, char.Comma)
+		if i < 0 {
+			i = len(buf)
+		}
+
+		val := buf[:i]
+
+		{
+			if len(buf) < i+1 {
+				i = len(buf) - 1
+			}
+			buf = buf[i+1:]
+		}
+
+		{
+			j := 0
+			for ; j < len(val); j++ {
+				if val[j] != char.Space {
+					break
+				}
+			}
+			val = val[j:]
+		}
+
+		var qv QualityValue
+		if i = bytes.IndexByte(val, char.Semi); i < 0 {
+			qv.Value = val
+			qv.Priority = 1
+		} else {
+			qv.Value = val[:i]
+			val = val[i:]
+			if i = bytes.IndexByte(val, '='); i > 0 {
+				qv.Priority, _ = strconv.ParseFloat(pyrokinesis.Bytes.ToString(val[i+1:]), 64)
+			}
+		}
+
+		if bytes.EqualFold(qv.Value, b) {
+			return qv
+		}
+	}
 }
 
 type KVs []KV
@@ -97,9 +142,7 @@ func (ks *KVs) set(kv KV) {
 	ks.add(kv)
 }
 
-// zh-CN,
-// zh;q=0.8,
-// zh-TW;q=0.7,
-// zh-HK;q=0.5,
-// en-US;q=0.3,
-// en;q=0.2
+// Accept-Language: fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5
+// Set-Cookie: UserID=JohnDoe; Max-Age=3600; Version=1
+// Content-Type: text/html; charset=utf-8
+// Content-Disposition: attachment; filename="name.ext"
