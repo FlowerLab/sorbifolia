@@ -4,8 +4,9 @@ package bodyio
 
 import (
 	"arena"
-	"errors"
 	"io"
+
+	"go.x2ox.com/sorbifolia/http/httperr"
 )
 
 type mem struct {
@@ -42,7 +43,7 @@ func Memory(a *arena.Arena, preRead []byte, r io.Reader, length int64) (io.ReadC
 		}
 	}
 	if int64(cn) != length {
-		return nil, errors.New("length mismatch")
+		return nil, httperr.BodyLengthMismatch
 	}
 
 	return bf, nil
