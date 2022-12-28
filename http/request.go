@@ -30,7 +30,7 @@ func NewFormData(a *arena.Arena, r Request) (*FormData, error) {
 	buf := arena.MakeSlice[byte](a, length, length)
 
 	n, err := r.Body.Read(buf)
-	if err != nil && errors.Is(err, io.EOF) {
+	if err != nil && !errors.Is(err, io.EOF) {
 		return nil, err
 	}
 	if n != length {
