@@ -55,16 +55,16 @@ func (s *Server) ParseRequestHeader(conn net.Conn, a *arena.Arena) (*Request, er
 	}
 
 	// TODO length, check buf[ei+4:n] and conn
-	if req.Header.ContentLength == 0 {
+	if length := req.Header.ContentLength.Length(); length == 0 {
 		req.Body = bodyio.Null()
-	} else if req.Header.ContentLength > s.MaxRequestBodySize {
+	} else if length > s.MaxRequestBodySize {
 		return nil, err // body is too large
-	} else if req.Header.ContentLength > s.StreamRequestBodySize {
-		req.Body, err = bodyio.File(a, buf[ei+4:], conn, req.Header.ContentLength)
+	} else if length > s.StreamRequestBodySize {
+		req.Body, err = bodyio.File(a, buf[ei+4:], conn, length)
 	} else if s.StreamRequestBodySize < 0 {
-		req.Body, err = bodyio.Block(a, buf[ei+4:], conn, req.Header.ContentLength)
+		req.Body, err = bodyio.Block(a, buf[ei+4:], conn, length)
 	} else {
-		req.Body, err = bodyio.Memory(a, buf[ei+4:], conn, req.Header.ContentLength)
+		req.Body, err = bodyio.Memory(a, buf[ei+4:], conn, length)
 	}
 
 	return req, err
