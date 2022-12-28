@@ -3,6 +3,7 @@ package httpheader
 import (
 	"bytes"
 	"strconv"
+	"time"
 
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/pyrokinesis"
@@ -71,6 +72,16 @@ func toNonNegativeInt64(b []byte) (n int64) {
 		n = n*10 + int64(val-'0')
 	}
 	return
+}
+
+func toRFC1123(b []byte) *time.Time {
+	if len(b) == 0 {
+		return nil
+	}
+	if t, err := time.Parse(time.RFC1123, pyrokinesis.Bytes.ToString(b)); err == nil {
+		return &t
+	}
+	return nil
 }
 
 func getHeaderValue(b []byte) []byte { return parseFirstValue(b, char.Semi) }

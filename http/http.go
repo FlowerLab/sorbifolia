@@ -4,6 +4,7 @@ package http
 
 import (
 	"io"
+	"strconv"
 
 	"go.x2ox.com/sorbifolia/http/render"
 )
@@ -30,5 +31,5 @@ func (r *Response) SetBody(body any) {
 
 	r.Body = rend.Render()
 	r.Header.ContentType = rend.ContentType()
-	r.Header.ContentLength = rend.Length()
+	strconv.AppendInt(r.Header.ContentLength, rend.Length(), 10) // need to try to optimize
 }

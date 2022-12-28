@@ -20,6 +20,10 @@ func (v Cookie) Each(fn EachKeyValue) {
 	})
 }
 
+type Date []byte
+
+func (v Date) Value() *time.Time { return toRFC1123(v) }
+
 type Digest []byte
 
 func (v Digest) Each(fn EachKeyValue) {
@@ -39,15 +43,7 @@ func (v ETag) Value() []byte {
 
 type Expires []byte
 
-func (v Expires) Value() *time.Time {
-	if len(v) == 0 {
-		return nil
-	}
-	if t, err := time.Parse(time.RFC1123, pyrokinesis.Bytes.ToString(v)); err == nil {
-		return &t
-	}
-	return nil
-}
+func (v Expires) Value() *time.Time { return toRFC1123(v) }
 
 type Host []byte
 
@@ -92,15 +88,7 @@ func (v KeepAlive) Max() int64 {
 
 type LastModified []byte
 
-func (v LastModified) Value() *time.Time {
-	if len(v) == 0 {
-		return nil
-	}
-	if t, err := time.Parse(time.RFC1123, pyrokinesis.Bytes.ToString(v)); err == nil {
-		return &t
-	}
-	return nil
-}
+func (v LastModified) Value() *time.Time { return toRFC1123(v) }
 
 type Location []byte
 type Origin []byte
