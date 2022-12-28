@@ -6,12 +6,7 @@ import (
 	"go.x2ox.com/sorbifolia/http/internal/char"
 )
 
-type ContentType Value
-
-// Accept-Language: fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5
-// Set-Cookie: UserID=JohnDoe; Max-Age=3600; Version=1
-// Content-Type: text/html; charset=utf-8
-// Content-Disposition: attachment; filename="name.ext"
+type ContentType []byte
 
 func (v ContentType) MIME() []byte {
 	if i := bytes.IndexByte(v, char.Semi); i >= 0 {
@@ -35,7 +30,7 @@ func (v ContentType) Charset() []byte {
 		charset = charset[:i]
 	}
 
-	return cleanQuotationMark(cleanTrailingSpaces(charset))
+	return cleanQuotationMark(cleanSuffixSpace(charset))
 }
 
 func (v ContentType) Boundary() []byte {
@@ -53,5 +48,5 @@ func (v ContentType) Boundary() []byte {
 		boundary = boundary[:i]
 	}
 
-	return cleanTrailingSpaces(boundary)
+	return cleanSuffixSpace(boundary)
 }
