@@ -18,10 +18,13 @@ var (
 	Comma         = byte(',')
 	Equal         = byte('=')
 	Hashtag       = byte('#')
+	Hyphen        = byte('-')
 	Space         = byte(' ')
 	Semi          = byte(';')
 	QuotationMark = byte('"')
 	QuestionMark  = byte('?')
+
+	SemiSpace = []byte("; ")
 
 	ColonSlashSlash          = []byte("://")
 	Slash                    = []byte("/")
@@ -78,6 +81,21 @@ var (
 
 	KeepAlive = []byte("keep-alive")
 	Close     = []byte("close")
+	Bytes     = []byte("bytes")
+	Timeout   = []byte("timeout")
+	Max       = []byte("max")
+
+	Expires  = []byte("Expires")
+	MaxAge   = []byte("Max-Age")
+	Domain   = []byte("Domain")
+	Path     = []byte("Path")
+	Secure   = []byte("Secure")
+	HttpOnly = []byte("HttpOnly")
+	SameSite = []byte("SameSite")
+
+	None   = []byte("None")
+	Lax    = []byte("Lax")
+	Strict = []byte("Strict")
 )
 
 // 	n := bytes.LastIndex(b, strSlashDotDot)
