@@ -4,12 +4,16 @@ package http
 
 import (
 	"arena"
-	"fmt"
+	"io"
 	"net"
 	"sync/atomic"
 	"time"
 
 	"go.x2ox.com/sorbifolia/http/httperr"
+	"go.x2ox.com/sorbifolia/http/internal/char"
+	"go.x2ox.com/sorbifolia/http/internal/workerpool"
+	"go.x2ox.com/sorbifolia/http/status"
+	"go.x2ox.com/sorbifolia/http/version"
 )
 
 type Handler func(ctx *Context)
@@ -19,11 +23,14 @@ const (
 	defaultMaxRequestBodySize   = 4 * 1024 * 1024
 	defaultServerName           = "Sorbifolia"
 	defaultUserAgent            = defaultServerName
+
+	defaultConcurrency = 256 * 1024
 )
 
 var (
 	defaultServerNameBytes = []byte(defaultServerName)
 	// defaultReadTimeout     = time.Second *
+
 )
 
 type Server struct {
@@ -36,10 +43,13 @@ type Server struct {
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
 
-	Handler Handler
+	Concurrency                        int
+	MaxIdleWorkerDuration              time.Duration
+	SleepWhenConcurrencyLimitsExceeded time.Duration
+	Handler                            Handler
 
 	connCount   uint64
-	concurrency int64
+	concurrency uint32
 	done        chan struct{}
 }
 
@@ -58,69 +68,99 @@ func (s *Server) newCtx(a *arena.Arena, conn net.Conn, req *Request) *Context {
 	return ctx
 }
 
-func (s *Server) serverName() []byte {
+func (s *Server) getServerName() []byte {
 	if len(s.Name) != 0 {
 		return s.Name
 	}
 	return defaultServerNameBytes
 }
 
-func (s *Server) handle(conn net.Conn) {
-	go func() {
+func (s *Server) serveConnCleanup() {
+	// atomic.AddInt32(&s.open, -1)
+	atomic.AddUint32(&s.concurrency, ^uint32(0))
+}
 
-		// conn.SetReadDeadline(coarsetime.Now().Add(s.ReadTimeout))
-		// conn.SetWriteDeadline(coarsetime.Now().Add(s.WriteTimeout))
+func (s *Server) fastWriteCode(w io.Writer, ver version.Version, code status.Status) {
+	_, _ = w.Write(ver.Bytes())
+	_, _ = w.Write(char.Spaces)
+	_, _ = w.Write(code.Bytes())
+	_, _ = w.Write(char.CRLF)
+	_, _ = w.Write([]byte("Connection: close\r\nServer: "))
+	_, _ = w.Write(s.getServerName())
+	_, _ = w.Write([]byte("\r\nContent-Length: 0\r\n\r\n"))
+}
 
-		// defer conn.Close()
-		a := arena.NewArena()
-		req, err := s.ParseRequestHeader(conn, a)
-		if err != nil {
-			fmt.Println(err)
-			conn.Write(req.ver.Bytes())
+func (s *Server) handle(conn net.Conn) error {
+	defer s.serveConnCleanup()
+	atomic.AddUint32(&s.concurrency, 1)
 
-			switch err {
-			case httperr.RequestHeaderFieldsTooLarge:
-				conn.Write([]byte(" 431 Request Header Fields Too Large\r\n"))
-			case httperr.BodyTooLarge:
-				conn.Write([]byte(" 413 Request Entity Too Large\r\n"))
-			default:
-				conn.Write([]byte(" 500 Internal Server Error\r\n"))
-			}
+	// conn.SetReadDeadline(coarsetime.Now().Add(s.ReadTimeout))
+	// conn.SetWriteDeadline(coarsetime.Now().Add(s.WriteTimeout))
 
-			conn.Write([]byte("Server: "))
-			conn.Write(s.serverName())
-			conn.Write([]byte("\r\nContent-Length: 0\r\n\r\n"))
-
-			a.Free()
-			return
+	a := arena.NewArena()
+	req, err := s.ParseRequestHeader(conn, a)
+	if err != nil {
+		switch err {
+		case httperr.RequestHeaderFieldsTooLarge:
+			s.fastWriteCode(conn, req.ver, status.RequestEntityTooLarge)
+		case httperr.BodyTooLarge:
+			s.fastWriteCode(conn, req.ver, status.RequestEntityTooLarge)
+		default:
+			s.fastWriteCode(conn, req.ver, status.InternalServerError)
 		}
 
-		ctx := s.newCtx(a, conn, req)
-		atomic.AddInt64(&s.concurrency, 1)
-
-		s.Handler(ctx)
-		// send response
-		_, _ = conn.Write([]byte("HTTP/1.1 200 OK\r\n"))
-		conn.Write([]byte("Server: "))
-		conn.Write(s.serverName())
-		conn.Write([]byte("\r\nContent-Length: 0\r\n\r\n"))
-
-		atomic.AddInt64(&s.concurrency, -1)
-		ctx.c = nil
-		if ctx.robbery {
-			return
-		}
 		a.Free()
-	}()
+		return nil
+	}
+
+	ctx := s.newCtx(a, conn, req)
+
+	s.Handler(ctx)
+	s.fastWriteCode(conn, req.ver, status.OK)
+
+	ctx.c = nil
+	if ctx.robbery {
+		return nil
+	}
+	a.Free()
+
+	return nil
+}
+
+func (s *Server) getConcurrency() int {
+	n := s.Concurrency
+	if n <= 0 {
+		n = defaultConcurrency
+	}
+	return n
 }
 
 func (s *Server) Serve(ln net.Listener) error {
+	wp := &workerpool.WorkerPool{
+		WorkerFunc:            s.handle,
+		MaxWorkersCount:       s.getConcurrency(),
+		MaxIdleWorkerDuration: s.MaxIdleWorkerDuration,
+	}
+	wp.Start()
+
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
 			return err
 		}
 
-		s.handle(conn)
+		wp.SetConnState(conn, workerpool.StateNew)
+		if !wp.Serve(conn) {
+			// s.writeFastError(c, StatusServiceUnavailable,
+			// 	"The connection cannot be served because Server.Concurrency limit exceeded")
+			_ = conn.Close()
+			wp.SetConnState(conn, workerpool.StateClosed)
+
+			if s.SleepWhenConcurrencyLimitsExceeded > 0 {
+				time.Sleep(s.SleepWhenConcurrencyLimitsExceeded)
+			}
+		}
+
+		conn = nil
 	}
 }
