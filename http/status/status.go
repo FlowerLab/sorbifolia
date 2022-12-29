@@ -1,6 +1,4 @@
-// Copyright 2009 The Go Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+//go:generate go run status_gen.go
 
 package status
 
@@ -21,7 +19,7 @@ const (
 	NoContent            Status = 204 // RFC 9110, 15.3.5
 	ResetContent         Status = 205 // RFC 9110, 15.3.6
 	PartialContent       Status = 206 // RFC 9110, 15.3.7
-	Multi                Status = 207 // RFC 4918, 11.1
+	MultiStatus          Status = 207 // RFC 4918, 11.1
 	AlreadyReported      Status = 208 // RFC 5842, 7.1
 	IMUsed               Status = 226 // RFC 3229, 10.4.1
 
@@ -104,8 +102,8 @@ func (code Status) String() string {
 		return "Reset Content"
 	case PartialContent:
 		return "Partial Content"
-	case Multi:
-		return "Multi-"
+	case MultiStatus:
+		return "Multi-Status"
 	case AlreadyReported:
 		return "Already Reported"
 	case IMUsed:
@@ -209,4 +207,11 @@ func (code Status) String() string {
 	default:
 		return ""
 	}
+}
+
+func (code Status) Bytes() []byte {
+	if code < Continue || code > NetworkAuthenticationRequired {
+		return nil
+	}
+	return table[code-Continue]
 }
