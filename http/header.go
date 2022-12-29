@@ -20,6 +20,7 @@ type RequestHeader struct {
 	UserAgent      httpheader.UserAgent
 	Cookie         httpheader.Cookie
 	Host           httpheader.Host
+	Trailer        httpheader.Trailer
 	RemoteAddr     []byte
 	RequestURI     []byte
 	URL            URL
@@ -51,6 +52,7 @@ func (rh *RequestHeader) init() error {
 		}
 		return true
 	})
+
 	return rh.URL.Parse(rh.Host, rh.RequestURI, rh.TLS != nil)
 }
 

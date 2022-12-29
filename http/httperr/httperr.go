@@ -10,3 +10,6 @@ var (
 	BodyTooLarge                = errors.New("body too large")
 	BodyLengthMismatch          = errors.New("body length mismatch")
 )
+
+var ErrHijacked = errors.New("connection has been hijacked")
+var ErrBadTrailer = errors.New("contain forbidden trailer")
