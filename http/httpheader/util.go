@@ -64,16 +64,6 @@ func parseKVWithEqual(b []byte) (key, val []byte) {
 	return b, nil
 }
 
-func toNonNegativeInt64(b []byte) (n int64) {
-	for _, val := range b {
-		if val > '9' || val < '0' {
-			return 0
-		}
-		n = n*10 + int64(val-'0')
-	}
-	return
-}
-
 func toRFC1123(b []byte) *time.Time {
 	if len(b) == 0 {
 		return nil

@@ -38,3 +38,10 @@ func Block(a *arena.Arena, preRead []byte, r io.Reader, length int64) (io.ReadCl
 	b.r = io.LimitReader(r, length-int64(len(preRead)))
 	return b, nil
 }
+
+func newBlock(a *arena.Arena, preRead []byte, r io.Reader) io.ReadCloser {
+	b := arena.New[block](a)
+	b.preRead = preRead
+	b.r = r
+	return b
+}

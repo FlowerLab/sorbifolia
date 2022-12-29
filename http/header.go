@@ -10,22 +10,23 @@ import (
 )
 
 type RequestHeader struct {
-	*KVs
+	KVs
 
-	ContentType    httpheader.ContentType
-	ContentLength  httpheader.ContentLength
-	Accept         httpheader.Accept
-	AcceptEncoding httpheader.AcceptEncoding
-	AcceptLanguage httpheader.AcceptLanguage
-	UserAgent      httpheader.UserAgent
-	Cookie         httpheader.Cookie
-	Host           httpheader.Host
-	Trailer        httpheader.Trailer
-	RemoteAddr     []byte
-	RequestURI     []byte
-	URL            URL
-	TLS            *tls.ConnectionState
-	Close          bool
+	ContentType      httpheader.ContentType
+	ContentLength    httpheader.ContentLength
+	Accept           httpheader.Accept
+	AcceptEncoding   httpheader.AcceptEncoding
+	AcceptLanguage   httpheader.AcceptLanguage
+	UserAgent        httpheader.UserAgent
+	Cookie           httpheader.Cookie
+	Host             httpheader.Host
+	Trailer          httpheader.Trailer
+	TransferEncoding httpheader.TransferEncoding
+	RemoteAddr       []byte
+	RequestURI       []byte
+	URL              URL
+	TLS              *tls.ConnectionState
+	Close            bool
 }
 
 func (rh *RequestHeader) init() error {

@@ -12,6 +12,7 @@ import (
 )
 
 type Request struct {
+	a      *arena.Arena
 	ver    version.Version
 	Method method.Method
 	Header RequestHeader

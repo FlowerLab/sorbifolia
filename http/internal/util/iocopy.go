@@ -13,3 +13,17 @@ func Copy(w io.Writer, r io.Reader) (n int64, err error) {
 	copyBufPool.Put(buf)
 	return
 }
+
+func ReadAll(b []byte, r io.Reader) (int, error) {
+	var i int
+	for {
+		n, err := r.Read(b[i:])
+		i += n
+		if err != nil {
+			if err == io.EOF {
+				err = nil
+			}
+			return i, err
+		}
+	}
+}

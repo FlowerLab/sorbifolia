@@ -1,6 +1,8 @@
 package method
 
 import (
+	"bytes"
+
 	"go.x2ox.com/sorbifolia/pyrokinesis"
 )
 
@@ -29,4 +31,20 @@ func Parse(b []byte) Method {
 		return m
 	}
 	return Method(s)
+}
+
+func (m Method) IsGet() bool     { return m.Is(Get) }
+func (m Method) IsHead() bool    { return m.Is(Head) }
+func (m Method) IsPost() bool    { return m.Is(Post) }
+func (m Method) IsPut() bool     { return m.Is(Put) }
+func (m Method) IsPatch() bool   { return m.Is(Patch) }
+func (m Method) IsDelete() bool  { return m.Is(Delete) }
+func (m Method) IsConnect() bool { return m.Is(Connect) }
+func (m Method) IsOptions() bool { return m.Is(Options) }
+func (m Method) IsTrace() bool   { return m.Is(Trace) }
+func (m Method) Is(method Method) bool {
+	return bytes.EqualFold(
+		pyrokinesis.String.ToBytes(string(m)),
+		pyrokinesis.String.ToBytes(string(method)),
+	)
 }
