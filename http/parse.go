@@ -5,7 +5,7 @@ package http
 import (
 	"arena"
 	"bytes"
-	"fmt"
+	"io"
 	"net"
 
 	"go.x2ox.com/sorbifolia/http/httperr"
@@ -16,55 +16,106 @@ import (
 	"go.x2ox.com/sorbifolia/http/version"
 )
 
+func (r *Request) parseFirstLine(b []byte) error {
+	var (
+		ok  bool
+		arr = util.Split(r.a, b, char.Spaces)
+	)
+
+	switch len(arr) {
+	case 2:
+		r.Method = method.Parse(util.ToUpper(arr[0]))
+		r.Header.RequestURI = arr[1]
+		r.ver.Major, r.ver.Minor = 0, 9
+		ok = true
+	case 3:
+		r.Method = method.Parse(util.ToUpper(arr[0]))
+		r.Header.RequestURI = arr[1]
+		r.ver, ok = version.Parse(arr[2])
+	}
+
+	if ok {
+		return httperr.ParseHTTPVersionErr
+	}
+	return nil
+}
+
+func (r *Request) parseHeaders(arr [][]byte) error {
+	if len(arr) == 0 {
+		return nil
+	}
+	r.Header.KVs = arena.MakeSlice[KV](r.a, len(arr), len(arr))
+	for i, v := range arr {
+		r.Header.KVs[i].ParseHeader(v)
+	}
+	return r.Header.init()
+}
+
 func (s *Server) ParseRequestHeader(conn net.Conn, a *arena.Arena) (req *Request, err error) {
 	req = arena.New[Request](a)
 
-	buf := arena.MakeSlice[byte](a, s.MaxRequestHeaderSize, s.MaxRequestHeaderSize)
+	var (
+		b = arena.MakeSlice[byte](a, s.MaxRequestHeaderSize, s.MaxRequestHeaderSize)
+		n int
+	)
 
-	var n int
-	if n, err = conn.Read(buf); err != nil {
+	if n, err = conn.Read(b); err != nil {
 		return
 	}
-	buf = buf[:n]
+	buf := b[:n]
 
-	idx := bytes.Index(buf, char.CRLF) // first line
-	if idx == -1 {
-		err = fmt.Errorf("parsing protocol header error")
+	if i := bytes.Index(buf, char.CRLF); i == -1 {
+		return req, httperr.RequestURITooLong
+	} else if err = req.parseFirstLine(buf[:i]); err == nil {
+		buf = buf[i+2:]
+	} else {
 		return
 	}
-	arr := util.Split(a, buf[:idx], char.Spaces)
-	if len(arr) != 3 {
-		err = fmt.Errorf("parsing protocol header error")
-		return
-	}
-
-	req.Method = method.Parse(util.ToUpper(arr[0]))
-	req.Header.RequestURI = arr[1]
-	req.ver, _ = version.Parse(arr[2])
 
 	ei := bytes.Index(buf, char.CRLF2) // end position index
 	if ei == -1 {
-		err = httperr.RequestHeaderFieldsTooLarge
+		return req, httperr.RequestHeaderFieldsTooLarge
+	}
+	if err = req.parseHeaders(util.Split(a, buf[:ei], char.CRLF)); err != nil {
 		return
 	}
 
-	arr = util.Split(a, buf[idx+2:ei], char.CRLF) // header
-	kvs := arena.MakeSlice[KV](a, len(arr), len(arr))
-	for i, v := range arr {
-		kvs[i].ParseHeader(v)
-	}
-	req.Header.KVs = (*KVs)(&kvs)
-
-	if err = req.Header.init(); err != nil {
-		return
-	}
 	// if len(req.Header.ContentLength) == 0 && req.Method {
 	//
 	// }
 
-	// TODO length, check buf[ei+4:n] and conn
+	// chunked
+	if len(req.Header.TransferEncoding) != 0 && bytes.EqualFold(req.Header.TransferEncoding, char.Chunked) {
+
+	}
+
+	req.Header.TransferEncoding.Each(func(val []byte) bool {
+		// 7\r\n
+		// Mozilla\r\n
+		// 11\r\n
+		// Developer Network\r\n
+		// 0\r\n
+		// \r\n
+
+		return true
+	})
+
+	if req.Method.IsTrace() { // TRACE request MUST NOT include an entity.
+		_, _ = util.Copy(io.Discard, conn)
+		return
+	}
+
+	// 	if req.MayContinue() {
+	//		// 'Expect: 100-continue' header found. Let the caller deciding
+	//		// whether to read request body or
+	//		// to return StatusExpectationFailed.
+	//		return nil
+	//	}
+
 	if length := req.Header.ContentLength.Length(); length == 0 {
+		// Chunked
 		req.Body = bodyio.Null()
+
 	} else if length > s.MaxRequestBodySize {
 		return nil, httperr.BodyTooLarge // body is too large
 	} else if length > s.StreamRequestBodySize {

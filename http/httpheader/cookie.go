@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"go.x2ox.com/sorbifolia/http/internal/char"
+	"go.x2ox.com/sorbifolia/http/internal/util"
 	"go.x2ox.com/sorbifolia/pyrokinesis"
 )
 
@@ -56,7 +57,7 @@ func (v Host) Host() []byte {
 
 func (v Host) Port() uint16 {
 	if i := bytes.IndexByte(v, char.Colon); i >= 0 {
-		return uint16(toNonNegativeInt64(v[i+1:]))
+		return uint16(util.ToNonNegativeInt64(v[i+1:]))
 	}
 	return 0
 }
@@ -67,7 +68,7 @@ func (v KeepAlive) Timeout() time.Duration {
 	var d time.Duration = -1
 	eachValueWithComma(v, func(value []byte) bool {
 		if k, val := parseKVWithEqual(value); bytes.EqualFold(k, char.Timeout) {
-			d = time.Duration(toNonNegativeInt64(val)) + time.Second
+			d = time.Duration(util.ToNonNegativeInt64(val)) + time.Second
 			return false
 		}
 		return true
@@ -78,7 +79,7 @@ func (v KeepAlive) Max() int64 {
 	i := int64(-1)
 	eachValueWithComma(v, func(value []byte) bool {
 		if k, val := parseKVWithEqual(value); bytes.EqualFold(k, char.Max) {
-			i = toNonNegativeInt64(val)
+			i = util.ToNonNegativeInt64(val)
 			return false
 		}
 		return true
@@ -125,7 +126,7 @@ func (v Origin) Port() uint16 {
 
 	b := v[i+3:]
 	if i = bytes.IndexByte(b, ':'); i >= 0 {
-		return uint16(toNonNegativeInt64(b[i+1:]))
+		return uint16(util.ToNonNegativeInt64(b[i+1:]))
 	}
 
 	return 0
@@ -192,12 +193,12 @@ func (v Range) Each(fn EachRanger) {
 		case i < 0:
 			return fn(Ranger{Start: -1, End: -1, Length: -1})
 		case i == 0: // -100
-			return fn(Ranger{Start: -1, End: -1, Length: toNonNegativeInt64(value[1:])})
+			return fn(Ranger{Start: -1, End: -1, Length: util.ToNonNegativeInt64(value[1:])})
 		case i == len(value)-1: // 100-
-			return fn(Ranger{Start: toNonNegativeInt64(value[1:]), End: -1, Length: -1})
+			return fn(Ranger{Start: util.ToNonNegativeInt64(value[1:]), End: -1, Length: -1})
 		}
 
-		r := Ranger{Start: toNonNegativeInt64(value[:i]), End: toNonNegativeInt64(value[:i])}
+		r := Ranger{Start: util.ToNonNegativeInt64(value[:i]), End: util.ToNonNegativeInt64(value[:i])}
 		r.Length = r.End - r.Start
 		return fn(r)
 	})

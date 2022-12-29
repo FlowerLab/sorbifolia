@@ -4,6 +4,7 @@ import (
 	"bytes"
 
 	"go.x2ox.com/sorbifolia/http/internal/char"
+	"go.x2ox.com/sorbifolia/http/internal/util"
 )
 
 type Accept []byte
@@ -57,7 +58,7 @@ func (v ContentLanguage) Each(fn EachValue) { eachValueWithComma(v, fn) }
 type ContentLength []byte
 
 func (v ContentLength) Length() (n int64) {
-	return toNonNegativeInt64(v)
+	return util.ToNonNegativeInt64(v)
 }
 
 type ContentLocation []byte
@@ -86,7 +87,7 @@ func (v ContentRange) Start() int64 {
 		return -1
 	}
 
-	return toNonNegativeInt64(b[:i])
+	return util.ToNonNegativeInt64(b[:i])
 }
 
 func (v ContentRange) End() int64 {
@@ -105,7 +106,7 @@ func (v ContentRange) End() int64 {
 		return -1
 	}
 
-	return toNonNegativeInt64(b[i+1:])
+	return util.ToNonNegativeInt64(b[i+1:])
 }
 
 func (v ContentRange) Size() int64 {
@@ -118,5 +119,5 @@ func (v ContentRange) Size() int64 {
 	if i = bytes.IndexByte(b, char.Slash[0]); i < 0 {
 		return -1
 	}
-	return toNonNegativeInt64(b[i+1:])
+	return util.ToNonNegativeInt64(b[i+1:])
 }

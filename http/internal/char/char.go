@@ -12,6 +12,7 @@ var (
 
 	Charset  = []byte("charset")
 	Boundary = []byte("boundary")
+	Chunked  = []byte("chunked")
 
 	At            = byte('@')
 	Colon         = byte(':')
