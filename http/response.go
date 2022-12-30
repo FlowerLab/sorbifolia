@@ -68,6 +68,10 @@ func (r *Response) Encode(ver version.Version, a *arena.Arena) (io.ReadCloser, e
 		nb = append(nb, b)
 	}
 
+	r.Header.add(KV{
+		K: char.ContentLength,
+		V: (*[]byte)(&r.Header.ContentLength),
+	})
 	r.Header.Each(func(kv KV) bool {
 		switch {
 		case bytes.EqualFold(kv.K, char.ContentLength):
