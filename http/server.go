@@ -11,6 +11,7 @@ import (
 
 	"go.x2ox.com/sorbifolia/http/httperr"
 	"go.x2ox.com/sorbifolia/http/internal/char"
+	"go.x2ox.com/sorbifolia/http/internal/util"
 	"go.x2ox.com/sorbifolia/http/internal/workerpool"
 	"go.x2ox.com/sorbifolia/http/status"
 	"go.x2ox.com/sorbifolia/http/version"
@@ -54,25 +55,18 @@ type Server struct {
 }
 
 func (s *Server) Listen() {}
-func (s *Server) newCtx(a *arena.Arena, conn net.Conn, req *Request) *Context {
-	ctx := arena.New[Context](a)
-	ctx.a = a
-	ctx.c = conn
-	ctx.s = s
-
-	ctx.id = atomic.AddUint64(&s.connCount, 1)
-	ctx.time = time.Now()
-	ctx.addr = conn.RemoteAddr()
-
-	ctx.Request = req
-	return ctx
-}
 
 func (s *Server) getServerName() []byte {
 	if len(s.Name) != 0 {
 		return s.Name
 	}
 	return defaultServerNameBytes
+}
+func (s *Server) getServerNamePtr() *[]byte {
+	if len(s.Name) != 0 {
+		return &s.Name
+	}
+	return &defaultServerNameBytes
 }
 
 func (s *Server) serveConnCleanup() {
@@ -111,31 +105,51 @@ func (s *Server) handle(conn net.Conn) error {
 	// conn.SetWriteDeadline(coarsetime.Now().Add(s.WriteTimeout))
 
 	a := arena.NewArena()
-	req, err := s.ParseRequestHeader(conn, a)
-	if err != nil {
+	ctx := arena.New[Context](a)
+	ctx.a = a
+	ctx.c = conn
+	ctx.s = s
+	ctx.Request.a = a
+
+	ctx.id = atomic.AddUint64(&s.connCount, 1)
+	ctx.time = time.Now()
+	ctx.addr = conn.RemoteAddr()
+
+	defer func() {
+		ctx.c = nil
+		if !ctx.robbery {
+			a.Free()
+		}
+	}()
+
+	if err := ctx.Request.Decode(s, conn); err != nil {
 		switch err {
 		case httperr.RequestHeaderFieldsTooLarge:
-			_ = s.fastWriteCode(conn, req.ver, status.RequestEntityTooLarge)
+			_ = s.fastWriteCode(conn, ctx.Request.ver, status.RequestEntityTooLarge)
 		case httperr.BodyTooLarge:
-			_ = s.fastWriteCode(conn, req.ver, status.RequestEntityTooLarge)
+			_ = s.fastWriteCode(conn, ctx.Request.ver, status.RequestEntityTooLarge)
 		default:
-			_ = s.fastWriteCode(conn, req.ver, status.InternalServerError)
+			_ = s.fastWriteCode(conn, ctx.Request.ver, status.InternalServerError)
 		}
 
 		a.Free()
 		return err
 	}
 
-	ctx := s.newCtx(a, conn, req)
-
 	s.Handler(ctx)
-	err = s.fastWriteCode(conn, req.ver, status.OK)
 
-	ctx.c = nil
-	if ctx.robbery {
-		return err
+	ctx.Response.Header.set(KV{
+		K: char.Server,
+		V: s.getServerNamePtr(),
+	})
+
+	// var resp io.Reader
+	resp, err := ctx.Response.Encode(ctx.Request.ver, a)
+	if err != nil {
+		_ = s.fastWriteCode(conn, ctx.Request.ver, status.InternalServerError)
+		return nil
 	}
-	a.Free()
+	_, _ = util.Copy(conn, resp)
 
 	return err
 }

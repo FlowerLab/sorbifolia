@@ -13,7 +13,10 @@ func TestS(t *testing.T) {
 		MaxRequestBodySize:    defaultMaxRequestBodySize,
 		StreamRequestBodySize: defaultMaxRequestBodySize,
 
-		Handler: func(ctx *Context) {},
+		Handler: func(ctx *Context) {
+			ctx.Response.Header.StatusCode = 200
+			ctx.Response.SetBody("asdsdaasdas")
+		},
 	}
 
 	ln, _ := net.Listen("tcp", "127.0.0.1:8808")
