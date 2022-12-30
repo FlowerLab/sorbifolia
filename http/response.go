@@ -42,7 +42,7 @@ func (r *Response) SetBody(body any) {
 
 func (r *Response) Encode(ver version.Version, a *arena.Arena) (io.ReadCloser, error) {
 	if r.Body != nil && r.Header.ContentLength.Length() == 0 {
-		if r.Header.Get([]byte("TransferEncoding")).Equal(char.Chunked) {
+		if r.Header.Get([]byte("Transfer-Encoding")).Equal(char.Chunked) {
 			// TODO: support chunked encoding
 		}
 		return nil, errors.New("ContentLength must set")
@@ -99,14 +99,18 @@ func (r *Response) Encode(ver version.Version, a *arena.Arena) (io.ReadCloser, e
 	rio.r[0] = &nb
 	if body != nil {
 		rio.r = append(rio.r, body)
+		if c, ok := body.(io.Closer); ok {
+			rio.c = arena.MakeSlice[io.Closer](a, 1, 1)
+			rio.c[0] = c
+		}
 	}
-	rio.raw = rio.r
+
 	return rio, nil
 }
 
 type responseIO struct {
-	raw []io.Reader
-	r   []io.Reader
+	c []io.Closer
+	r []io.Reader
 }
 
 func (r *responseIO) Read(p []byte) (int, error) {
@@ -133,11 +137,9 @@ func (r *responseIO) Read(p []byte) (int, error) {
 }
 
 func (r *responseIO) Close() (err error) {
-	for _, v := range r.raw {
-		if c, ok := v.(io.Closer); ok {
-			if bErr := c.Close(); err == nil {
-				err = bErr
-			}
+	for _, v := range r.c {
+		if bErr := v.Close(); err == nil {
+			err = bErr
 		}
 	}
 	return
