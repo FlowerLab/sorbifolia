@@ -32,7 +32,7 @@ type RequestHeader struct {
 	Close      bool
 }
 
-func (rh *RequestHeader) init() error {
+func (rh *RequestHeader) RawParse() error {
 	rh.Each(func(kv KV) bool {
 		switch {
 		case bytes.EqualFold(kv.K, char.Accept):
@@ -63,9 +63,30 @@ func (rh *RequestHeader) init() error {
 type ResponseHeader struct {
 	KVs
 
-	StatusCode    status.Status // e.g. 200
-	ContentLength httpheader.ContentLength
-	ContentType   httpheader.ContentType
+	StatusCode      status.Status // e.g. 200
+	ContentEncoding httpheader.ContentEncoding
+	ContentLength   httpheader.ContentLength
+	ContentType     httpheader.ContentType
+	Date            httpheader.Date
+	SetCookies      httpheader.SetCookies
 
 	Close bool
+}
+
+func (rh *ResponseHeader) RawParse() error {
+	rh.Each(func(kv KV) bool {
+		switch {
+		case bytes.EqualFold(kv.K, char.Connection):
+			if bytes.EqualFold(kv.Val(), char.Close) {
+				rh.Close = true
+			}
+		case bytes.EqualFold(kv.K, char.ContentLength):
+			rh.ContentLength = kv.Val()
+		case bytes.EqualFold(kv.K, char.SetCookie):
+			rh.SetCookies = append(rh.SetCookies, kv.Val())
+		}
+		return true
+	})
+
+	return nil
 }
