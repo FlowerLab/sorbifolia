@@ -4,6 +4,7 @@ package http
 
 import (
 	"arena"
+	"fmt"
 	"io"
 	"net"
 	"sync/atomic"
@@ -131,8 +132,7 @@ func (s *Server) handle(conn net.Conn) error {
 		default:
 			_ = s.fastWriteCode(conn, ctx.Request.ver, status.InternalServerError)
 		}
-
-		a.Free()
+		fmt.Println(err)
 		return err
 	}
 
@@ -142,10 +142,16 @@ func (s *Server) handle(conn net.Conn) error {
 		K: char.Server,
 		V: s.getServerNamePtr(),
 	})
+	date := util.GetDate()
+	ctx.Response.Header.set(KV{
+		K: char.Date,
+		V: &date,
+	})
 
 	// var resp io.Reader
 	resp, err := ctx.Response.Encode(ctx.Request.ver, a)
 	if err != nil {
+		fmt.Println(err)
 		_ = s.fastWriteCode(conn, ctx.Request.ver, status.InternalServerError)
 		return nil
 	}
@@ -163,10 +169,17 @@ func (s *Server) getConcurrency() int {
 
 func (s *Server) Serve(ln net.Listener) error {
 	wp := &workerpool.WorkerPool{
-		WorkerFunc:            s.handle,
 		MaxWorkersCount:       s.getConcurrency(),
 		MaxIdleWorkerDuration: s.MaxIdleWorkerDuration,
 	}
+	wp.WorkerFunc = func(c net.Conn) error {
+		err := s.handle(c)
+		if err == nil {
+			wp.SetConnState(c, workerpool.StateIdle)
+		}
+		return err
+	}
+
 	wp.Start()
 
 	for {
@@ -180,7 +193,7 @@ func (s *Server) Serve(ln net.Listener) error {
 			_ = s.fastWriteCode(conn, version.Version{
 				Major: 1, // read first line
 				Minor: 1,
-			}, status.TooManyRequests)
+			}, status.ServiceUnavailable)
 			_ = conn.Close()
 			wp.SetConnState(conn, workerpool.StateClosed)
 
