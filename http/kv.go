@@ -15,7 +15,8 @@ type KV struct {
 
 var nullKV = KV{}
 
-func (kv KV) IsNil() bool { return len(kv.K) == 0 }
+func (kv KV) IsNil() bool         { return len(kv.K) == 0 }
+func (kv KV) Equal(b []byte) bool { return bytes.Equal(kv.Val(), b) }
 
 func (kv KV) Val() []byte {
 	if kv.V == nil {
