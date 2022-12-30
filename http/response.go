@@ -37,7 +37,7 @@ func (r *Response) SetBody(body any) {
 
 	r.Body = rend.Render()
 	r.Header.ContentType = rend.ContentType()
-	strconv.AppendInt(r.Header.ContentLength, rend.Length(), 10) // need to try to optimize
+	r.Header.ContentLength = strconv.AppendInt(r.Header.ContentLength, rend.Length(), 10) // need to try to optimize
 }
 
 func (r *Response) Encode(ver version.Version, a *arena.Arena) (io.ReadCloser, error) {

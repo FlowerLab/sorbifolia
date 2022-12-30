@@ -18,8 +18,8 @@ type Context struct {
 	time time.Time
 	addr net.Addr
 
-	Request  *Request
-	Response *Response
+	Request  Request
+	Response Response
 
 	robbery bool
 }

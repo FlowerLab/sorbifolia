@@ -34,7 +34,7 @@ func (r *Request) parseFirstLine(b []byte) error {
 		r.ver, ok = version.Parse(arr[2])
 	}
 
-	if ok {
+	if !ok {
 		return httperr.ParseHTTPVersionErr
 	}
 	return nil
@@ -51,57 +51,55 @@ func (r *Request) parseHeaders(arr [][]byte) error {
 	return r.Header.RawParse()
 }
 
-func (s *Server) ParseRequestHeader(conn net.Conn, a *arena.Arena) (req *Request, err error) {
-	req = arena.New[Request](a)
-
+func (r *Request) Decode(s *Server, conn net.Conn) error {
 	var (
-		b = arena.MakeSlice[byte](a, s.MaxRequestHeaderSize, s.MaxRequestHeaderSize)
-		n int
+		b      = arena.MakeSlice[byte](r.a, s.MaxRequestHeaderSize, s.MaxRequestHeaderSize)
+		n, err = conn.Read(b)
 	)
 
-	if n, err = conn.Read(b); err != nil {
-		return
+	if err != nil {
+		return err
 	}
 	buf := b[:n]
 
 	if i := bytes.Index(buf, char.CRLF); i == -1 {
-		return req, httperr.RequestURITooLong
-	} else if err = req.parseFirstLine(buf[:i]); err == nil {
-		buf = buf[i+2:]
+		return httperr.RequestURITooLong
+	} else if err = r.parseFirstLine(buf[:i]); err != nil {
+		return err
 	} else {
-		return
+		buf = buf[i+2:]
 	}
 
 	ei := bytes.Index(buf, char.CRLF2) // end position index
 	if ei == -1 {
-		return req, httperr.RequestHeaderFieldsTooLarge
+		return httperr.RequestHeaderFieldsTooLarge
 	}
-	if err = req.parseHeaders(util.Split(a, buf[:ei], char.CRLF)); err != nil {
-		return
+	if err = r.parseHeaders(util.Split(r.a, buf[:ei], char.CRLF)); err != nil {
+		return err
 	}
 
-	if req.Method.IsTrace() { // TRACE request MUST NOT include an entity.
+	if r.Method.IsTrace() { // TRACE request MUST NOT include an entity.
 		_, _ = util.Copy(io.Discard, conn)
-		return
+		return nil
 	}
 
-	if bytes.Equal(req.Header.Get([]byte("Expect")).Val(), []byte("100-continue")) {
-		req.Body = bodyio.Null()
-	} else if length := req.Header.ContentLength.Length(); length == 0 {
-		if bytes.Equal(req.Header.TransferEncoding, char.Chunked) {
-			req.Body, err = bodyio.Chunked(a, buf[ei+4:], conn, int(s.MaxRequestBodySize))
+	if bytes.Equal(r.Header.Get([]byte("Expect")).Val(), []byte("100-continue")) {
+		r.Body = bodyio.Null()
+	} else if length := r.Header.ContentLength.Length(); length == 0 {
+		if bytes.Equal(r.Header.TransferEncoding, char.Chunked) {
+			r.Body, err = bodyio.Chunked(r.a, buf[ei+4:], conn, int(s.MaxRequestBodySize))
 		} else {
-			req.Body = bodyio.Null()
+			r.Body = bodyio.Null()
 		}
 	} else if length > s.MaxRequestBodySize {
 		err = httperr.BodyTooLarge // body is too large
 	} else if length > s.StreamRequestBodySize {
-		req.Body, err = bodyio.File(a, buf[ei+4:], conn, length)
+		r.Body, err = bodyio.File(r.a, buf[ei+4:], conn, length)
 	} else if s.StreamRequestBodySize < 0 {
-		req.Body, err = bodyio.Block(a, buf[ei+4:], conn, length)
+		r.Body, err = bodyio.Block(r.a, buf[ei+4:], conn, length)
 	} else {
-		req.Body, err = bodyio.Memory(a, buf[ei+4:], conn, length)
+		r.Body, err = bodyio.Memory(r.a, buf[ei+4:], conn, length)
 	}
 
-	return
+	return err
 }
