@@ -9,6 +9,7 @@ var (
 
 	Spaces   = []byte{' '}
 	Hashtags = []byte{'#'}
+	Colons   = []byte(":")
 
 	Charset  = []byte("charset")
 	Boundary = []byte("boundary")

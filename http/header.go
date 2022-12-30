@@ -63,12 +63,10 @@ func (rh *RequestHeader) RawParse() error {
 type ResponseHeader struct {
 	KVs
 
-	StatusCode      status.Status // e.g. 200
-	ContentEncoding httpheader.ContentEncoding
-	ContentLength   httpheader.ContentLength
-	ContentType     httpheader.ContentType
-	Date            httpheader.Date
-	SetCookies      httpheader.SetCookies
+	StatusCode    status.Status // e.g. 200
+	ContentLength httpheader.ContentLength
+	ContentType   httpheader.ContentType
+	SetCookies    httpheader.SetCookies
 
 	Close bool
 }
