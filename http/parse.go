@@ -80,44 +80,21 @@ func (s *Server) ParseRequestHeader(conn net.Conn, a *arena.Arena) (req *Request
 		return
 	}
 
-	// if len(req.Header.ContentLength) == 0 && req.Method {
-	//
-	// }
-
-	// chunked
-	if len(req.Header.TransferEncoding) != 0 && bytes.EqualFold(req.Header.TransferEncoding, char.Chunked) {
-
-	}
-
-	req.Header.TransferEncoding.Each(func(val []byte) bool {
-		// 7\r\n
-		// Mozilla\r\n
-		// 11\r\n
-		// Developer Network\r\n
-		// 0\r\n
-		// \r\n
-
-		return true
-	})
-
 	if req.Method.IsTrace() { // TRACE request MUST NOT include an entity.
 		_, _ = util.Copy(io.Discard, conn)
 		return
 	}
 
-	// 	if req.MayContinue() {
-	//		// 'Expect: 100-continue' header found. Let the caller deciding
-	//		// whether to read request body or
-	//		// to return StatusExpectationFailed.
-	//		return nil
-	//	}
-
-	if length := req.Header.ContentLength.Length(); length == 0 {
-		// Chunked
+	if bytes.Equal(req.Header.Get([]byte("Expect")).Val(), []byte("100-continue")) {
 		req.Body = bodyio.Null()
-
+	} else if length := req.Header.ContentLength.Length(); length == 0 {
+		if bytes.Equal(req.Header.TransferEncoding, char.Chunked) {
+			req.Body, err = bodyio.Chunked(a, buf[ei+4:], conn, int(s.MaxRequestBodySize))
+		} else {
+			req.Body = bodyio.Null()
+		}
 	} else if length > s.MaxRequestBodySize {
-		return nil, httperr.BodyTooLarge // body is too large
+		err = httperr.BodyTooLarge // body is too large
 	} else if length > s.StreamRequestBodySize {
 		req.Body, err = bodyio.File(a, buf[ei+4:], conn, length)
 	} else if s.StreamRequestBodySize < 0 {

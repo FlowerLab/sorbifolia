@@ -12,21 +12,24 @@ import (
 type RequestHeader struct {
 	KVs
 
-	ContentType      httpheader.ContentType
-	ContentLength    httpheader.ContentLength
 	Accept           httpheader.Accept
 	AcceptEncoding   httpheader.AcceptEncoding
 	AcceptLanguage   httpheader.AcceptLanguage
-	UserAgent        httpheader.UserAgent
+	ContentLength    httpheader.ContentLength
+	ContentType      httpheader.ContentType
 	Cookie           httpheader.Cookie
 	Host             httpheader.Host
-	Trailer          httpheader.Trailer
+	UserAgent        httpheader.UserAgent
 	TransferEncoding httpheader.TransferEncoding
-	RemoteAddr       []byte
-	RequestURI       []byte
-	URL              URL
-	TLS              *tls.ConnectionState
-	Close            bool
+
+	// Trailer          httpheader.Trailer
+	// TrailerHeader    KVs
+
+	RemoteAddr []byte
+	RequestURI []byte
+	URL        URL
+	TLS        *tls.ConnectionState
+	Close      bool
 }
 
 func (rh *RequestHeader) init() error {
@@ -58,14 +61,11 @@ func (rh *RequestHeader) init() error {
 }
 
 type ResponseHeader struct {
-	*KVs
+	KVs
 
 	StatusCode    status.Status // e.g. 200
-	ContentType   httpheader.ContentType
-	Date          httpheader.Date
 	ContentLength httpheader.ContentLength
-	Close         bool
-	Host          httpheader.Host
-	RemoteAddr    []byte
-	RequestURI    []byte
+	ContentType   httpheader.ContentType
+
+	Close bool
 }
