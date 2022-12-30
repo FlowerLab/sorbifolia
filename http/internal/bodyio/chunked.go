@@ -85,6 +85,7 @@ func Chunked(a *arena.Arena, preRead []byte, r io.Reader, max int) (io.ReadClose
 		if !bytes.Equal(cl[:], char.CRLF) {
 			return nil, errors.New("what is the")
 		}
+		// TODO add Trailer Header
 	}
 
 	return bf, nil
