@@ -80,14 +80,27 @@ func (s *Server) serveConnCleanup() {
 	atomic.AddUint32(&s.concurrency, ^uint32(0))
 }
 
-func (s *Server) fastWriteCode(w io.Writer, ver version.Version, code status.Status) {
-	_, _ = w.Write(ver.Bytes())
-	_, _ = w.Write(char.Spaces)
-	_, _ = w.Write(code.Bytes())
-	_, _ = w.Write(char.CRLF)
-	_, _ = w.Write([]byte("Connection: close\r\nServer: "))
-	_, _ = w.Write(s.getServerName())
-	_, _ = w.Write([]byte("\r\nContent-Length: 0\r\n\r\n"))
+func (s *Server) fastWriteCode(w io.Writer, ver version.Version, code status.Status) error {
+	if _, err := w.Write(ver.Bytes()); err != nil {
+		return err
+	}
+	if _, err := w.Write(char.Spaces); err != nil {
+		return err
+	}
+	if _, err := w.Write(code.Bytes()); err != nil {
+		return err
+	}
+	if _, err := w.Write(char.CRLF); err != nil {
+		return err
+	}
+	if _, err := w.Write([]byte("Connection: close\r\nServer: ")); err != nil {
+		return err
+	}
+	if _, err := w.Write(s.getServerName()); err != nil {
+		return err
+	}
+	_, err := w.Write([]byte("\r\nContent-Length: 0\r\n\r\n"))
+	return err
 }
 
 func (s *Server) handle(conn net.Conn) error {
@@ -102,37 +115,36 @@ func (s *Server) handle(conn net.Conn) error {
 	if err != nil {
 		switch err {
 		case httperr.RequestHeaderFieldsTooLarge:
-			s.fastWriteCode(conn, req.ver, status.RequestEntityTooLarge)
+			_ = s.fastWriteCode(conn, req.ver, status.RequestEntityTooLarge)
 		case httperr.BodyTooLarge:
-			s.fastWriteCode(conn, req.ver, status.RequestEntityTooLarge)
+			_ = s.fastWriteCode(conn, req.ver, status.RequestEntityTooLarge)
 		default:
-			s.fastWriteCode(conn, req.ver, status.InternalServerError)
+			_ = s.fastWriteCode(conn, req.ver, status.InternalServerError)
 		}
 
 		a.Free()
-		return nil
+		return err
 	}
 
 	ctx := s.newCtx(a, conn, req)
 
 	s.Handler(ctx)
-	s.fastWriteCode(conn, req.ver, status.OK)
+	err = s.fastWriteCode(conn, req.ver, status.OK)
 
 	ctx.c = nil
 	if ctx.robbery {
-		return nil
+		return err
 	}
 	a.Free()
 
-	return nil
+	return err
 }
 
 func (s *Server) getConcurrency() int {
-	n := s.Concurrency
-	if n <= 0 {
-		n = defaultConcurrency
+	if n := s.Concurrency; n > 0 {
+		return n
 	}
-	return n
+	return defaultConcurrency
 }
 
 func (s *Server) Serve(ln net.Listener) error {
@@ -151,8 +163,10 @@ func (s *Server) Serve(ln net.Listener) error {
 
 		wp.SetConnState(conn, workerpool.StateNew)
 		if !wp.Serve(conn) {
-			// s.writeFastError(c, StatusServiceUnavailable,
-			// 	"The connection cannot be served because Server.Concurrency limit exceeded")
+			_ = s.fastWriteCode(conn, version.Version{
+				Major: 1, // read first line
+				Minor: 1,
+			}, status.TooManyRequests)
 			_ = conn.Close()
 			wp.SetConnState(conn, workerpool.StateClosed)
 
