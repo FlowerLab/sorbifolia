@@ -18,3 +18,6 @@ func (v ContentDisposition) Param(p []byte) (b []byte) {
 	})
 	return
 }
+
+func (v ContentDisposition) Name() (b []byte)     { return v.Param([]byte("name")) }
+func (v ContentDisposition) Filename() (b []byte) { return v.Param([]byte("filename")) }

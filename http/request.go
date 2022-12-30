@@ -6,6 +6,7 @@ import (
 	"io"
 
 	"github.com/pkg/errors"
+	"go.x2ox.com/sorbifolia/http/httpheader"
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/method"
 	"go.x2ox.com/sorbifolia/http/version"
@@ -21,7 +22,7 @@ type Request struct {
 
 func NewFormData(a *arena.Arena, r Request) (*FormData, error) {
 	fd := arena.New[FormData](a)
-	fd.Boundary = r.Header.ContentType.Boundary() // todo: get boundary
+	fd.Boundary = r.Header.ContentType.Boundary()
 	boundaryLen := len(fd.Boundary)
 	if boundaryLen < 1 || boundaryLen > 70 {
 		return nil, errors.New("boundary length is not in 1 <= size <= 70")
@@ -39,14 +40,15 @@ func NewFormData(a *arena.Arena, r Request) (*FormData, error) {
 	}
 
 	for {
-		// --boundary
-		if !bytes.Equal(buf, fd.Boundary) {
+		if !bytes.Equal(buf, fd.Boundary) { // --boundary
+			if !bytes.Equal(buf, []byte("--")) { // --boundary--
+				break
+			}
 			return nil, errors.New("find not found boundary")
 		}
 		buf = buf[boundaryLen:]
 
-		// \r\n
-		if !bytes.Equal(buf, char.CRLF) {
+		if !bytes.Equal(buf, char.CRLF) { // \r\n
 			return nil, errors.New("find not found \r\n")
 		}
 		buf = buf[2:]
@@ -71,29 +73,48 @@ func NewFormData(a *arena.Arena, r Request) (*FormData, error) {
 			buf = buf[i+2:]
 		}
 		kvs := KVs(ks)
-		cd := kvs.Get(char.ContentDisposition) // if it has filename, it's a file
-		_ = cd
-		_ = kvs.Get(char.ContentType) // if it has, it's a file
+		cd := kvs.Get(char.ContentDisposition)
 
-		// cd.QualityValues()
+		hcd := httpheader.ContentDisposition(cd.Val())
+		filename := hcd.Filename()
+		if len(filename) == 0 {
+			kv := arena.New[KV](a)
+			kv.K = hcd.Name()
 
-		// content
+			i := bytes.Index(buf, fd.Boundary)
+			if i < 0 { // --boundary
+				return nil, errors.New("find not found boundary")
+			}
 
+			val := buf[:i]
+			kv.V = &val
+			if len(fd.KV)+1 < cap(fd.KV) {
+				arr := arena.MakeSlice[KV](a, len(fd.KV), len(fd.KV)+1)
+				copy(arr, fd.KV)
+				fd.KV = arr
+			}
+			fd.KV = append(fd.KV, *kv)
+
+			buf = buf[i+len(fd.Boundary):]
+			continue
+		}
+
+		i := bytes.Index(buf, fd.Boundary)
+		if i < 0 { // --boundary
+			return nil, errors.New("find not found boundary")
+		}
+		fh := FileHeader{
+			Name:     filename,
+			Filename: hcd.Name(),
+			Size:     int64(i),
+			Header:   kvs,
+			content:  buf[:i],
+		}
+
+		fd.File = append(fd.File, fh)
+		buf = buf[i+len(fd.Boundary):]
 	}
-
-	/*
-		--Boundary\r\n
-			Header\r\n
-			Header\r\n
-			\r\n
-			content\r\n
-		--Boundary\r\n
-			Header\r\n
-			Header\r\n
-			\r\n
-			content\r\n
-		--Boundary--
-	*/
+	return fd, nil
 }
 
 // FormData multipart/form-data
@@ -101,13 +122,14 @@ type FormData struct {
 	Boundary []byte
 
 	KV   KVs
-	File []io.Closer
+	File []FileHeader
 }
 
 type FileHeader struct {
-	Filename string
-	Header   KVs
+	Name     []byte
+	Filename []byte
 	Size     int64
+	Header   KVs
 
 	content []byte
 	tmpfile string
