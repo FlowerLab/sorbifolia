@@ -48,7 +48,7 @@ func (r *Request) parseHeaders(arr [][]byte) error {
 	for i, v := range arr {
 		r.Header.KVs[i].ParseHeader(v)
 	}
-	return r.Header.init()
+	return r.Header.RawParse()
 }
 
 func (s *Server) ParseRequestHeader(conn net.Conn, a *arena.Arena) (req *Request, err error) {
