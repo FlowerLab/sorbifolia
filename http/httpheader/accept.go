@@ -55,6 +55,7 @@ type ContentLanguage []byte
 
 func (v ContentLanguage) Each(fn EachValue) { eachValueWithComma(v, fn) }
 
+type ContentEncoding []byte
 type ContentLength []byte
 
 func (v ContentLength) Length() (n int64) {

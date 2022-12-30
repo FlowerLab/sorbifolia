@@ -9,6 +9,7 @@ import (
 	"go.x2ox.com/sorbifolia/pyrokinesis"
 )
 
+type SetCookies []SetCookie
 type SetCookie []byte
 
 func (v SetCookie) Cookie() (key, val []byte) {
