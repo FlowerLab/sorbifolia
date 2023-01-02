@@ -103,13 +103,9 @@ func (s *Server) handle(conn net.Conn) error {
 	// conn.SetReadDeadline(coarsetime.Now().Add(s.ReadTimeout))
 	// conn.SetWriteDeadline(coarsetime.Now().Add(s.WriteTimeout))
 
-	// a := arena.NewArena()
-	// ctx := arena.New[Context](a)
 	ctx := &Context{} // TODO: pool
-	// ctx.a = a
 	ctx.c = conn
 	ctx.s = s
-	// ctx.Request.a = a
 
 	ctx.id = atomic.AddUint64(&s.connCount, 1)
 	ctx.time = time.Now()
