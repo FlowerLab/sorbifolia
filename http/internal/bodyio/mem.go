@@ -1,9 +1,6 @@
-//go:build goexperiment.arenas
-
 package bodyio
 
 import (
-	"arena"
 	"io"
 
 	"go.x2ox.com/sorbifolia/http/httperr"
@@ -25,9 +22,10 @@ func (m *mem) Read(p []byte) (n int, err error) {
 
 func (m *mem) Close() error { return nil }
 
-func Memory(a *arena.Arena, preRead []byte, r io.Reader, length int64) (io.ReadCloser, error) {
-	bf := arena.New[mem](a)
-	bf.buf = arena.MakeSlice[byte](a, int(length), int(length))
+func Memory(preRead []byte, r io.Reader, length int64) (io.ReadCloser, error) {
+	bf := &mem{
+		buf: make([]byte, int(length)),
+	}
 	cn := copy(bf.buf, preRead)
 	r = io.LimitReader(r, length-int64(len(preRead)))
 

@@ -1,16 +1,13 @@
-//go:build goexperiment.arenas
-
 package util
 
 import (
-	"arena"
 	"io"
 
 	"go.x2ox.com/sorbifolia/pyrokinesis"
 )
 
 type Buffer struct {
-	A    *arena.Arena
+	// A    *arena.Arena
 	B    []byte
 	r, w int
 }
@@ -76,8 +73,8 @@ func (b *Buffer) String() string { return pyrokinesis.Bytes.ToString(b.B) }
 func (b *Buffer) Reset()         { b.B, b.r, b.w = b.B[:0], 0, 0 }
 
 func (b *Buffer) makeSlice(length, capacity int) []byte {
-	if b.A == nil {
-		return make([]byte, length, capacity)
-	}
-	return arena.MakeSlice[byte](b.A, length, capacity)
+
+	return make([]byte, length, capacity)
+
+	// return arena.MakeSlice[byte](b.A, length, capacity)
 }

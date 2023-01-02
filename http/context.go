@@ -1,16 +1,13 @@
-//go:build goexperiment.arenas
-
 package http
 
 import (
-	"arena"
 	"context"
 	"net"
 	"time"
 )
 
 type Context struct {
-	a *arena.Arena
+	// a *arena.Arena
 	c net.Conn
 	s *Server
 
@@ -22,14 +19,6 @@ type Context struct {
 	Response Response
 
 	robbery bool
-}
-
-// Robbery will make the Server never Free it, Must call Free() yourself later.
-func (c *Context) Robbery() {
-	if c.robbery {
-		panic("Robbery() cannot be called multiple times")
-	}
-	c.robbery = true
 }
 
 func (c *Context) Deadline() (deadline time.Time, ok bool) { return }

@@ -1,7 +1,7 @@
 package bodyio
 
 import (
-	"arena"
+	"bufio"
 	"bytes"
 	"errors"
 	"io"
@@ -36,12 +36,11 @@ func (c *chunked) Read(p []byte) (n int, err error) {
 
 func (c *chunked) Close() error { return nil }
 
-func Chunked(a *arena.Arena, preRead []byte, r io.Reader, max int) (io.ReadCloser, error) {
-	br := arena.New[util.Reader](a)
-	br.Reset(newBlock(a, preRead, r), arena.MakeSlice[byte](a, 1024, 1024))
+func Chunked(preRead []byte, r io.Reader, max int) (io.ReadCloser, error) {
+	br := bufio.NewReader(newBlock(preRead, r))
 
-	bf := arena.New[chunked](a)
-	bf.buf = arena.MakeSlice[[]byte](a, max, max)
+	bf := &chunked{}
+	bf.buf = make([][]byte, max)
 
 	var (
 		n  int
@@ -69,7 +68,7 @@ func Chunked(a *arena.Arena, preRead []byte, r io.Reader, max int) (io.ReadClose
 		}
 
 		rl += length
-		bf.buf[i] = arena.MakeSlice[byte](a, length, length)
+		bf.buf[i] = make([]byte, length)
 
 		if n, err = util.ReadAll(bf.buf[i], br); err != nil {
 			return nil, err

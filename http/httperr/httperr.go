@@ -11,6 +11,7 @@ var (
 	BodyTooLarge                = errors.New("body too large")
 	BodyLengthMismatch          = errors.New("body length mismatch")
 	ParseHTTPVersionErr         = errors.New("cannot find http version")
+	ParseHTTPMethodErr          = errors.New("cannot find http method")
 )
 
 // 	case RequestURITooLong:

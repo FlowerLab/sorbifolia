@@ -1,7 +1,6 @@
 package bodyio
 
 import (
-	"arena"
 	"io"
 )
 
@@ -32,16 +31,16 @@ func (b block) Read(p []byte) (n int, err error) {
 
 func (b block) Close() error { return nil }
 
-func Block(a *arena.Arena, preRead []byte, r io.Reader, length int64) (io.ReadCloser, error) {
-	b := arena.New[block](a)
-	b.preRead = preRead
-	b.r = io.LimitReader(r, length-int64(len(preRead)))
-	return b, nil
+func Block(preRead []byte, r io.Reader, length int64) (io.ReadCloser, error) {
+	return &block{
+		preRead: preRead,
+		r:       io.LimitReader(r, length-int64(len(preRead))),
+	}, nil
 }
 
-func newBlock(a *arena.Arena, preRead []byte, r io.Reader) io.ReadCloser {
-	b := arena.New[block](a)
-	b.preRead = preRead
-	b.r = r
-	return b
+func newBlock(preRead []byte, r io.Reader) io.ReadCloser {
+	return &block{
+		preRead: preRead,
+		r:       r,
+	}
 }

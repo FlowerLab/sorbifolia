@@ -1,9 +1,6 @@
-//go:build goexperiment.arenas
-
 package http
 
 import (
-	"arena"
 	"fmt"
 	"io"
 	"net"
@@ -38,6 +35,7 @@ var (
 type Server struct {
 	Name []byte
 
+	MaxRequestURISize     int   // 最大首行大小
 	MaxRequestHeaderSize  int   // 最大允许的头大小，包括首行和 \r\n
 	MaxRequestBodySize    int64 // 最大允许的 Body 大小
 	StreamRequestBodySize int64 // 最大允许内存读入的 Body 大小
@@ -105,12 +103,13 @@ func (s *Server) handle(conn net.Conn) error {
 	// conn.SetReadDeadline(coarsetime.Now().Add(s.ReadTimeout))
 	// conn.SetWriteDeadline(coarsetime.Now().Add(s.WriteTimeout))
 
-	a := arena.NewArena()
-	ctx := arena.New[Context](a)
-	ctx.a = a
+	// a := arena.NewArena()
+	// ctx := arena.New[Context](a)
+	ctx := &Context{} // TODO: pool
+	// ctx.a = a
 	ctx.c = conn
 	ctx.s = s
-	ctx.Request.a = a
+	// ctx.Request.a = a
 
 	ctx.id = atomic.AddUint64(&s.connCount, 1)
 	ctx.time = time.Now()
@@ -118,9 +117,6 @@ func (s *Server) handle(conn net.Conn) error {
 
 	defer func() {
 		ctx.c = nil
-		if !ctx.robbery {
-			a.Free()
-		}
 	}()
 
 	if err := ctx.Request.Decode(s, conn); err != nil {
@@ -140,18 +136,16 @@ func (s *Server) handle(conn net.Conn) error {
 
 	ctx.Response.Header.set(KV{
 		K: char.Server,
-		V: s.getServerNamePtr(),
+		V: s.getServerName(),
 	})
-	date := util.GetDate()
 	ctx.Response.Header.set(KV{
 		K: char.Date,
-		V: &date,
+		V: util.GetDate(),
 	})
 
 	// var resp io.Reader
-	resp, err := ctx.Response.Encode(ctx.Request.ver, a)
+	resp, err := ctx.Response.Encode(ctx.Request.ver)
 	if err != nil {
-		fmt.Println(err)
 		_ = s.fastWriteCode(conn, ctx.Request.ver, status.InternalServerError)
 		return nil
 	}

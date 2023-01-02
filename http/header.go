@@ -36,23 +36,23 @@ func (rh *RequestHeader) RawParse() error {
 	rh.Each(func(kv KV) bool {
 		switch {
 		case bytes.EqualFold(kv.K, char.Accept):
-			rh.Accept = kv.Val()
+			rh.Accept = kv.V
 		case bytes.EqualFold(kv.K, char.AcceptEncoding):
-			rh.AcceptEncoding = kv.Val()
+			rh.AcceptEncoding = kv.V
 		case bytes.EqualFold(kv.K, char.AcceptLanguage):
-			rh.AcceptLanguage = kv.Val()
+			rh.AcceptLanguage = kv.V
 		case bytes.EqualFold(kv.K, char.Connection):
-			if bytes.EqualFold(kv.Val(), char.Close) {
+			if bytes.EqualFold(kv.V, char.Close) {
 				rh.Close = true
 			}
 		case bytes.EqualFold(kv.K, char.ContentLength):
-			rh.ContentLength = kv.Val()
+			rh.ContentLength = kv.V
 		case bytes.EqualFold(kv.K, char.Cookie):
-			rh.Cookie = kv.Val()
+			rh.Cookie = kv.V
 		case bytes.EqualFold(kv.K, char.Host):
-			rh.Host = kv.Val()
+			rh.Host = kv.V
 		case bytes.EqualFold(kv.K, char.UserAgent):
-			rh.UserAgent = kv.Val()
+			rh.UserAgent = kv.V
 		}
 		return true
 	})
@@ -75,13 +75,13 @@ func (rh *ResponseHeader) RawParse() error {
 	rh.Each(func(kv KV) bool {
 		switch {
 		case bytes.EqualFold(kv.K, char.Connection):
-			if bytes.EqualFold(kv.Val(), char.Close) {
+			if bytes.EqualFold(kv.V, char.Close) {
 				rh.Close = true
 			}
 		case bytes.EqualFold(kv.K, char.ContentLength):
-			rh.ContentLength = kv.Val()
+			rh.ContentLength = kv.V
 		case bytes.EqualFold(kv.K, char.SetCookie):
-			rh.SetCookies = append(rh.SetCookies, kv.Val())
+			rh.SetCookies = append(rh.SetCookies, kv.V)
 		}
 		return true
 	})

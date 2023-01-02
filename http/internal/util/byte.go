@@ -3,7 +3,6 @@
 package util
 
 import (
-	"arena"
 	"bytes"
 )
 
@@ -72,28 +71,5 @@ func DecodeArgAppendNoPlus(dst, src []byte) []byte {
 			dst = append(dst, c)
 		}
 	}
-	return dst
-}
-
-func Split(a *arena.Arena, s, sep []byte) [][]byte {
-	n := bytes.Count(s, sep) + 1
-	if n > len(s)+1 {
-		n = len(s) + 1
-	}
-	dst := arena.MakeSlice[[]byte](a, n, n)
-
-	n--
-	i := 0
-	for i < n {
-		m := bytes.Index(s, sep)
-		if m < 0 {
-			break
-		}
-		dst[i] = s[:m:m]
-		s = s[m+len(sep):]
-		i++
-	}
-	dst[i] = s
-	dst = dst[:i+1]
 	return dst
 }
