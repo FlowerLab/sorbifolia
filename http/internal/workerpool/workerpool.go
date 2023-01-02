@@ -2,13 +2,13 @@ package workerpool
 
 import (
 	"errors"
+	"log"
 	"net"
 	"runtime"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/rs/zerolog/log"
 	"go.x2ox.com/sorbifolia/coarsetime"
 	"go.x2ox.com/sorbifolia/http/httperr"
 )
