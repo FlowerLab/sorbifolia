@@ -1,7 +1,6 @@
 package http
 
 import (
-	"arena"
 	"bytes"
 	"io"
 
@@ -13,15 +12,14 @@ import (
 )
 
 type Request struct {
-	a      *arena.Arena
 	ver    version.Version
 	Method method.Method
 	Header RequestHeader
 	Body   io.ReadCloser
 }
 
-func NewFormData(a *arena.Arena, r Request) (*FormData, error) {
-	fd := arena.New[FormData](a)
+func NewFormData(r Request) (*FormData, error) {
+	fd := &FormData{}
 	fd.Boundary = r.Header.ContentType.Boundary()
 	boundaryLen := len(fd.Boundary)
 	if boundaryLen < 1 || boundaryLen > 70 {
@@ -29,7 +27,7 @@ func NewFormData(a *arena.Arena, r Request) (*FormData, error) {
 	}
 
 	length := int(r.Header.ContentLength.Length())
-	buf := arena.MakeSlice[byte](a, length, length)
+	buf := make([]byte, length, length)
 
 	n, err := r.Body.Read(buf)
 	if err != nil && !errors.Is(err, io.EOF) {
@@ -53,7 +51,7 @@ func NewFormData(a *arena.Arena, r Request) (*FormData, error) {
 		}
 		buf = buf[2:]
 
-		ks := arena.MakeSlice[KV](a, 0, 2)
+		ks := make([]KV, 0, 2)
 
 		// header: val
 		for {
@@ -66,7 +64,8 @@ func NewFormData(a *arena.Arena, r Request) (*FormData, error) {
 				break
 			}
 
-			kv := arena.New[KV](a)
+			// kv := arena.New[KV](a)
+			kv := &KV{}
 			kv.ParseHeader(buf[:i])
 			ks = append(ks, *kv)
 
@@ -75,10 +74,11 @@ func NewFormData(a *arena.Arena, r Request) (*FormData, error) {
 		kvs := KVs(ks)
 		cd := kvs.Get(char.ContentDisposition)
 
-		hcd := httpheader.ContentDisposition(cd.Val())
+		hcd := httpheader.ContentDisposition(cd.V)
 		filename := hcd.Filename()
 		if len(filename) == 0 {
-			kv := arena.New[KV](a)
+			kv := &KV{}
+			// kv := arena.New[KV](a)
 			kv.K = hcd.Name()
 
 			i := bytes.Index(buf, fd.Boundary)
@@ -86,10 +86,10 @@ func NewFormData(a *arena.Arena, r Request) (*FormData, error) {
 				return nil, errors.New("find not found boundary")
 			}
 
-			val := buf[:i]
-			kv.V = &val
+			kv.V = buf[:i]
 			if len(fd.KV)+1 < cap(fd.KV) {
-				arr := arena.MakeSlice[KV](a, len(fd.KV), len(fd.KV)+1)
+				// arr := arena.MakeSlice[KV](a, len(fd.KV), len(fd.KV)+1)
+				arr := make([]KV, len(fd.KV), len(fd.KV)+1)
 				copy(arr, fd.KV)
 				fd.KV = arr
 			}

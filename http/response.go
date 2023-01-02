@@ -1,9 +1,6 @@
-//go:build goexperiment.arenas
-
 package http
 
 import (
-	"arena"
 	"bytes"
 	"errors"
 	"io"
@@ -40,9 +37,9 @@ func (r *Response) SetBody(body any) {
 	r.Header.ContentLength = strconv.AppendInt(r.Header.ContentLength, rend.Length(), 10) // need to try to optimize
 }
 
-func (r *Response) Encode(ver version.Version, a *arena.Arena) (io.ReadCloser, error) {
+func (r *Response) Encode(ver version.Version) (io.ReadCloser, error) {
 	if r.Body != nil && r.Header.ContentLength.Length() == 0 {
-		if r.Header.Get([]byte("Transfer-Encoding")).Equal(char.Chunked) {
+		if bytes.Equal(r.Header.Get([]byte("Transfer-Encoding")).V, char.Chunked) {
 			// TODO: support chunked encoding
 		}
 		return nil, errors.New("ContentLength must set")
@@ -50,7 +47,7 @@ func (r *Response) Encode(ver version.Version, a *arena.Arena) (io.ReadCloser, e
 
 	var (
 		body             = r.Body
-		nb   net.Buffers = arena.MakeSlice[[]byte](a, 4, 4+len(r.Header.KVs)*4+1)
+		nb   net.Buffers = make([][]byte, 4, 4+len(r.Header.KVs)*4+1)
 	)
 
 	{
@@ -61,7 +58,7 @@ func (r *Response) Encode(ver version.Version, a *arena.Arena) (io.ReadCloser, e
 	}
 	bufAppend := func(b []byte) {
 		if length := len(nb) + 1; length < cap(nb) {
-			arr := arena.MakeSlice[[]byte](a, len(nb), length*5/4)
+			arr := make([][]byte, len(nb), length*5/4)
 			copy(arr, nb)
 			nb = arr
 		}
@@ -70,17 +67,17 @@ func (r *Response) Encode(ver version.Version, a *arena.Arena) (io.ReadCloser, e
 
 	r.Header.add(KV{
 		K: char.ContentLength,
-		V: (*[]byte)(&r.Header.ContentLength),
+		V: r.Header.ContentLength,
 	})
 	r.Header.Each(func(kv KV) bool {
 		switch {
 		case bytes.EqualFold(kv.K, char.ContentLength):
 			if len(r.Header.ContentLength) != 0 {
-				kv.V = (*[]byte)(&r.Header.ContentLength)
+				kv.V = r.Header.ContentLength
 			}
 		case bytes.EqualFold(kv.K, char.ContentType):
 			if len(r.Header.ContentType) != 0 {
-				kv.V = (*[]byte)(&r.Header.ContentType)
+				kv.V = r.Header.ContentType
 			}
 		case bytes.EqualFold(kv.K, char.SetCookie):
 			if len(r.Header.SetCookies) != 0 {
@@ -91,20 +88,22 @@ func (r *Response) Encode(ver version.Version, a *arena.Arena) (io.ReadCloser, e
 
 		bufAppend(kv.K)
 		bufAppend(char.Colons)
-		bufAppend(kv.Val())
+		bufAppend(kv.V)
 		bufAppend(char.CRLF)
 
 		return true
 	})
 
 	bufAppend(char.CRLF)
-	rio := arena.New[responseIO](a)
-	rio.r = arena.MakeSlice[io.Reader](a, 1, 2)
+	rio := &responseIO{}
+	rio.r = make([]io.Reader, 1, 2)
+
 	rio.r[0] = &nb
 	if body != nil {
 		rio.r = append(rio.r, body)
 		if c, ok := body.(io.Closer); ok {
-			rio.c = arena.MakeSlice[io.Closer](a, 1, 1)
+			// rio.c = arena.MakeSlice[io.Closer](a, 1, 1)
+			rio.c = make([]io.Closer, 1, 1)
 			rio.c[0] = c
 		}
 	}

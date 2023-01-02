@@ -1,9 +1,6 @@
-//go:build goexperiment.arenas
-
 package bodyio
 
 import (
-	"arena"
 	"io"
 	"os"
 )
@@ -37,7 +34,7 @@ func (b *fs) Close() error {
 	return os.Remove(b.filename)
 }
 
-func File(a *arena.Arena, preRead []byte, r io.Reader, length int64) (io.ReadCloser, error) {
+func File(preRead []byte, r io.Reader, length int64) (io.ReadCloser, error) {
 	file, err := os.CreateTemp("", "http-request-*")
 	if err != nil {
 		return nil, err
@@ -58,12 +55,13 @@ func File(a *arena.Arena, preRead []byte, r io.Reader, length int64) (io.ReadClo
 		return nil, err
 	}
 
-	if err = file.Sync(); err != nil {
+	if err = file.Close(); err != nil {
 		return nil, err
 	}
 
-	bf := arena.New[fs](a)
-	bf.filename = file.Name()
-
-	return bf, nil
+	return &fs{
+		file:     nil,
+		filename: file.Name(),
+		close:    false,
+	}, nil
 }
