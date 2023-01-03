@@ -12,6 +12,9 @@ const (
 	defaultMaxRequestHeaderSize = 4 * 1024
 	defaultMaxRequestBodySize   = 4 * 1024 * 1024
 	defaultConcurrency          = 256 * 1024
+
+	defaultMaxRequestMethodSize = 7        // Up to 7 if it has not custom methods
+	defaultMaxRequestURISize    = 4 * 1024 // Up to 7 if it has not custom methods
 )
 
 type Config struct {
@@ -20,6 +23,7 @@ type Config struct {
 	// 		Client.Request.Header.User-Agent: Name
 	Name []byte
 
+	MaxRequestMethodSize  int   // 最大首行大小
 	MaxRequestURISize     int   // 最大首行大小
 	MaxRequestHeaderSize  int   // 最大允许的头大小，包括首行和 \r\n
 	MaxRequestBodySize    int64 // 最大允许的 Body 大小
@@ -32,11 +36,24 @@ type Config struct {
 	SleepWhenConcurrencyLimitsExceeded time.Duration
 }
 
-func (c Config) GetName() []byte { return returnDefaultIfNotSet(c.Name, defaultName) }
+func (c Config) GetName() []byte { return aObB(c.Name, defaultName) }
+func (c Config) GetMaxRequestMethodSize() int {
+	return aObI(c.MaxRequestMethodSize, defaultMaxRequestMethodSize)
+}
+func (c Config) GetMaxRequestURISize() int {
+	return aObI(c.MaxRequestURISize, defaultMaxRequestURISize)
+}
 
-func returnDefaultIfNotSet(v, defaultVal []byte) []byte {
-	if v != nil {
-		return v
+func aObB(a, b []byte) []byte {
+	if a != nil {
+		return a
 	}
-	return defaultVal
+	return b
+}
+
+func aObI(a, b int) int {
+	if a != 0 {
+		return a
+	}
+	return b
 }

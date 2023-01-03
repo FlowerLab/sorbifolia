@@ -6,18 +6,13 @@ import (
 	"sync"
 )
 
-// bufio.NewReader()
-
-// func Acquire(size ...int) *Buffer { return global.Acquire(size...) }
-// func Release(b *Buffer)           { global.Release(b) }
-
 var (
-	_BufIOReaderPool = sync.Pool{New: func() any { return nil }}
-	_BufIOWriterPool = sync.Pool{New: func() any { return nil }}
+	_BRPool = sync.Pool{New: func() any { return nil }}
+	_BWPool = sync.Pool{New: func() any { return nil }}
 )
 
-func AcquireBufIOReader(r io.Reader) *bufio.Reader {
-	if v := _BufIOReaderPool.Get(); v != nil {
+func AcquireBR(r io.Reader) *bufio.Reader {
+	if v := _BRPool.Get(); v != nil {
 		br := v.(*bufio.Reader)
 		br.Reset(r)
 		return br
@@ -25,10 +20,10 @@ func AcquireBufIOReader(r io.Reader) *bufio.Reader {
 	return bufio.NewReader(r)
 }
 
-func ReleaseBufIOReader(br *bufio.Reader) { _BufIOReaderPool.Put(br) }
+func ReleaseBR(br *bufio.Reader) { _BRPool.Put(br) }
 
-func AcquireBufIOWriter(r io.Writer) *bufio.Writer {
-	if v := _BufIOWriterPool.Get(); v != nil {
+func AcquireBW(r io.Writer) *bufio.Writer {
+	if v := _BWPool.Get(); v != nil {
 		br := v.(*bufio.Writer)
 		br.Reset(r)
 		return br
@@ -36,4 +31,4 @@ func AcquireBufIOWriter(r io.Writer) *bufio.Writer {
 	return bufio.NewWriter(r)
 }
 
-func ReleaseBufIOWriter(br *bufio.Writer) { _BufIOWriterPool.Put(br) }
+func ReleaseBW(br *bufio.Writer) { _BWPool.Put(br) }
