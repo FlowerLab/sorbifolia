@@ -1,6 +1,8 @@
 package bufpool
 
 import (
+	"bytes"
+	"errors"
 	"io"
 )
 
@@ -101,3 +103,23 @@ func (b *Buffer) String() string {
 func (b *Buffer) Reset() {
 	b.B = b.B[:0]
 }
+
+var ErrWriteLimitExceeded = errors.New("write limit exceeded")
+
+func (b *Buffer) WriteLimit(p []byte, limit int) int {
+	i := limit - b.Len()
+	switch {
+	case i < 0:
+		panic("should not mix writes")
+	case i == 0:
+		return -1
+	case i > len(p):
+		i = len(p)
+	}
+
+	b.B = append(b.B, p[:i]...)
+	return i
+}
+
+func (b *Buffer) Index(sep []byte) int   { return bytes.Index(b.B, sep) }
+func (b *Buffer) Discard(start, end int) { b.B = append(b.B[:start], b.B[end:]...) }

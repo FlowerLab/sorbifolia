@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 
+	"go.x2ox.com/sorbifolia/http/internal/bufpool"
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/internal/util"
 )
@@ -35,6 +36,41 @@ func (c *chunked) Read(p []byte) (n int, err error) {
 }
 
 func (c *chunked) Close() error { return nil }
+
+type ChunkedBody struct {
+	buf    *bufpool.Buffer
+	length int
+}
+
+func (c *ChunkedBody) Read(p []byte) (n int, err error) { panic("implement me") }
+func (c *ChunkedBody) Close() error                     { panic("implement me") }
+
+func (c *ChunkedBody) Write(p []byte) (n int, err error) {
+	pLen := len(p)
+	for {
+		i := c.buf.Index(p)
+		if i == -1 {
+			_, _ = c.buf.Write(p)
+			break
+		}
+		if i == -2 {
+			c.buf.B = c.buf.B[:c.buf.Len()-1]
+			p = p[1:]
+		}
+
+		_, _ = c.buf.Write(p[:i])
+
+		if c.length < 1 {
+			c.length = 1
+		} else {
+			c.length = -1
+		}
+
+		p = p[i+4:]
+	}
+
+	return pLen, err
+}
 
 func Chunked(preRead []byte, r io.Reader, max int) (io.ReadCloser, error) {
 	br := bufio.NewReader(newBlock(preRead, r))
