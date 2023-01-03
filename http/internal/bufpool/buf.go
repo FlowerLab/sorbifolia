@@ -2,7 +2,6 @@ package bufpool
 
 import (
 	"bytes"
-	"errors"
 	"io"
 )
 
@@ -104,8 +103,6 @@ func (b *Buffer) Reset() {
 	b.B = b.B[:0]
 }
 
-var ErrWriteLimitExceeded = errors.New("write limit exceeded")
-
 func (b *Buffer) WriteLimit(p []byte, limit int) int {
 	i := limit - b.Len()
 	switch {
@@ -123,3 +120,17 @@ func (b *Buffer) WriteLimit(p []byte, limit int) int {
 
 func (b *Buffer) Index(sep []byte) int   { return bytes.Index(b.B, sep) }
 func (b *Buffer) Discard(start, end int) { b.B = append(b.B[:start], b.B[end:]...) }
+
+type ReadBuffer struct {
+	Buffer
+	p int
+}
+
+func (r *ReadBuffer) Read(p []byte) (n int, err error) {
+	if r.p == r.Len() {
+		return 0, io.EOF
+	}
+	n = copy(p, r.B[r.p:])
+	r.p += n
+	return
+}
