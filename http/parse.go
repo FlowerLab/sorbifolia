@@ -49,7 +49,165 @@ func (r *Request) parseHeaders(arr [][]byte) error {
 	return r.Header.RawParse()
 }
 
-func parseBody(r *Request, s *Server, pr []byte, read io.Reader, max int) (err error) {
+func (r *Request) Read(p []byte) (n int, err error) { panic("") }
+func (r *Request) Write(p []byte) (n int, err error) {
+	panic("")
+}
+
+func (r *Request) Writer() io.Writer {
+	return &RequestWriter{}
+}
+
+type RequestWriter struct {
+	r     *Request
+	buf   *bufpool.Buffer
+	state int
+}
+
+var sss = [...]struct {
+	Limit int
+	Call  func(r *Request, b *bufpool.Buffer) error
+}{
+	{
+		Limit: 5,
+		Call: func(r *Request, b *bufpool.Buffer) error {
+			i := b.Index(char.Spaces)
+			if i == -1 {
+				return httperr.ParseHTTPMethodErr
+			}
+			r.Method = method.Parse(b.B[:i])
+			b.Discard(0, i+1)
+			return nil
+		},
+	},
+	{
+		Limit: 2048,
+		Call: func(r *Request, b *bufpool.Buffer) error {
+			i := b.Index(char.Spaces)
+			if i == -1 {
+				i = b.Index(char.CRLF)
+			}
+			if i == -1 {
+				return httperr.RequestURITooLong
+			}
+
+			r.Header.RequestURI = append(r.Header.RequestURI, b.B[:i]...)
+
+			if b.Index(char.Spaces) == -1 {
+				b.Discard(0, i)
+			} else {
+				b.Discard(0, i+1)
+			}
+
+			return nil
+		},
+	},
+	{
+		Limit: 8,
+		Call: func(r *Request, b *bufpool.Buffer) error {
+			i := b.Index(char.CRLF)
+			if i == -1 {
+				return httperr.ParseHTTPVersionErr
+			}
+
+			if i != 0 {
+				var ok bool
+				if r.ver, ok = version.Parse(b.B[:i]); !ok {
+					return httperr.ParseHTTPVersionErr
+				}
+			} else {
+				r.ver.Major, r.ver.Minor = 0, 9
+			}
+			b.Discard(0, i)
+			return nil
+		},
+	},
+	{
+		Limit: 2048,
+		Call: func(r *Request, buf *bufpool.Buffer) error {
+			i := buf.Index(char.CRLF2)
+			if i == -1 {
+				return httperr.RequestHeaderFieldsTooLarge
+			}
+
+			b := buf.B[:i]
+
+			r.Header.KVs.preAlloc(bytes.Count(b, char.CRLF))
+
+			for idx := bytes.Index(b, char.CRLF); len(b) > 0; idx = bytes.Index(b, char.CRLF) {
+				if idx != 0 {
+					r.Header.KVs.addHeader(b[:idx])
+				}
+				b = b[idx+2:]
+			}
+			buf.Discard(0, i+4)
+			return r.Header.RawParse()
+		},
+	},
+}
+
+func (r *RequestWriter) Write(p []byte) (n int, err error) {
+	var (
+		pLen = len(p)
+		buf  = r.buf
+	)
+
+	for r.state < 4 {
+		var (
+			fsm    = sss[r.state]
+			length = len(p)
+		)
+
+		n = buf.WriteLimit(p, fsm.Limit)
+		if n == length {
+			break
+		}
+		p = p[n:]
+
+		if err = fsm.Call(r.r, buf); err != nil {
+			return
+		}
+
+		r.state++
+	}
+
+	if r.state < 4 {
+		return pLen, err
+	}
+
+	// body
+	if r.r.Body == nil {
+		if r.r.Method.IsTrace() || // TRACE request MUST NOT include an entity.
+			bytes.Equal(r.r.Header.Get([]byte("Expect")).V, []byte("100-continue")) {
+			r.r.Body = bodyio.Null()
+		} else if length := r.r.Header.ContentLength.Length(); length == 0 {
+			if !bytes.Equal(r.r.Header.TransferEncoding, char.Chunked) {
+				r.r.Body = bodyio.Null()
+			} else {
+				// r.r.Body, err = bodyio.Chunked(buf.Bytes(), read, max)
+			}
+		}
+		// } else if length > int64(max) {
+		// 	err = httperr.BodyTooLarge // body is too large
+		// } else if length > s.StreamRequestBodySize {
+		// 	r.r.Body, err = bodyio.File(buf.Bytes(), read, length)
+		// } else if s.StreamRequestBodySize < 0 {
+		// 	r.r.Body, err = bodyio.Block(buf.Bytes(), read, length)
+		// } else {
+		// 	r.r.Body, err = bodyio.Memory(buf.Bytes(), read, length)
+		// }
+	}
+	if err != nil {
+		return 0, err
+	}
+
+	if w, ok := r.r.Body.(io.Writer); ok {
+		return w.Write(p)
+	}
+	return
+}
+
+func (r *Request) parseBody(s *Server, read io.Reader, buf *bufpool.Buffer, max int) (err error) {
 	if r.Method.IsTrace() { // TRACE request MUST NOT include an entity.
 		return nil // util.Copy(io.Discard, conn)
 	}
@@ -62,7 +220,7 @@ func parseBody(r *Request, s *Server, pr []byte, read io.Reader, max int) (err e
 	length := r.Header.ContentLength.Length()
 	if length == 0 {
 		if bytes.Equal(r.Header.TransferEncoding, char.Chunked) {
-			r.Body, err = bodyio.Chunked(pr, read, max)
+			r.Body, err = bodyio.Chunked(buf.Bytes(), read, max)
 		} else {
 			r.Body = bodyio.Null()
 		}
@@ -71,38 +229,30 @@ func parseBody(r *Request, s *Server, pr []byte, read io.Reader, max int) (err e
 
 	if length > int64(max) {
 		return httperr.BodyTooLarge // body is too large
-	} else if length > s.StreamRequestBodySize {
-		r.Body, err = bodyio.File(pr, read, length)
-	} else if s.StreamRequestBodySize < 0 {
-		r.Body, err = bodyio.Block(pr, read, length)
+	} else if length > s.Config.StreamRequestBodySize {
+		r.Body, err = bodyio.File(buf.Bytes(), read, length)
+	} else if s.Config.StreamRequestBodySize < 0 {
+		r.Body, err = bodyio.Block(buf.Bytes(), read, length)
 	} else {
-		r.Body, err = bodyio.Memory(pr, read, length)
+		r.Body, err = bodyio.Memory(buf.Bytes(), read, length)
 	}
 
 	return err
 }
 
-func parseHeaders(r *Request, pr []byte, read io.Reader, max int) error {
-	buf := bufpool.Acquire(max)
-	defer bufpool.Release(buf)
-
-	wn, _ := buf.Write(pr)
-
-	_, err := util.Copy(buf, io.LimitReader(read, int64(max-wn)))
-	if err != nil && err != io.EOF {
+func (r *Request) _parseHeaders(read io.Reader, buf, body *bufpool.Buffer) error {
+	if _, err := util.Copy(buf, read); err != nil && err != io.EOF {
 		return err
 	}
 
 	b := buf.Bytes()
-
 	idx := bytes.Index(b, char.CRLF2)
 	if idx < 0 {
 		return httperr.RequestHeaderFieldsTooLarge
 	}
 
-	body := b[idx+4:]
+	body.B = append(body.B, buf.B[idx+4:]...)
 	b = b[:idx+2]
-	_ = body
 
 	r.Header.KVs.preAlloc(bytes.Count(b, char.CRLF))
 
@@ -114,25 +264,19 @@ func parseHeaders(r *Request, pr []byte, read io.Reader, max int) error {
 	return r.Header.RawParse()
 }
 
-func parseFirstLine(r *Request, read io.Reader, max int) error {
-	buf := bufpool.Acquire(max)
-	defer bufpool.Release(buf)
-
-	n, err := util.Copy(buf, io.LimitReader(read, int64(max)))
-	if err != nil && err != io.EOF {
+func (r *Request) _parseFirstLine(read io.Reader, buf, header *bufpool.Buffer) error {
+	if _, err := util.Copy(buf, read); err != nil && err != io.EOF {
 		return err
 	}
 
-	idx := bytes.Index(buf.B[:n], char.CRLF)
+	b := buf.Bytes()
+	idx := bytes.Index(buf.B, char.CRLF)
 	if idx < 0 {
 		return httperr.RequestURITooLong
 	}
 
-	b := buf.B[:idx]
-
-	h := buf.B[idx+2 : n]
-	hb := make([]byte, len(h))
-	copy(hb, h)
+	header.B = append(header.B, buf.B[idx+2:]...)
+	b = buf.B[:idx]
 
 	if idx = bytes.IndexByte(b, char.Space); idx < 0 {
 		return httperr.ParseHTTPMethodErr
@@ -157,7 +301,7 @@ func parseFirstLine(r *Request, read io.Reader, max int) error {
 
 func (r *Request) Decode(s *Server, conn net.Conn) error {
 	var (
-		b      = make([]byte, s.MaxRequestHeaderSize)
+		b      = make([]byte, s.Config.MaxRequestHeaderSize)
 		n, err = conn.Read(b)
 	)
 
@@ -191,15 +335,15 @@ func (r *Request) Decode(s *Server, conn net.Conn) error {
 		r.Body = bodyio.Null()
 	} else if length := r.Header.ContentLength.Length(); length == 0 {
 		if bytes.Equal(r.Header.TransferEncoding, char.Chunked) {
-			r.Body, err = bodyio.Chunked(buf[ei+4:], conn, int(s.MaxRequestBodySize))
+			r.Body, err = bodyio.Chunked(buf[ei+4:], conn, int(s.Config.MaxRequestBodySize))
 		} else {
 			r.Body = bodyio.Null()
 		}
-	} else if length > s.MaxRequestBodySize {
+	} else if length > s.Config.MaxRequestBodySize {
 		err = httperr.BodyTooLarge // body is too large
-	} else if length > s.StreamRequestBodySize {
+	} else if length > s.Config.StreamRequestBodySize {
 		r.Body, err = bodyio.File(buf[ei+4:], conn, length)
-	} else if s.StreamRequestBodySize < 0 {
+	} else if s.Config.StreamRequestBodySize < 0 {
 		r.Body, err = bodyio.Block(buf[ei+4:], conn, length)
 	} else {
 		r.Body, err = bodyio.Memory(buf[ei+4:], conn, length)

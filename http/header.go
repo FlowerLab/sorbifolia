@@ -6,7 +6,6 @@ import (
 
 	"go.x2ox.com/sorbifolia/http/httpheader"
 	"go.x2ox.com/sorbifolia/http/internal/char"
-	"go.x2ox.com/sorbifolia/http/status"
 )
 
 type RequestHeader struct {
@@ -63,7 +62,6 @@ func (rh *RequestHeader) RawParse() error {
 type ResponseHeader struct {
 	KVs
 
-	StatusCode    status.Status // e.g. 200
 	ContentLength httpheader.ContentLength
 	ContentType   httpheader.ContentType
 	SetCookies    httpheader.SetCookies

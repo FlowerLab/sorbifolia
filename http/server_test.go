@@ -6,17 +6,21 @@ import (
 	_ "net/http/pprof"
 	"testing"
 	"time"
+
+	"go.x2ox.com/sorbifolia/http/httpconfig"
 )
 
 func TestS(t *testing.T) {
 	s := &Server{
-		MaxRequestHeaderSize:  defaultMaxRequestHeaderSize,
-		MaxRequestBodySize:    defaultMaxRequestBodySize,
-		StreamRequestBodySize: defaultMaxRequestBodySize,
-		MaxIdleWorkerDuration: time.Second * 30,
+		Config: httpconfig.Config{
+			MaxRequestHeaderSize:  defaultMaxRequestHeaderSize,
+			MaxRequestBodySize:    defaultMaxRequestBodySize,
+			StreamRequestBodySize: defaultMaxRequestBodySize,
+			MaxIdleWorkerDuration: time.Second * 30,
+		},
 
 		Handler: func(ctx *Context) {
-			ctx.Response.Header.StatusCode = 200
+			ctx.Response.StatusCode = 200
 			ctx.Response.SetBody("asdsdaasdas")
 		},
 	}

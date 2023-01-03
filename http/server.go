@@ -7,6 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"go.x2ox.com/sorbifolia/http/httpconfig"
 	"go.x2ox.com/sorbifolia/http/httperr"
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/internal/util"
@@ -33,20 +34,22 @@ var (
 )
 
 type Server struct {
-	Name []byte
+	Config httpconfig.Config
+	// Name   []byte
 
-	MaxRequestURISize     int   // 最大首行大小
-	MaxRequestHeaderSize  int   // 最大允许的头大小，包括首行和 \r\n
-	MaxRequestBodySize    int64 // 最大允许的 Body 大小
-	StreamRequestBodySize int64 // 最大允许内存读入的 Body 大小
+	// MaxRequestURISize     int   // 最大首行大小
+	// MaxRequestHeaderSize  int   // 最大允许的头大小，包括首行和 \r\n
+	// MaxRequestBodySize    int64 // 最大允许的 Body 大小
+	// StreamRequestBodySize int64 // 最大允许内存读入的 Body 大小
+	//
+	// ReadTimeout  time.Duration
+	// WriteTimeout time.Duration
+	//
+	// MaxIdleWorkerDuration              time.Duration
+	// SleepWhenConcurrencyLimitsExceeded time.Duration
 
-	ReadTimeout  time.Duration
-	WriteTimeout time.Duration
-
-	Concurrency                        int
-	MaxIdleWorkerDuration              time.Duration
-	SleepWhenConcurrencyLimitsExceeded time.Duration
-	Handler                            Handler
+	Concurrency int
+	Handler     Handler
 
 	connCount   uint64
 	concurrency uint32
@@ -54,19 +57,6 @@ type Server struct {
 }
 
 func (s *Server) Listen() {}
-
-func (s *Server) getServerName() []byte {
-	if len(s.Name) != 0 {
-		return s.Name
-	}
-	return defaultServerNameBytes
-}
-func (s *Server) getServerNamePtr() *[]byte {
-	if len(s.Name) != 0 {
-		return &s.Name
-	}
-	return &defaultServerNameBytes
-}
 
 func (s *Server) serveConnCleanup() {
 	// atomic.AddInt32(&s.open, -1)
@@ -89,7 +79,7 @@ func (s *Server) fastWriteCode(w io.Writer, ver version.Version, code status.Sta
 	if _, err := w.Write([]byte("Connection: close\r\nServer: ")); err != nil {
 		return err
 	}
-	if _, err := w.Write(s.getServerName()); err != nil {
+	if _, err := w.Write(s.Config.GetName()); err != nil {
 		return err
 	}
 	_, err := w.Write([]byte("\r\nContent-Length: 0\r\n\r\n"))
@@ -132,7 +122,7 @@ func (s *Server) handle(conn net.Conn) error {
 
 	ctx.Response.Header.set(KV{
 		K: char.Server,
-		V: s.getServerName(),
+		V: s.Config.GetName(),
 	})
 	ctx.Response.Header.set(KV{
 		K: char.Date,
@@ -160,7 +150,7 @@ func (s *Server) getConcurrency() int {
 func (s *Server) Serve(ln net.Listener) error {
 	wp := &workerpool.WorkerPool{
 		MaxWorkersCount:       s.getConcurrency(),
-		MaxIdleWorkerDuration: s.MaxIdleWorkerDuration,
+		MaxIdleWorkerDuration: s.Config.MaxIdleWorkerDuration,
 	}
 	wp.WorkerFunc = func(c net.Conn) error {
 		err := s.handle(c)
@@ -187,8 +177,8 @@ func (s *Server) Serve(ln net.Listener) error {
 			_ = conn.Close()
 			wp.SetConnState(conn, workerpool.StateClosed)
 
-			if s.SleepWhenConcurrencyLimitsExceeded > 0 {
-				time.Sleep(s.SleepWhenConcurrencyLimitsExceeded)
+			if s.Config.SleepWhenConcurrencyLimitsExceeded > 0 {
+				time.Sleep(s.Config.SleepWhenConcurrencyLimitsExceeded)
 			}
 		}
 

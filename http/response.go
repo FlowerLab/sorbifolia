@@ -9,12 +9,14 @@ import (
 
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/render"
+	"go.x2ox.com/sorbifolia/http/status"
 	"go.x2ox.com/sorbifolia/http/version"
 )
 
 type Response struct {
-	Header ResponseHeader
-	Body   io.Reader
+	StatusCode status.Status
+	Header     ResponseHeader
+	Body       io.Reader
 }
 
 func (r *Response) SetBody(body any) {
@@ -53,7 +55,7 @@ func (r *Response) Encode(ver version.Version) (io.ReadCloser, error) {
 	{
 		nb[0] = ver.Bytes()
 		nb[1] = char.Spaces
-		nb[2] = r.Header.StatusCode.Bytes()
+		nb[2] = r.StatusCode.Bytes()
 		nb[3] = char.CRLF
 	}
 	bufAppend := func(b []byte) {

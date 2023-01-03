@@ -64,7 +64,6 @@ func NewFormData(r Request) (*FormData, error) {
 				break
 			}
 
-			// kv := arena.New[KV](a)
 			kv := &KV{}
 			kv.ParseHeader(buf[:i])
 			ks = append(ks, *kv)
