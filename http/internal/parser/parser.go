@@ -307,6 +307,7 @@ func (r *RequestParser) parseVersion(p []byte) (n int, err error) {
 	n += 2                          // Discard two bytes
 	err = r.SetVersion(buf.Bytes()) // this can't go wrong
 	r.state++
+	buf.Reset()
 
 	return
 }
