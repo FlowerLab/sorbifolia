@@ -18,7 +18,7 @@ var (
 
 func AcquireRequestParser(
 	setMethod, setURI, setVersion func([]byte) error,
-	setHeader func([]byte) (chunked ChunkedTransfer, length int64, err error),
+	setHeader func([]byte) (chunked ChunkedTransfer, err error),
 ) *RequestParser {
 	if v := _RequestParserPool.Get(); v != nil {
 		br := v.(*RequestParser)
@@ -41,16 +41,14 @@ func ReleaseRequestParser(r *RequestParser) { r.Reset(); _RequestParserPool.Put(
 type ChunkedTransfer func() (setTrailerHeader, setChunked func(b []byte) error)
 
 type RequestParser struct {
+	Limit      httpconfig.Config
 	SetMethod  func([]byte) error
 	SetURI     func([]byte) error
 	SetVersion func([]byte) error
-	SetHeaders func([]byte) (chunked ChunkedTransfer, length int64, err error)
+	SetHeaders func([]byte) (chunked ChunkedTransfer, err error)
 
-	setTrailerHeader func([]byte) error
-	setChunked       func([]byte) error
-	bodyLength       int64
+	setTrailerHeader, setChunked func([]byte) error
 
-	Limit httpconfig.Config
 	state State
 	buf   bufpool.Buffer
 	rp    int
@@ -199,7 +197,7 @@ func (r *RequestParser) parseHeader(p []byte) (n int, err error) {
 	r.state++
 
 	var ct ChunkedTransfer
-	if ct, r.bodyLength, err = r.SetHeaders(buf.Bytes()); err == nil && ct != nil {
+	if ct, err = r.SetHeaders(buf.Bytes()); err == nil && ct != nil {
 		r.state = ReadBodyChunked
 		r.setTrailerHeader, r.setChunked = ct()
 	}
@@ -341,8 +339,7 @@ func (r *RequestParser) Reset() {
 	r.SetHeaders = nil
 	r.setTrailerHeader = nil
 	r.setChunked = nil
-	r.bodyLength = 0
-	r.state = 0
+	r.state = ReadMethod
 	r.buf.Reset()
 	r.rp = 0
 }

@@ -200,7 +200,7 @@ func TestRequestParser_parseHeader(t *testing.T) {
 				hasCall bool
 				err     error
 			)
-			rp := &RequestParser{SetHeaders: func(b []byte) (chunked ChunkedTransfer, length int64, err error) {
+			rp := &RequestParser{SetHeaders: func(b []byte) (chunked ChunkedTransfer, err error) {
 				hasCall = true
 				if !bytes.Equal(b, v.result) {
 					t.Errorf("in: %v, expected: %v, actual: %v\n", v.w, v.result, b)
