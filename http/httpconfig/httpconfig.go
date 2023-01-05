@@ -43,6 +43,9 @@ func (c Config) GetMaxRequestMethodSize() int {
 func (c Config) GetMaxRequestURISize() int {
 	return aObI(c.MaxRequestURISize, defaultMaxRequestURISize)
 }
+func (c Config) GetMaxRequestHeaderSize() int {
+	return aObI(c.MaxRequestHeaderSize, defaultMaxRequestHeaderSize)
+}
 
 func aObB(a, b []byte) []byte {
 	if a != nil {
