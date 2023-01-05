@@ -3,6 +3,7 @@ package parser
 import (
 	"bytes"
 	"io"
+	"sync"
 
 	"go.x2ox.com/sorbifolia/http/httpconfig"
 	"go.x2ox.com/sorbifolia/http/httperr"
@@ -10,7 +11,32 @@ import (
 	"go.x2ox.com/sorbifolia/http/internal/char"
 )
 
-var http09 = []byte("HTTP/0.9")
+var (
+	http09             = []byte("HTTP/0.9")
+	_RequestParserPool = sync.Pool{}
+)
+
+func AcquireRequestParser(
+	setMethod, setURI, setVersion func([]byte) error,
+	setHeader func([]byte) (chunked ChunkedTransfer, length int64, err error),
+) *RequestParser {
+	if v := _RequestParserPool.Get(); v != nil {
+		br := v.(*RequestParser)
+		br.SetMethod = setMethod
+		br.SetURI = setURI
+		br.SetVersion = setVersion
+		br.SetHeaders = setHeader
+		return br
+	}
+	return &RequestParser{
+		SetMethod:  setMethod,
+		SetURI:     setURI,
+		SetVersion: setVersion,
+		SetHeaders: setHeader,
+	}
+}
+
+func ReleaseRequestParser(r *RequestParser) { r.Reset(); _RequestParserPool.Put(r) }
 
 type ChunkedTransfer func() (setTrailerHeader, setChunked func(b []byte) error)
 
@@ -23,12 +49,11 @@ type RequestParser struct {
 	setTrailerHeader func([]byte) error
 	setChunked       func([]byte) error
 	bodyLength       int64
-	body             io.ReadCloser
 
 	Limit httpconfig.Config
 	state State
-	err   error
 	buf   bufpool.Buffer
+	rp    int
 }
 
 type State uint8
@@ -77,8 +102,7 @@ func (r *RequestParser) Write(p []byte) (n int, err error) {
 }
 
 func (r *RequestParser) parseBody(p []byte) (n int, err error) {
-	// 看存放在什么地方
-	return
+	return r.buf.Write(p)
 }
 
 func (r *RequestParser) parseBodyChunked(p []byte) (n int, err error) {
@@ -296,6 +320,29 @@ func (r *RequestParser) parseVersion(p []byte) (n int, err error) {
 	return
 }
 
-func (r *RequestParser) Close() error                     { panic("implement me") }
-func (r *RequestParser) Read(p []byte) (n int, err error) { panic("implement me") }
-func (r *RequestParser) Reset()                           {}
+func (r *RequestParser) Close() error {
+	r.buf.Reset()
+	return nil
+}
+
+func (r *RequestParser) Read(p []byte) (n int, err error) {
+	if length := r.buf.Len(); length == 0 || length == r.rp {
+		return 0, io.EOF
+	}
+	n = copy(p, r.buf.B[r.rp:])
+	r.rp += n
+	return
+}
+
+func (r *RequestParser) Reset() {
+	r.SetMethod = nil
+	r.SetURI = nil
+	r.SetVersion = nil
+	r.SetHeaders = nil
+	r.setTrailerHeader = nil
+	r.setChunked = nil
+	r.bodyLength = 0
+	r.state = 0
+	r.buf.Reset()
+	r.rp = 0
+}
