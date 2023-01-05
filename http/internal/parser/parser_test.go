@@ -29,7 +29,7 @@ func (t *testRequestParserWrite) genRequestParser() *RequestParser {
 		func(b []byte) error { t.actual.method = append(t.actual.method, b...); return nil },
 		func(b []byte) error { t.actual.uri = append(t.actual.uri, b...); return nil },
 		func(b []byte) error { t.actual.version = append(t.actual.version, b...); return nil },
-		func(b []byte) (chunked ChunkedTransfer, err error) {
+		func(b []byte) (chunked ChunkedTransfer, length int, err error) {
 			t.actual.headers = append(t.actual.headers, b...)
 			arr := bytes.Split(t.actual.headers, []byte("\r\n"))
 
@@ -291,7 +291,7 @@ func TestRequestParser_parseHeader(t *testing.T) {
 				hasCall bool
 				err     error
 			)
-			rp := &RequestParser{SetHeaders: func(b []byte) (chunked ChunkedTransfer, err error) {
+			rp := &RequestParser{SetHeaders: func(b []byte) (chunked ChunkedTransfer, length int, err error) {
 				hasCall = true
 				if !bytes.Equal(b, v.result) {
 					t.Errorf("in: %v, expected: %v, actual: %v\n", v.w, v.result, b)

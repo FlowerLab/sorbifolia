@@ -1,14 +1,12 @@
 package http
 
 import (
-	"fmt"
 	"io"
 	"net"
 	"sync/atomic"
 	"time"
 
 	"go.x2ox.com/sorbifolia/http/httpconfig"
-	"go.x2ox.com/sorbifolia/http/httperr"
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/internal/util"
 	"go.x2ox.com/sorbifolia/http/internal/workerpool"
@@ -103,20 +101,10 @@ func (s *Server) handle(conn net.Conn) error {
 
 	defer func() {
 		ctx.c = nil
+		_ = ctx.Request.Body.Close()
 	}()
 
-	if err := ctx.Request.Decode(s, conn); err != nil {
-		switch err {
-		case httperr.RequestHeaderFieldsTooLarge:
-			_ = s.fastWriteCode(conn, ctx.Request.ver, status.RequestEntityTooLarge)
-		case httperr.BodyTooLarge:
-			_ = s.fastWriteCode(conn, ctx.Request.ver, status.RequestEntityTooLarge)
-		default:
-			_ = s.fastWriteCode(conn, ctx.Request.ver, status.InternalServerError)
-		}
-		fmt.Println(err)
-		return err
-	}
+	ctx.Request.parse(conn)
 
 	s.Handler(ctx)
 
@@ -135,7 +123,7 @@ func (s *Server) handle(conn net.Conn) error {
 		_ = s.fastWriteCode(conn, ctx.Request.ver, status.InternalServerError)
 		return nil
 	}
-	_, _ = util.Copy(conn, resp)
+	_, err = util.Copy(conn, resp)
 
 	return err
 }
