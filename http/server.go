@@ -123,7 +123,9 @@ func (s *Server) handle(conn net.Conn) error {
 		_ = s.fastWriteCode(conn, ctx.Request.ver, status.InternalServerError)
 		return nil
 	}
-	_, err = util.Copy(conn, resp)
+	if _, err = util.Copy(conn, resp); err == io.EOF {
+		err = nil
+	}
 
 	return err
 }

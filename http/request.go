@@ -59,7 +59,7 @@ func (r *Request) parse(read io.Reader) {
 		},
 	)
 	r.Body = p
-	if _, err := util.Copy(p, read); err != nil {
+	if _, err := util.Copy(p, read); err != nil && err != io.EOF {
 		fmt.Println(err)
 	}
 }
