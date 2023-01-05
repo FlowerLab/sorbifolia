@@ -134,6 +134,50 @@ func TestRequestParser_parseURI(t *testing.T) {
 	}
 }
 
+func TestRequestParser_parseVersion(t *testing.T) {
+	tests := []testParseResult{
+		{[][]byte{[]byte("HTTP/1.0\r\n")}, []byte("HTTP/1.0"), nil},
+		{[][]byte{[]byte("HTTP/1.1\r\n")}, []byte("HTTP/1.1"), nil},
+		{[][]byte{[]byte("HTTP"), []byte("/"), []byte("1.1\r\n")}, []byte("HTTP/1.1"), nil},
+		{[][]byte{[]byte("HTTP/"), []byte("1.1\r\n")}, []byte("HTTP/1.1"), nil},
+		{[][]byte{[]byte("HTTP/1"), []byte(".1\r\n")}, []byte("HTTP/1.1"), nil},
+		{[][]byte{[]byte("HTTP/1.1"), []byte("\r\n")}, []byte("HTTP/1.1"), nil},
+	}
+
+	for i, v := range tests {
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			var (
+				hasCall bool
+				err     error
+			)
+			rp := &RequestParser{SetVersion: func(b []byte) error {
+				hasCall = true
+				if !bytes.Equal(b, v.result) {
+					t.Errorf("in: %v, expected: %v, actual: %v\n", v.w, v.result, b)
+				}
+				return nil
+			},
+				Limit: httpconfig.Config{MaxRequestURISize: 12},
+			}
+
+			for _, b := range v.w {
+				_, err = rp.parseVersion(b)
+				if hasCall || err != nil {
+					break
+				}
+			}
+			if err != nil {
+				if !errors.Is(err, v.err) {
+					t.Errorf("in: %v, Err: expected: %v, actual: %v\n", v.w, v.err, err)
+				}
+			} else if !hasCall {
+				t.Errorf("in: %v, expected: %v, actual: none\n", v.w, v.result)
+			}
+
+		})
+	}
+}
+
 func TestRequestParser_parseHeader(t *testing.T) {
 	tests := []testParseResult{
 		{[][]byte{[]byte("A:b"), []byte("\r\n\r\n")}, []byte("A:b"), nil},

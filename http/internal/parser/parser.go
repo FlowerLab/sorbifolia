@@ -46,8 +46,12 @@ func (r *RequestParser) Write(p []byte) (n int, err error) {
 			n, err = r.parseURI(p)
 		case ReadVersion:
 			n, err = r.parseVersion(p)
+		case ReadHeader:
+			n, err = r.parseHeader(p)
 		case ReadBody:
-			n, err = r.parseMethod(p)
+			n, err = r.parseHeader(p)
+		default:
+			break
 		}
 
 		if err != nil {
