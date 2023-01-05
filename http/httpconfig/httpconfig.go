@@ -23,11 +23,11 @@ type Config struct {
 	// 		Client.Request.Header.User-Agent: Name
 	Name []byte
 
-	MaxRequestMethodSize  int   // 最大首行大小
-	MaxRequestURISize     int   // 最大首行大小
-	MaxRequestHeaderSize  int   // 最大允许的头大小，包括首行和 \r\n
-	MaxRequestBodySize    int64 // 最大允许的 Body 大小
-	StreamRequestBodySize int64 // 最大允许内存读入的 Body 大小
+	MaxRequestMethodSize  int // 最大首行大小
+	MaxRequestURISize     int // 最大首行大小
+	MaxRequestHeaderSize  int // 最大允许的头大小，包括首行和 \r\n
+	MaxRequestBodySize    int // 最大允许的 Body 大小
+	StreamRequestBodySize int // 最大允许内存读入的 Body 大小
 
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
@@ -45,6 +45,9 @@ func (c Config) GetMaxRequestURISize() int {
 }
 func (c Config) GetMaxRequestHeaderSize() int {
 	return aObI(c.MaxRequestHeaderSize, defaultMaxRequestHeaderSize)
+}
+func (c Config) GetMaxRequestBodySize() int {
+	return aObI(c.MaxRequestBodySize, defaultMaxRequestBodySize)
 }
 
 func aObB(a, b []byte) []byte {
