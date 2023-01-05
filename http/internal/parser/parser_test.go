@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -70,7 +71,7 @@ func TestRequestParser_Write(t *testing.T) {
 					"User-Agent: Mozilla/5.0\r\n" +
 					"Accept: text/html,*/*;q=0.8\r\n" +
 					"Accept-Language: en-US,en;q=0.3\r\n" +
-					"Connection: keep-alive\r\n" +
+					"Connection: keep-alive\r\n\r\n" +
 					""),
 			expected: testRequestParserWriteResult{
 				method: []byte("GET"), uri: []byte("/"), version: []byte("HTTP/1.1"),
@@ -93,11 +94,11 @@ func TestRequestParser_Write(t *testing.T) {
 				t.Error(err)
 			}
 
-			fmt.Println(string(v.actual.uri))
-
+			if !reflect.DeepEqual(v.expected, v.actual) {
+				t.Errorf("expected: %v, actual: %v\n", v.expected, v.actual)
+			}
 		})
 	}
-
 }
 
 type testParseResult struct {
