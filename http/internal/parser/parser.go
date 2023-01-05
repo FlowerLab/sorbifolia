@@ -94,7 +94,7 @@ func (r *RequestParser) Write(p []byte) (n int, err error) {
 		if err != nil {
 			return 0, err
 		}
-		p = p[:n]
+		p = p[n:]
 	}
 
 	return pLen, err
@@ -189,9 +189,7 @@ func (r *RequestParser) parseHeader(p []byte) (n int, err error) {
 		if size := r.Limit.GetMaxRequestHeaderSize(); size > 0 && buf.Len()+i > size {
 			return 0, httperr.RequestHeaderFieldsTooLarge
 		}
-		if n, err = buf.Write(p[:i]); err != nil {
-			return 0, err
-		}
+		n, _ = buf.Write(p[:i])
 	}
 
 	n += 4 // Discard four bytes
@@ -223,9 +221,7 @@ func (r *RequestParser) parseMethod(p []byte) (n int, err error) {
 		if size := r.Limit.GetMaxRequestMethodSize(); size > 0 && buf.Len()+i > size {
 			return 0, httperr.ParseHTTPMethodErr
 		}
-		if n, err = buf.Write(p[:i]); err != nil {
-			return 0, err
-		}
+		n, _ = buf.Write(p[:i])
 	}
 
 	n++       // Discard a byte, it's a space
@@ -264,9 +260,7 @@ func (r *RequestParser) parseURI(p []byte) (n int, err error) {
 		if size := r.Limit.GetMaxRequestURISize(); size > 0 && buf.Len()+i > size {
 			return 0, httperr.RequestURITooLong
 		}
-		if n, err = buf.Write(p[:i]); err != nil {
-			return 0, err
-		}
+		n, _ = buf.Write(p[:i])
 	}
 
 	n++ // Discard a byte, it's a space
@@ -307,9 +301,7 @@ func (r *RequestParser) parseVersion(p []byte) (n int, err error) {
 		if size := r.Limit.GetMaxRequestURISize(); size > 0 && buf.Len()+i > size {
 			return 0, httperr.ParseHTTPMethodErr
 		}
-		if n, err = buf.Write(p[:i]); err != nil {
-			return 0, err
-		}
+		n, _ = buf.Write(p[:i])
 	}
 
 	n += 2                          // Discard two bytes

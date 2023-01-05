@@ -4,11 +4,101 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
+	"strings"
 	"testing"
 
 	"go.x2ox.com/sorbifolia/http/httpconfig"
 	"go.x2ox.com/sorbifolia/http/httperr"
 )
+
+type testRequestParserWriteResult struct {
+	method, uri, version, headers, body []byte
+	chunkedHeaders                      [][]byte
+}
+
+type testRequestParserWrite struct {
+	r        io.Reader
+	expected testRequestParserWriteResult
+	actual   testRequestParserWriteResult
+}
+
+func (t *testRequestParserWrite) genRequestParser() *RequestParser {
+	rp := AcquireRequestParser(
+		func(b []byte) error { t.actual.method = append(t.actual.method, b...); return nil },
+		func(b []byte) error { t.actual.uri = append(t.actual.uri, b...); return nil },
+		func(b []byte) error { t.actual.version = append(t.actual.version, b...); return nil },
+		func(b []byte) (chunked ChunkedTransfer, err error) {
+			t.actual.headers = append(t.actual.headers, b...)
+			arr := bytes.Split(t.actual.headers, []byte("\r\n"))
+
+			var setTrailerHeader, setChunked func(b []byte) error = nil, nil
+			for _, v := range arr {
+				i := bytes.IndexByte(v, ':')
+				if i == -1 {
+					continue
+				}
+				if bytes.EqualFold(b[:i], []byte("Transfer-Encoding")) && bytes.Contains(b[i:], []byte("chunked")) {
+					setChunked = func(_ []byte) error { return nil }
+				}
+				if bytes.EqualFold(b[:i], []byte("Trailer")) {
+					setTrailerHeader = func(b []byte) error {
+						t.actual.chunkedHeaders = append(t.actual.chunkedHeaders, append([]byte{}, b...))
+						return nil
+					}
+				}
+			}
+			if setChunked != nil {
+				chunked = func() (a, b func(b []byte) error) {
+					return setTrailerHeader, setChunked
+				}
+			}
+
+			return
+		},
+	)
+
+	return rp
+}
+
+func TestRequestParser_Write(t *testing.T) {
+	tests := []testRequestParserWrite{
+		{
+			r: strings.NewReader(
+				"GET / HTTP/1.1\r\n" +
+					"Host: localhost\r\n" +
+					"User-Agent: Mozilla/5.0\r\n" +
+					"Accept: text/html,*/*;q=0.8\r\n" +
+					"Accept-Language: en-US,en;q=0.3\r\n" +
+					"Connection: keep-alive\r\n" +
+					""),
+			expected: testRequestParserWriteResult{
+				method: []byte("GET"), uri: []byte("/"), version: []byte("HTTP/1.1"),
+				headers: []byte("Host: localhost\r\n" +
+					"User-Agent: Mozilla/5.0\r\n" +
+					"Accept: text/html,*/*;q=0.8\r\n" +
+					"Accept-Language: en-US,en;q=0.3\r\n" +
+					"Connection: keep-alive"),
+				body: nil, chunkedHeaders: nil,
+			},
+		},
+	}
+
+	for i, v := range tests {
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			rp := v.genRequestParser()
+			defer ReleaseRequestParser(rp)
+
+			if _, err := io.Copy(rp, v.r); err != nil && !errors.Is(err, io.EOF) {
+				t.Error(err)
+			}
+
+			fmt.Println(string(v.actual.uri))
+
+		})
+	}
+
+}
 
 type testParseResult struct {
 	w      [][]byte
