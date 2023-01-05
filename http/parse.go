@@ -1,7 +1,6 @@
 package http
 
 import (
-	"bufio"
 	"bytes"
 	"io"
 	"net"
@@ -50,31 +49,6 @@ func (r *Request) parseHeaders(arr [][]byte) error {
 	return r.Header.RawParse()
 }
 
-func (r *Request) Read(p []byte) (n int, err error) { panic("") }
-func (r *Request) Write(p []byte) (n int, err error) {
-	panic("")
-}
-
-func (r *Request) Writer() io.Writer {
-	return &RequestWriter{}
-}
-
-type RequestWriter struct {
-	req *Request
-	r   *bufio.Reader
-	*bufio.Writer
-
-	buf bufpool.ReadBuffer
-}
-
-func (r *RequestWriter) name() {
-	r.Writer.Reset(&r.buf)
-	r.r.Reset(&r.buf)
-
-	r.r.ReadLine()
-
-}
-
 func (r *Request) parseBody(s *Server, read io.Reader, buf *bufpool.Buffer, max int) (err error) {
 	if r.Method.IsTrace() { // TRACE request MUST NOT include an entity.
 		return nil // util.Copy(io.Discard, conn)
@@ -97,7 +71,7 @@ func (r *Request) parseBody(s *Server, read io.Reader, buf *bufpool.Buffer, max 
 
 	if length > int64(max) {
 		return httperr.BodyTooLarge // body is too large
-	} else if length > s.Config.StreamRequestBodySize {
+	} else if length > int64(s.Config.StreamRequestBodySize) {
 		r.Body, err = bodyio.File(buf.Bytes(), read, length)
 	} else if s.Config.StreamRequestBodySize < 0 {
 		r.Body, err = bodyio.Block(buf.Bytes(), read, length)
@@ -207,9 +181,9 @@ func (r *Request) Decode(s *Server, conn net.Conn) error {
 		} else {
 			r.Body = bodyio.Null()
 		}
-	} else if length > s.Config.MaxRequestBodySize {
+	} else if length > int64(s.Config.MaxRequestBodySize) {
 		err = httperr.BodyTooLarge // body is too large
-	} else if length > s.Config.StreamRequestBodySize {
+	} else if length > int64(s.Config.StreamRequestBodySize) {
 		r.Body, err = bodyio.File(buf[ei+4:], conn, length)
 	} else if s.Config.StreamRequestBodySize < 0 {
 		r.Body, err = bodyio.Block(buf[ei+4:], conn, length)

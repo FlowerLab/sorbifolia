@@ -19,7 +19,7 @@ var (
 
 func AcquireRequestParser(
 	setMethod, setURI, setVersion func([]byte) error,
-	setHeader func([]byte) (chunked ChunkedTransfer, err error),
+	setHeader func([]byte) (chunked ChunkedTransfer, length int, err error),
 ) *RequestParser {
 	if v := _RequestParserPool.Get(); v != nil {
 		br := v.(*RequestParser)
@@ -46,9 +46,10 @@ type RequestParser struct {
 	SetMethod  func([]byte) error
 	SetURI     func([]byte) error
 	SetVersion func([]byte) error
-	SetHeaders func([]byte) (chunked ChunkedTransfer, err error)
+	SetHeaders func([]byte) (chunked ChunkedTransfer, length int, err error)
 
 	setTrailerHeader, setChunked func([]byte) error
+	bodyLength                   int
 
 	state State
 	buf   bufpool.Buffer
@@ -97,11 +98,26 @@ func (r *RequestParser) Write(p []byte) (n int, err error) {
 		p = p[n:]
 	}
 
+	if r.state == END {
+		err = io.EOF
+	}
+
 	return pLen, err
 }
 
 func (r *RequestParser) parseBody(p []byte) (n int, err error) {
-	return r.buf.Write(p)
+	if n, err = r.buf.Write(p); err != nil {
+		return
+	}
+
+	r.bodyLength -= n
+	if r.bodyLength < 0 {
+		err = io.ErrUnexpectedEOF // TODO err
+	} else if r.bodyLength == 0 {
+		err = io.EOF
+		r.state = END
+	}
+	return
 }
 
 func (r *RequestParser) parseBodyChunked(p []byte) (n int, err error) {
@@ -196,9 +212,14 @@ func (r *RequestParser) parseHeader(p []byte) (n int, err error) {
 	r.state++
 
 	var ct ChunkedTransfer
-	if ct, err = r.SetHeaders(buf.Bytes()); err == nil && ct != nil {
+	if ct, r.bodyLength, err = r.SetHeaders(buf.Bytes()); err != nil {
+		return
+	}
+	if ct != nil { // Chunked
 		r.state = ReadBodyChunked
 		r.setTrailerHeader, r.setChunked = ct()
+	} else if r.bodyLength == 0 { // Not has Body
+		r.state = END
 	}
 
 	return
