@@ -2,6 +2,7 @@ package parser
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"sync"
 
@@ -324,6 +325,9 @@ func (r *RequestParser) Close() error {
 }
 
 func (r *RequestParser) Read(p []byte) (n int, err error) {
+	if r.state != END {
+		return 0, errors.New("? TODO: here we need to think about how to deal with")
+	}
 	if length := r.buf.Len(); length == 0 || length == r.rp {
 		return 0, io.EOF
 	}
