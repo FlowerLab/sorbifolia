@@ -20,7 +20,6 @@ type RequestParser struct {
 	SetVersion func([]byte) error
 	SetHeaders func([]byte) (chunked ChunkedTransfer, length int64, err error)
 
-	isChunked        bool
 	setTrailerHeader func([]byte) error
 	setChunked       func([]byte) error
 	bodyLength       int64
@@ -88,7 +87,7 @@ func (r *RequestParser) parseBodyChunked(p []byte) (n int, err error) {
 		buf = &r.buf
 	)
 
-	if i == -1 || i == 1 { // buf[\r], p[\n\r\n] -> i == 1
+	if i == -1 || i > 0 { // buf[\r], p[\n\r\n] -> i == 1
 		if length := buf.Len(); p[0] == '\n' && length > 0 && buf.B[length-1] == '\r' { // Check "\r\n" is straddles the buffer.
 			i = 0  // The data in buf is enough, no need to read again
 			n = -1 // Two bytes will be discarded later
@@ -110,22 +109,19 @@ func (r *RequestParser) parseBodyChunked(p []byte) (n int, err error) {
 		if buf.Len() == 1 && buf.B[0] == '0' {
 			r.state++ // ReadBodyChunkedEnd. No length, read TrailerHeader or end
 		}
-		buf.Reset()
 	case ReadBodyChunkedData:
 		err = r.setChunked(buf.Bytes())
 		r.state--
-		buf.Reset()
 	case ReadBodyChunkedEnd:
 		if buf.Len() == 0 { // end
 			r.state = END
-			err = r.setTrailerHeader(buf.Bytes())
-			buf.Reset()
 		} else {
-			_, _ = buf.Write(char.CRLF)
+			err = r.setTrailerHeader(buf.Bytes())
 		}
 	}
 
 	n += 2 // Discard four bytes
+	buf.Reset()
 
 	return
 }
@@ -180,7 +176,7 @@ func (r *RequestParser) parseHeader(p []byte) (n int, err error) {
 
 	var ct ChunkedTransfer
 	if ct, r.bodyLength, err = r.SetHeaders(buf.Bytes()); err == nil && ct != nil {
-		r.isChunked = true
+		r.state = ReadBodyChunked
 		r.setTrailerHeader, r.setChunked = ct()
 	}
 
