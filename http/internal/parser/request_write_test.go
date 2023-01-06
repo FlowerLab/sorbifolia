@@ -25,8 +25,8 @@ type testRequestParserWrite struct {
 	actual   testRequestParserWriteResult
 }
 
-func (t *testRequestParserWrite) genRequestParser() *RequestParser {
-	rp := AcquireRequestParser()
+func (t *testRequestParserWrite) genRequestParser() *RequestWriter {
+	rp := AcquireRequestWriter()
 	rp.SetMethod = func(b []byte) error { t.actual.method = append(t.actual.method, b...); return nil }
 	rp.SetURI = func(b []byte) error { t.actual.uri = append(t.actual.uri, b...); return nil }
 	rp.SetVersion = func(b []byte) error { t.actual.version = append(t.actual.version, b...); return nil }
@@ -88,7 +88,7 @@ func TestRequestParser_Write(t *testing.T) {
 	for i, v := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
 			rp := v.genRequestParser()
-			defer ReleaseRequestParser(rp)
+			defer ReleaseRequestWriter(rp)
 
 			if _, err := io.Copy(rp, v.r); err != nil && !errors.Is(err, io.EOF) {
 				t.Error(err)
@@ -144,7 +144,7 @@ func TestRequestParser_parseMethod(t *testing.T) {
 				hasCall bool
 				err     error
 			)
-			rp := &RequestParser{SetMethod: func(b []byte) error {
+			rp := &RequestWriter{SetMethod: func(b []byte) error {
 				hasCall = true
 				if !bytes.Equal(b, v.result) {
 					t.Errorf("in: %v, expected: %v, actual: %v\n", v.w, v.result, b)
@@ -196,7 +196,7 @@ func TestRequestParser_parseURI(t *testing.T) {
 				hasCall bool
 				err     error
 			)
-			rp := &RequestParser{SetURI: func(b []byte) error {
+			rp := &RequestWriter{SetURI: func(b []byte) error {
 				hasCall = true
 				if !bytes.Equal(b, v.result) {
 					t.Errorf("in: %v, expected: %v, actual: %v\n", v.w, v.result, b)
@@ -241,7 +241,7 @@ func TestRequestParser_parseVersion(t *testing.T) {
 				hasCall bool
 				err     error
 			)
-			rp := &RequestParser{SetVersion: func(b []byte) error {
+			rp := &RequestWriter{SetVersion: func(b []byte) error {
 				hasCall = true
 				if !bytes.Equal(b, v.result) {
 					t.Errorf("in: %v, expected: %v, actual: %v\n", v.w, v.result, b)
@@ -291,7 +291,7 @@ func TestRequestParser_parseHeader(t *testing.T) {
 				hasCall bool
 				err     error
 			)
-			rp := &RequestParser{SetHeaders: func(b []byte) (length int, err error) {
+			rp := &RequestWriter{SetHeaders: func(b []byte) (length int, err error) {
 				hasCall = true
 				if !bytes.Equal(b, v.result) {
 					t.Errorf("in: %v, expected: %v, actual: %v\n", v.w, v.result, b)

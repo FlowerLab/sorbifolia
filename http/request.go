@@ -22,7 +22,7 @@ type Request struct {
 }
 
 func (r *Request) parse(read io.Reader) {
-	p := parser.AcquireRequestParser()
+	p := parser.AcquireRequestWriter()
 	p.SetMethod = func(b []byte) error { r.Method = method.Parse(b); return nil }
 	p.SetURI = func(b []byte) error { r.Header.RequestURI = append(r.Header.RequestURI, b...); return nil }
 	p.SetVersion = func(b []byte) error {
@@ -70,12 +70,12 @@ func (r *Request) parse(read io.Reader) {
 				Data:   make(chan []byte, 1),
 				Header: make(chan []byte, 1),
 			}
-			p.BW = c.BodyWriter()
-			r.Body = c.BodyReader()
+			p.BW = c
+			r.Body = c
 		default:
 			m := &httpbody.Memory{}
-			p.BW = m.BodyWriter()
-			r.Body = m.BodyReader()
+			p.BW = m
+			r.Body = m
 		}
 		if length == 0 {
 			r.Body = httpbody.Null()
