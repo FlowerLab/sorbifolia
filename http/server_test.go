@@ -1,6 +1,7 @@
 package http
 
 import (
+	"io"
 	"net"
 	_ "net/http/pprof"
 	"testing"
@@ -16,8 +17,14 @@ func TestS(t *testing.T) {
 		},
 
 		Handler: func(ctx *Context) {
+			var b []byte
+			if ctx.Request.Body != nil {
+				if b, _ = io.ReadAll(ctx.Request.Body); len(b) == 0 {
+					b = []byte("nobody nobody")
+				}
+			}
 			ctx.Response.StatusCode = 200
-			ctx.Response.SetBody("asdsdaasdas")
+			ctx.Response.SetBody(b)
 		},
 	}
 	// go http.ListenAndServe("127.0.0.1:6060", nil)

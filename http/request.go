@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 
+	"go.x2ox.com/sorbifolia/http/httpbody"
 	"go.x2ox.com/sorbifolia/http/httperr"
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/internal/parser"
@@ -52,11 +53,12 @@ func (r *Request) parse(read io.Reader) {
 				return
 			}
 			length = int(r.Header.ContentLength.Length())
-			// TODO: support chunked
 			return
 		},
 	)
-	r.Body = p
+	m := &httpbody.Memory{}
+	p.BW = m.BodyWriter()
+	r.Body = m.BodyReader()
 	if _, err := util.Copy(p, read); err != nil && err != io.EOF {
 		fmt.Println(err)
 	}
