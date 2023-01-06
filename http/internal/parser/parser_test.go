@@ -26,40 +26,38 @@ type testRequestParserWrite struct {
 }
 
 func (t *testRequestParserWrite) genRequestParser() *RequestParser {
-	rp := AcquireRequestParser(
-		func(b []byte) error { t.actual.method = append(t.actual.method, b...); return nil },
-		func(b []byte) error { t.actual.uri = append(t.actual.uri, b...); return nil },
-		func(b []byte) error { t.actual.version = append(t.actual.version, b...); return nil },
-		func(b []byte) (length int, err error) {
-			t.actual.headers = append(t.actual.headers, b...)
-			arr := bytes.Split(t.actual.headers, []byte("\r\n"))
+	rp := AcquireRequestParserAAAA()
+	rp.SetMethod = func(b []byte) error { t.actual.method = append(t.actual.method, b...); return nil }
+	rp.SetURI = func(b []byte) error { t.actual.uri = append(t.actual.uri, b...); return nil }
+	rp.SetVersion = func(b []byte) error { t.actual.version = append(t.actual.version, b...); return nil }
+	rp.SetHeaders = func(b []byte) (length int, err error) {
+		t.actual.headers = append(t.actual.headers, b...)
+		arr := bytes.Split(t.actual.headers, []byte("\r\n"))
 
-			var isChunked bool
-			for _, v := range arr {
-				i := bytes.IndexByte(v, ':')
-				if i == -1 {
-					continue
-				}
-				if bytes.EqualFold(b[:i], []byte("Transfer-Encoding")) && bytes.Contains(b[i:], []byte("chunked")) {
-					isChunked = true
-				}
-				if bytes.EqualFold(b[:i], []byte("Content-Length")) && bytes.Contains(b[i:], []byte("chunked")) {
-					isChunked = true
+		var isChunked bool
+		for _, v := range arr {
+			i := bytes.IndexByte(v, ':')
+			if i == -1 {
+				continue
+			}
+			if bytes.EqualFold(b[:i], []byte("Transfer-Encoding")) && bytes.Contains(b[i:], []byte("chunked")) {
+				isChunked = true
+			}
+			if bytes.EqualFold(b[:i], []byte("Content-Length")) && bytes.Contains(b[i:], []byte("chunked")) {
+				isChunked = true
+				i++
+				for b[i] == ' ' {
 					i++
-					for b[i] == ' ' {
-						i++
-					}
-					length = int(httpheader.ContentLength(b[i:]).Length())
 				}
+				length = int(httpheader.ContentLength(b[i:]).Length())
 			}
+		}
 
-			if isChunked {
-				length = -1
-			}
-
-			return
-		},
-	)
+		if isChunked {
+			length = -1
+		}
+		return
+	}
 
 	return rp
 }

@@ -26,19 +26,8 @@ type Chunked struct {
 	buf    bufpool.Buffer
 }
 
-func (c *Chunked) BodyReader() io.ReadCloser {
-	if c.m.IsRead() {
-		return c
-	}
-	panic("Chunked is unreadable")
-}
-
-func (c *Chunked) BodyWriter() io.WriteCloser {
-	if c.m.IsWrite() {
-		return c
-	}
-	panic("Chunked is not writable")
-}
+func (c *Chunked) BodyReader() io.ReadCloser  { return c }
+func (c *Chunked) BodyWriter() io.WriteCloser { return c }
 
 func (c *Chunked) Write(p []byte) (n int, err error) {
 	if !c.m.IsWrite() {
