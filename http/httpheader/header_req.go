@@ -59,3 +59,23 @@ func (rh *RequestHeader) RawParse() error {
 
 	return rh.URL.Parse(rh.Host, rh.RequestURI, rh.TLS != nil)
 }
+
+func (rh *RequestHeader) Reset() {
+	rh.KVs.Reset()
+	rh.Accept = rh.Accept[:0]
+	rh.AcceptEncoding = rh.AcceptEncoding[:0]
+	rh.AcceptLanguage = rh.AcceptLanguage[:0]
+	rh.ContentLength = rh.ContentLength[:0]
+	rh.ContentType = rh.ContentType[:0]
+	rh.Cookie = rh.Cookie[:0]
+	rh.Host = rh.Host[:0]
+	rh.UserAgent = rh.UserAgent[:0]
+	rh.TransferEncoding = rh.TransferEncoding[:0]
+	rh.Trailer = rh.Trailer[:0]
+	rh.TrailerHeader.Reset()
+	rh.RemoteAddr = rh.RemoteAddr[:0]
+	rh.RequestURI = rh.RequestURI[:0]
+	rh.URL.Reset()
+	rh.TLS = nil
+	rh.Close = false
+}

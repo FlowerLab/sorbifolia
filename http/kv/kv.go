@@ -17,6 +17,8 @@ var nullKV = KV{Null: true}
 func (kv *KV) SetK(b []byte) { kv.K = append(kv.K, b...) }
 func (kv *KV) SetV(b []byte) { kv.V = append(kv.V, b...) }
 
+func (kv *KV) Reset() { kv.K = kv.K[:0]; kv.V = kv.V[:0]; kv.Null = false }
+
 func (kv *KV) ParseHeader(b []byte) {
 	idx := bytes.IndexByte(b, char.Colon)
 	if idx == -1 {
@@ -35,6 +37,13 @@ func (kv *KV) ParseHeader(b []byte) {
 }
 
 type KVs []KV
+
+func (ks *KVs) Reset() {
+	for i := range *ks {
+		(*ks)[i].Reset()
+	}
+	*ks = (*ks)[:0]
+}
 
 func (ks *KVs) Each(fn func(kv KV) bool) {
 	for _, v := range *ks {

@@ -6,7 +6,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"go.x2ox.com/sorbifolia/http/httpbody"
 	"go.x2ox.com/sorbifolia/http/httpconfig"
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/internal/util"
@@ -57,6 +56,17 @@ func (s *Server) fastWriteCode(w io.Writer, ver version.Version, code status.Sta
 	return err
 }
 
+func (s *Server) getCtx(conn net.Conn) *Context {
+	ctx := AcquireContext()
+	ctx.c = conn
+	ctx.s = s
+	ctx.id = atomic.AddUint64(&s.connCount, 1)
+	ctx.time = time.Now()
+	ctx.addr = conn.RemoteAddr()
+
+	return ctx
+}
+
 func (s *Server) handle(conn net.Conn) error {
 	defer s.serveConnCleanup()
 	atomic.AddUint32(&s.concurrency, 1)
@@ -64,23 +74,8 @@ func (s *Server) handle(conn net.Conn) error {
 	// conn.SetReadDeadline(coarsetime.Now().Add(s.ReadTimeout))
 	// conn.SetWriteDeadline(coarsetime.Now().Add(s.WriteTimeout))
 
-	ctx := &Context{} // TODO: pool
-	ctx.c = conn
-	ctx.s = s
-
-	ctx.id = atomic.AddUint64(&s.connCount, 1)
-	ctx.time = time.Now()
-	ctx.addr = conn.RemoteAddr()
-
-	defer func() {
-		ctx.c = nil
-		if cErr := ctx.Request.Body.Close(); cErr != nil {
-			return
-		}
-		if p, ok := ctx.Request.Body.(httpbody.Pool); ok {
-			httpbody.Release(p)
-		}
-	}()
+	ctx := s.getCtx(conn)
+	defer ReleaseContext(ctx)
 
 	ctx.Request.parse(conn)
 
