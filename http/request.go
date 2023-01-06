@@ -22,7 +22,7 @@ type Request struct {
 }
 
 func (r *Request) parse(read io.Reader) {
-	p := parser.AcquireRequestParserAAAA()
+	p := parser.AcquireRequestParser()
 	p.SetMethod = func(b []byte) error { r.Method = method.Parse(b); return nil }
 	p.SetURI = func(b []byte) error { r.Header.RequestURI = append(r.Header.RequestURI, b...); return nil }
 	p.SetVersion = func(b []byte) error {

@@ -26,7 +26,7 @@ type testRequestParserWrite struct {
 }
 
 func (t *testRequestParserWrite) genRequestParser() *RequestParser {
-	rp := AcquireRequestParserAAAA()
+	rp := AcquireRequestParser()
 	rp.SetMethod = func(b []byte) error { t.actual.method = append(t.actual.method, b...); return nil }
 	rp.SetURI = func(b []byte) error { t.actual.uri = append(t.actual.uri, b...); return nil }
 	rp.SetVersion = func(b []byte) error { t.actual.version = append(t.actual.version, b...); return nil }
