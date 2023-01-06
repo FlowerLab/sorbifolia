@@ -45,16 +45,19 @@ func (m *Memory) Write(p []byte) (n int, err error) {
 		panic("BUG: Memory should not exist in this state")
 	}
 
-	if m.Len() == m.p {
-		return 0, io.EOF
-	}
-	n = copy(p, m.Buffer.B[m.p:])
-	m.p += n
-	return
+	return m.Buffer.Write(p)
 }
 
 func (m *Memory) Close() error {
-	m.mode = ModeClose
+	switch m.mode {
+	case ModeReadWrite:
+		m.mode = ModeClose
+	case ModeWrite, ModeRead:
+		m.mode = ModeReadWrite
+	case ModeClose:
+	default:
+		panic("BUG: Memory should not exist in this state")
+	}
 	return nil
 }
 

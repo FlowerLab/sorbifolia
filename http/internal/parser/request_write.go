@@ -93,7 +93,9 @@ func (r *RequestWriter) parseBody(p []byte) (n int, err error) {
 	if r.bodyLength < 0 {
 		err = io.ErrUnexpectedEOF // TODO err
 	} else if r.bodyLength == 0 {
-		err = io.EOF
+		if err = r.BW.Close(); err == nil {
+			err = io.EOF
+		}
 		r.state = END
 	}
 	return
