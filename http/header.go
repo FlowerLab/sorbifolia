@@ -6,10 +6,11 @@ import (
 
 	"go.x2ox.com/sorbifolia/http/httpheader"
 	"go.x2ox.com/sorbifolia/http/internal/char"
+	"go.x2ox.com/sorbifolia/http/kv"
 )
 
 type RequestHeader struct {
-	KVs
+	kv.KVs
 
 	Accept           httpheader.Accept
 	AcceptEncoding   httpheader.AcceptEncoding
@@ -32,7 +33,7 @@ type RequestHeader struct {
 }
 
 func (rh *RequestHeader) RawParse() error {
-	rh.Each(func(kv KV) bool {
+	rh.Each(func(kv kv.KV) bool {
 		switch {
 		case bytes.EqualFold(kv.K, char.Accept):
 			rh.Accept = kv.V
@@ -60,7 +61,7 @@ func (rh *RequestHeader) RawParse() error {
 }
 
 type ResponseHeader struct {
-	KVs
+	kv.KVs
 
 	ContentLength httpheader.ContentLength
 	ContentType   httpheader.ContentType
@@ -70,7 +71,7 @@ type ResponseHeader struct {
 }
 
 func (rh *ResponseHeader) RawParse() error {
-	rh.Each(func(kv KV) bool {
+	rh.Each(func(kv kv.KV) bool {
 		switch {
 		case bytes.EqualFold(kv.K, char.Connection):
 			if bytes.EqualFold(kv.V, char.Close) {

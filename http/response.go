@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"go.x2ox.com/sorbifolia/http/internal/char"
+	"go.x2ox.com/sorbifolia/http/kv"
 	"go.x2ox.com/sorbifolia/http/render"
 	"go.x2ox.com/sorbifolia/http/status"
 	"go.x2ox.com/sorbifolia/http/version"
@@ -67,11 +68,11 @@ func (r *Response) Encode(ver version.Version) (io.ReadCloser, error) {
 		nb = append(nb, b)
 	}
 
-	r.Header.add(KV{
+	r.Header.Add(kv.KV{
 		K: char.ContentLength,
 		V: r.Header.ContentLength,
 	})
-	r.Header.Each(func(kv KV) bool {
+	r.Header.Each(func(kv kv.KV) bool {
 		switch {
 		case bytes.EqualFold(kv.K, char.ContentLength):
 			if len(r.Header.ContentLength) != 0 {
