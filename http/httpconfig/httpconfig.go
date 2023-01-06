@@ -34,6 +34,8 @@ type Config struct {
 
 	MaxIdleWorkerDuration              time.Duration
 	SleepWhenConcurrencyLimitsExceeded time.Duration
+
+	Concurrency int
 }
 
 func (c Config) GetName() []byte { return aObB(c.Name, defaultName) }
@@ -49,6 +51,7 @@ func (c Config) GetMaxRequestHeaderSize() int {
 func (c Config) GetMaxRequestBodySize() int {
 	return aObI(c.MaxRequestBodySize, defaultMaxRequestBodySize)
 }
+func (c Config) GetConcurrency() int { return aObI(c.Concurrency, defaultConcurrency) }
 
 func aObB(a, b []byte) []byte {
 	if a != nil {
