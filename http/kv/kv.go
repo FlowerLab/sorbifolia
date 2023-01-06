@@ -1,4 +1,4 @@
-package http
+package kv
 
 import (
 	"bytes"
@@ -80,11 +80,11 @@ func (ks *KVs) Find(key []byte) []KV {
 	return kvs
 }
 
-func (ks *KVs) add(kv KV) {
+func (ks *KVs) Add(kv KV) {
 	*ks = append(*ks, kv)
 }
 
-func (ks *KVs) preAlloc(size int) {
+func (ks *KVs) PreAlloc(size int) {
 	var l = len(*ks)
 	if size <= 0 {
 		size = 1
@@ -106,7 +106,7 @@ func (ks *KVs) alloc() *KV {
 	return &(*ks)[l]
 }
 
-func (ks *KVs) addHeader(b []byte) {
+func (ks *KVs) AddHeader(b []byte) {
 	kv := ks.alloc()
 	idx := bytes.IndexByte(b, char.Colon)
 	if idx == -1 {
@@ -125,12 +125,12 @@ func (ks *KVs) addHeader(b []byte) {
 	}
 }
 
-func (ks *KVs) set(kv KV) {
+func (ks *KVs) Set(kv KV) {
 	for _, v := range *ks {
 		if bytes.EqualFold(v.K, kv.K) {
 			v.V = kv.V
 			return
 		}
 	}
-	ks.add(kv)
+	ks.Add(kv)
 }

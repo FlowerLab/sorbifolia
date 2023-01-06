@@ -10,6 +10,7 @@ import (
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/internal/util"
 	"go.x2ox.com/sorbifolia/http/internal/workerpool"
+	"go.x2ox.com/sorbifolia/http/kv"
 	"go.x2ox.com/sorbifolia/http/status"
 	"go.x2ox.com/sorbifolia/http/version"
 )
@@ -108,11 +109,11 @@ func (s *Server) handle(conn net.Conn) error {
 
 	s.Handler(ctx)
 
-	ctx.Response.Header.set(KV{
+	ctx.Response.Header.Set(kv.KV{
 		K: char.Server,
 		V: s.Config.GetName(),
 	})
-	ctx.Response.Header.set(KV{
+	ctx.Response.Header.Set(kv.KV{
 		K: char.Date,
 		V: util.GetDate(),
 	})
