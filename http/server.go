@@ -6,6 +6,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"go.x2ox.com/sorbifolia/http/httpbody"
 	"go.x2ox.com/sorbifolia/http/httpconfig"
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/internal/util"
@@ -73,7 +74,12 @@ func (s *Server) handle(conn net.Conn) error {
 
 	defer func() {
 		ctx.c = nil
-		_ = ctx.Request.Body.Close()
+		if cErr := ctx.Request.Body.Close(); cErr != nil {
+			return
+		}
+		if p, ok := ctx.Request.Body.(httpbody.Pool); ok {
+			httpbody.Release(p)
+		}
 	}()
 
 	ctx.Request.parse(conn)
