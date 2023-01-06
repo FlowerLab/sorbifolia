@@ -7,6 +7,7 @@ import (
 	"net"
 	"strconv"
 
+	"go.x2ox.com/sorbifolia/http/httpheader"
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/kv"
 	"go.x2ox.com/sorbifolia/http/render"
@@ -16,7 +17,7 @@ import (
 
 type Response struct {
 	StatusCode status.Status
-	Header     ResponseHeader
+	Header     httpheader.ResponseHeader
 	Body       io.Reader
 }
 
