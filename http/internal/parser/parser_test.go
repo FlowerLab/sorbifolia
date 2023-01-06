@@ -11,6 +11,7 @@ import (
 
 	"go.x2ox.com/sorbifolia/http/httpconfig"
 	"go.x2ox.com/sorbifolia/http/httperr"
+	"go.x2ox.com/sorbifolia/http/httpheader"
 )
 
 type testRequestParserWriteResult struct {
@@ -29,30 +30,31 @@ func (t *testRequestParserWrite) genRequestParser() *RequestParser {
 		func(b []byte) error { t.actual.method = append(t.actual.method, b...); return nil },
 		func(b []byte) error { t.actual.uri = append(t.actual.uri, b...); return nil },
 		func(b []byte) error { t.actual.version = append(t.actual.version, b...); return nil },
-		func(b []byte) (chunked ChunkedTransfer, length int, err error) {
+		func(b []byte) (length int, err error) {
 			t.actual.headers = append(t.actual.headers, b...)
 			arr := bytes.Split(t.actual.headers, []byte("\r\n"))
 
-			var setTrailerHeader, setChunked func(b []byte) error = nil, nil
+			var isChunked bool
 			for _, v := range arr {
 				i := bytes.IndexByte(v, ':')
 				if i == -1 {
 					continue
 				}
 				if bytes.EqualFold(b[:i], []byte("Transfer-Encoding")) && bytes.Contains(b[i:], []byte("chunked")) {
-					setChunked = func(_ []byte) error { return nil }
+					isChunked = true
 				}
-				if bytes.EqualFold(b[:i], []byte("Trailer")) {
-					setTrailerHeader = func(b []byte) error {
-						t.actual.chunkedHeaders = append(t.actual.chunkedHeaders, append([]byte{}, b...))
-						return nil
+				if bytes.EqualFold(b[:i], []byte("Content-Length")) && bytes.Contains(b[i:], []byte("chunked")) {
+					isChunked = true
+					i++
+					for b[i] == ' ' {
+						i++
 					}
+					length = int(httpheader.ContentLength(b[i:]).Length())
 				}
 			}
-			if setChunked != nil {
-				chunked = func() (a, b func(b []byte) error) {
-					return setTrailerHeader, setChunked
-				}
+
+			if isChunked {
+				length = -1
 			}
 
 			return
@@ -291,7 +293,7 @@ func TestRequestParser_parseHeader(t *testing.T) {
 				hasCall bool
 				err     error
 			)
-			rp := &RequestParser{SetHeaders: func(b []byte) (chunked ChunkedTransfer, length int, err error) {
+			rp := &RequestParser{SetHeaders: func(b []byte) (length int, err error) {
 				hasCall = true
 				if !bytes.Equal(b, v.result) {
 					t.Errorf("in: %v, expected: %v, actual: %v\n", v.w, v.result, b)
@@ -310,76 +312,6 @@ func TestRequestParser_parseHeader(t *testing.T) {
 					t.Errorf("in: %v, Err: expected: %v, actual: %v\n", v.w, v.err, err)
 				}
 			} else if !hasCall {
-				t.Errorf("in: %v, expected: %v, actual: none\n", v.w, v.result)
-			}
-		})
-	}
-}
-
-func TestRequestParser_parseBodyChunked(t *testing.T) {
-	tests := []testParseResult{
-		{[][]byte{[]byte("7\r\nMozilla\r\n0\r\n\r\n")}, []byte("Mozilla"), nil},
-		{[][]byte{[]byte("7"), []byte("\r\nMozilla\r\n0\r\n\r\n")}, []byte("Mozilla"), nil},
-		{[][]byte{[]byte("7\r"), []byte("\nMozilla\r\n0\r\n\r\n")}, []byte("Mozilla"), nil},
-		{[][]byte{[]byte("7\r\n"), []byte("Mozilla\r\n0\r\n\r\n")}, []byte("Mozilla"), nil},
-		{[][]byte{[]byte("7\r\nM"), []byte("ozilla\r\n0\r\n\r\n")}, []byte("Mozilla"), nil},
-		{[][]byte{[]byte("7\r\nMozilla"), []byte("\r\n0\r\n\r\n")}, []byte("Mozilla"), nil},
-		{[][]byte{[]byte("7\r\nMozilla\r"), []byte("\n0\r\n\r\n")}, []byte("Mozilla"), nil},
-		{[][]byte{[]byte("7\r\nMozilla\r\n"), []byte("0\r\n\r\n")}, []byte("Mozilla"), nil},
-		{[][]byte{[]byte("7\r\nMozilla\r\n0"), []byte("\r\n\r\n")}, []byte("Mozilla"), nil},
-		{[][]byte{[]byte("7\r\nMozilla\r\n0\r"), []byte("\n\r\n")}, []byte("Mozilla"), nil},
-		{[][]byte{[]byte("7\r\nMozilla\r\n0\r\n"), []byte("\r\n")}, []byte("Mozilla"), nil},
-		{[][]byte{[]byte("7\r\nMozilla\r\n0\r\r\n"), []byte("\n")}, []byte("Mozilla"), nil},
-
-		{[][]byte{[]byte("0\r\nA:B\r\n\r\n")}, []byte("A:B"), nil},
-		{[][]byte{[]byte("0\r\nA:B\r\n\r"), []byte("\n")}, []byte("A:B"), nil},
-		{[][]byte{[]byte("0\r\nA:B\r\n"), []byte("\r\n")}, []byte("A:B"), nil},
-		{[][]byte{[]byte("0\r\nA:B\r"), []byte("\n\r\n")}, []byte("A:B"), nil},
-		{[][]byte{[]byte("0\r\nA:B"), []byte("\r\n\r\n")}, []byte("A:B"), nil},
-		{[][]byte{[]byte("0\r\nA:"), []byte("B\r\n\r\n")}, []byte("A:B"), nil},
-		{[][]byte{[]byte("0\r\nA"), []byte(":B\r\n\r\n")}, []byte("A:B"), nil},
-		{[][]byte{[]byte("0\r\n"), []byte("A:B\r\n\r\n")}, []byte("A:B"), nil},
-		{[][]byte{[]byte("0\r"), []byte("\nA:B\r\n\r\n")}, []byte("A:B"), nil},
-		{[][]byte{[]byte("0"), []byte("\r\nA:B\r\n\r\n")}, []byte("A:B"), nil},
-	}
-
-	for i, v := range tests {
-		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			var hasCall bool
-
-			rp := &RequestParser{
-				state: ReadBodyChunked,
-				setTrailerHeader: func(b []byte) error {
-					hasCall = true
-					if !bytes.Equal(b, v.result) {
-						t.Errorf("in: %v, expected: %v, actual: %v\n", v.w, v.result, b)
-					}
-					return nil
-				},
-				setChunked: func(b []byte) error {
-					hasCall = true
-					if !bytes.Equal(b, v.result) {
-						t.Errorf("in: %v, expected: %v, actual: %v\n", v.w, v.result, b)
-					}
-					return nil
-				},
-			}
-
-			for _, b := range v.w {
-				var length = len(b)
-				for rn := 0; rn < length; {
-					n, err := rp.parseBodyChunked(b[rn:])
-					if err != nil {
-						if !errors.Is(err, v.err) {
-							t.Errorf("in: %v, Err: expected: %v, actual: %v\n", v.w, v.err, err)
-						}
-						return
-					}
-					rn += n
-				}
-			}
-
-			if !hasCall {
 				t.Errorf("in: %v, expected: %v, actual: none\n", v.w, v.result)
 			}
 		})
