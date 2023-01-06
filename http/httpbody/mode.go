@@ -14,11 +14,11 @@ func (m *rwcMode) SetMode(mode rwcMode) {
 	case ModeReadWrite:
 		*m = mode
 	case ModeRead:
-		panic("TempFile: get io.Writer multiple times")
+		panic("get io.Writer multiple times")
 	case ModeWrite:
-		panic("TempFile: in read state")
+		panic("in read state")
 	case ModeClose:
-		panic("TempFile: has been closed")
+		panic("has been closed")
 	default:
 		panic("BUG: unknown state")
 	}

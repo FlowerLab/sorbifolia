@@ -114,7 +114,6 @@ func (ks *KVs) AddHeader(b []byte) {
 		return
 	}
 
-	kv.K = append(kv.K, b[:idx]...)
 	kv.SetK(b[:idx])
 	idx++
 	for ; idx < len(b); idx++ {

@@ -47,6 +47,7 @@ type RequestParser struct {
 	SetURI     func([]byte) error
 	SetVersion func([]byte) error
 	SetHeaders func([]byte) (chunked ChunkedTransfer, length int, err error)
+	BW         io.WriteCloser
 
 	setTrailerHeader, setChunked func([]byte) error
 	bodyLength                   int
@@ -86,8 +87,8 @@ func (r *RequestParser) Write(p []byte) (n int, err error) {
 			n, err = r.parseHeader(p)
 		case ReadBody:
 			n, err = r.parseBody(p)
-		case ReadBodyChunked, ReadBodyChunkedData, ReadBodyChunkedEnd:
-			n, err = r.parseBodyChunked(p)
+		// case ReadBodyChunked, ReadBodyChunkedData, ReadBodyChunkedEnd:
+		// 	n, err = r.parseBodyChunked(p)
 		default:
 			break
 		}
@@ -106,7 +107,18 @@ func (r *RequestParser) Write(p []byte) (n int, err error) {
 }
 
 func (r *RequestParser) parseBody(p []byte) (n int, err error) {
-	if n, err = r.buf.Write(p); err != nil {
+	if n, err = r.BW.Write(p); err != nil {
+		if r.bodyLength < 0 { // chunked mode
+			if err == io.EOF {
+				if cErr := r.BW.Close(); cErr != nil {
+					err = cErr
+				}
+				r.state = END
+			}
+		}
+		return
+	}
+	if r.bodyLength < 0 { // chunked mode
 		return
 	}
 
@@ -211,14 +223,16 @@ func (r *RequestParser) parseHeader(p []byte) (n int, err error) {
 	n += 4 // Discard four bytes
 	r.state++
 
-	var ct ChunkedTransfer
-	if ct, r.bodyLength, err = r.SetHeaders(buf.Bytes()); err != nil {
+	// var ct ChunkedTransfer
+	if _, r.bodyLength, err = r.SetHeaders(buf.Bytes()); err != nil {
 		return
 	}
-	if ct != nil { // Chunked
-		r.state = ReadBodyChunked
-		r.setTrailerHeader, r.setChunked = ct()
-	} else if r.bodyLength == 0 { // Not has Body
+	// if ct != nil { // Chunked
+	// 	r.state = ReadBodyChunked
+	// 	r.setTrailerHeader, r.setChunked = ct()
+	// } else
+
+	if r.bodyLength == 0 { // Not has Body
 		r.state = END
 	}
 
