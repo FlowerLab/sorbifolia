@@ -67,14 +67,14 @@ func (r *Request) parse(read io.Reader) {
 		case 0:
 			r.Body = httpbody.Null()
 		case -1:
-			c := &httpbody.Chunked{
-				Data:   make(chan []byte, 1),
-				Header: make(chan []byte, 1),
-			}
+			c := httpbody.AcquireChunked()
+			c.Data = make(chan []byte, 1)
+			c.Header = make(chan []byte, 1)
+
 			p.BW = c
 			r.Body = c
 		default:
-			m := &httpbody.Memory{}
+			m := httpbody.AcquireMemory()
 			p.BW = m
 			r.Body = m
 		}
