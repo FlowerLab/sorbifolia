@@ -78,9 +78,6 @@ func (r *Request) parse(read io.Reader) {
 			p.BW = m
 			r.Body = m
 		}
-		if length == 0 {
-			r.Body = httpbody.Null()
-		}
 
 		return
 	}
