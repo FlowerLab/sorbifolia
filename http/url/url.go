@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"go.x2ox.com/sorbifolia/http/internal/char"
-	"go.x2ox.com/sorbifolia/http/internal/util"
 )
 
 type URL struct {
@@ -17,13 +16,14 @@ type URL struct {
 	Query    []byte // encoded query values, without '?'
 	Fragment []byte // fragment for references, without '#'
 
-	Username []byte
-	Password *[]byte
+	Username    []byte
+	Password    []byte
+	HasPassword bool
 }
 
 // SetSchemeBytes sets URI scheme, i.e. http, https, ftp, etc.
 func (u *URL) SetSchemeBytes(scheme []byte) {
-	u.Scheme = util.ToLower(scheme)
+	u.Scheme = append(u.Scheme, scheme...)
 }
 
 func (u *URL) Parse(host, path []byte, isTLS bool) error {
@@ -41,11 +41,11 @@ func (u *URL) Parse(host, path []byte, isTLS bool) error {
 		host = host[n+1:]
 
 		if n = bytes.IndexByte(auth, char.Colon); n >= 0 {
-			u.Username = auth[:n]
-			pwd := auth[n+1:]
-			u.Password = &pwd
+			u.Username = append(u.Username, auth[:n]...)
+			u.HasPassword = true
+			u.Password = append(u.Username, auth[n+1:]...)
 		} else {
-			u.Username = auth
+			u.Username = append(u.Username, auth...)
 		}
 	}
 
@@ -63,25 +63,36 @@ func (u *URL) Parse(host, path []byte, isTLS bool) error {
 	}
 
 	if queryIndex < 0 && fragmentIndex < 0 {
-		u.Path = path
+		u.Path = append(u.Path, path...)
 		return nil
 	}
 
 	if queryIndex >= 0 {
 		// Path is everything up to the start of the query
-		u.Path = path[:queryIndex]
+		u.Path = append(u.Path, path[:queryIndex]...)
 
 		if fragmentIndex < 0 {
-			u.Query = path[queryIndex+1:]
+			u.Query = append(u.Query, path[queryIndex+1:]...)
 		} else {
-			u.Query = path[queryIndex+1 : fragmentIndex]
-			u.Fragment = path[fragmentIndex+1:]
+			u.Query = append(u.Query, path[queryIndex+1:fragmentIndex]...)
+			u.Fragment = append(u.Fragment, path[fragmentIndex+1:]...)
 		}
 		return nil
 	}
 
-	u.Fragment = path[fragmentIndex+1:]
+	u.Fragment = append(u.Fragment, path[fragmentIndex+1:]...)
 	return nil
+}
+
+func (u *URL) Reset() {
+	u.Scheme = u.Scheme[:0]
+	u.Host = u.Host[:0]
+	u.Path = u.Path[:0]
+	u.Query = u.Query[:0]
+	u.Fragment = u.Fragment[:0]
+	u.Username = u.Username[:0]
+	u.Password = u.Password[:0]
+	u.HasPassword = false
 }
 
 func splitHostURI(host, uri []byte) ([]byte, []byte, []byte) {

@@ -3,11 +3,13 @@ package http
 import (
 	"context"
 	"net"
+	"sync"
 	"time"
+
+	"go.x2ox.com/sorbifolia/http/httpbody"
 )
 
 type Context struct {
-	// a *arena.Arena
 	c net.Conn
 	s *Server
 
@@ -17,8 +19,6 @@ type Context struct {
 
 	Request  Request
 	Response Response
-
-	robbery bool
 }
 
 func (c *Context) Deadline() (deadline time.Time, ok bool) { return }
@@ -34,3 +34,34 @@ func (c *Context) Err() error {
 func (c *Context) Value(key any) any {
 	panic("implement me")
 }
+func (c *Context) Reset() {
+	c.c = nil
+	c.s = nil
+	c.addr = nil
+
+	if c.Request.Body == nil {
+		return
+	}
+
+	_ = c.Request.Body.Close()
+	if p, ok := c.Request.Body.(httpbody.Pool); ok {
+		httpbody.Release(p)
+	}
+	c.Request.Body = nil
+}
+
+func AcquireContext() *Context {
+	if v := _ContextPool.Get(); v != nil {
+		return v.(*Context)
+	}
+	return &Context{}
+}
+
+func ReleaseContext(c *Context) {
+	c.Reset()
+	_ContextPool.Put(c)
+}
+
+var (
+	_ContextPool = sync.Pool{}
+)
