@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"io"
-	"net"
 	"strconv"
 
+	"go.x2ox.com/sorbifolia/http/httpbody"
 	"go.x2ox.com/sorbifolia/http/httpheader"
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/kv"
@@ -56,24 +56,14 @@ func (r *Response) Encode(ver version.Version) (io.ReadCloser, error) {
 	}
 
 	var (
-		body             = r.Body
-		nb   net.Buffers = make([][]byte, 4, 4+len(r.Header.KVs)*4+1)
+		body = r.Body
+		buf  = httpbody.AcquireMemory()
 	)
 
-	{
-		nb[0] = ver.Bytes()
-		nb[1] = char.Spaces
-		nb[2] = r.StatusCode.Bytes()
-		nb[3] = char.CRLF
-	}
-	bufAppend := func(b []byte) {
-		if length := len(nb) + 1; length < cap(nb) {
-			arr := make([][]byte, len(nb), length*5/4)
-			copy(arr, nb)
-			nb = arr
-		}
-		nb = append(nb, b)
-	}
+	buf.Write(ver.Bytes())
+	buf.Write(char.Spaces)
+	buf.Write(r.StatusCode.Bytes())
+	buf.Write(char.CRLF)
 
 	r.Header.Add(kv.KV{
 		K: char.ContentLength,
@@ -96,23 +86,22 @@ func (r *Response) Encode(ver version.Version) (io.ReadCloser, error) {
 		case bytes.EqualFold(kv.K, char.Connection):
 		}
 
-		bufAppend(kv.K)
-		bufAppend(char.Colons)
-		bufAppend(kv.V)
-		bufAppend(char.CRLF)
+		buf.Write(kv.K)
+		buf.Write(char.Colons)
+		buf.Write(kv.V)
+		buf.Write(char.CRLF)
 
 		return true
 	})
 
-	bufAppend(char.CRLF)
+	buf.Write(char.CRLF)
 	rio := &responseIO{}
 	rio.r = make([]io.Reader, 1, 2)
-
-	rio.r[0] = &nb
+	buf.Close()
+	rio.r[0] = buf
 	if body != nil {
 		rio.r = append(rio.r, body)
 		if c, ok := body.(io.Closer); ok {
-			// rio.c = arena.MakeSlice[io.Closer](a, 1, 1)
 			rio.c = make([]io.Closer, 1, 1)
 			rio.c[0] = c
 		}
@@ -153,6 +142,9 @@ func (r *responseIO) Close() (err error) {
 	for _, v := range r.c {
 		if bErr := v.Close(); err == nil {
 			err = bErr
+		}
+		if p, ok := v.(httpbody.Pool); ok {
+			httpbody.Release(p)
 		}
 	}
 	return
