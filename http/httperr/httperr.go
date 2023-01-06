@@ -14,11 +14,10 @@ var (
 	ParseHTTPMethodErr          = errors.New("cannot find http method")
 )
 
-// 	case RequestURITooLong:
-//		return "Request URI Too Long"
-
-var ErrHijacked = errors.New("connection has been hijacked")
-var ErrBadTrailer = errors.New("contain forbidden trailer")
+var (
+	ErrHijacked   = errors.New("connection has been hijacked")
+	ErrBadTrailer = errors.New("contain forbidden trailer")
+)
 
 var (
 	ErrNotYetReady = errors.New("not yet ready")
