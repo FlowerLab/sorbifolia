@@ -12,9 +12,6 @@ import (
 func TestS(t *testing.T) {
 	s := &Server{
 		Config: httpconfig.Config{
-			MaxRequestHeaderSize:  defaultMaxRequestHeaderSize,
-			MaxRequestBodySize:    defaultMaxRequestBodySize,
-			StreamRequestBodySize: defaultMaxRequestBodySize,
 			MaxIdleWorkerDuration: time.Second * 30,
 		},
 

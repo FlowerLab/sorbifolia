@@ -17,38 +17,10 @@ import (
 
 type Handler func(ctx *Context)
 
-const (
-	defaultMaxRequestHeaderSize = 4 * 1024
-	defaultMaxRequestBodySize   = 4 * 1024 * 1024
-	defaultServerName           = "Sorbifolia"
-	defaultUserAgent            = defaultServerName
-
-	defaultConcurrency = 256 * 1024
-)
-
-var (
-	defaultServerNameBytes = []byte(defaultServerName)
-	// defaultReadTimeout     = time.Second *
-
-)
-
 type Server struct {
 	Config httpconfig.Config
-	// Name   []byte
 
-	// MaxRequestURISize     int   // 最大首行大小
-	// MaxRequestHeaderSize  int   // 最大允许的头大小，包括首行和 \r\n
-	// MaxRequestBodySize    int64 // 最大允许的 Body 大小
-	// StreamRequestBodySize int64 // 最大允许内存读入的 Body 大小
-	//
-	// ReadTimeout  time.Duration
-	// WriteTimeout time.Duration
-	//
-	// MaxIdleWorkerDuration              time.Duration
-	// SleepWhenConcurrencyLimitsExceeded time.Duration
-
-	Concurrency int
-	Handler     Handler
+	Handler Handler
 
 	connCount   uint64
 	concurrency uint32
@@ -58,7 +30,6 @@ type Server struct {
 func (s *Server) Listen() {}
 
 func (s *Server) serveConnCleanup() {
-	// atomic.AddInt32(&s.open, -1)
 	atomic.AddUint32(&s.concurrency, ^uint32(0))
 }
 
@@ -118,7 +89,6 @@ func (s *Server) handle(conn net.Conn) error {
 		V: util.GetDate(),
 	})
 
-	// var resp io.Reader
 	resp, err := ctx.Response.Encode(ctx.Request.ver)
 	if err != nil {
 		_ = s.fastWriteCode(conn, ctx.Request.ver, status.InternalServerError)
@@ -131,16 +101,9 @@ func (s *Server) handle(conn net.Conn) error {
 	return err
 }
 
-func (s *Server) getConcurrency() int {
-	if n := s.Concurrency; n > 0 {
-		return n
-	}
-	return defaultConcurrency
-}
-
 func (s *Server) Serve(ln net.Listener) error {
 	wp := &workerpool.WorkerPool{
-		MaxWorkersCount:       s.getConcurrency(),
+		MaxWorkersCount:       s.Config.GetConcurrency(),
 		MaxIdleWorkerDuration: s.Config.MaxIdleWorkerDuration,
 	}
 	wp.WorkerFunc = func(c net.Conn) error {
