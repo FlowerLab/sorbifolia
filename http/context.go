@@ -35,6 +35,30 @@ func (c *Context) Err() error {
 func (c *Context) Value(key any) any {
 	panic("implement me")
 }
+
+func (c *Context) cleanup() {
+	c.Request.Header.Reset()
+	c.Response.Header.Reset()
+
+	if c.Request.Body != nil {
+		_ = c.Request.Body.Close()
+		if p, ok := c.Request.Body.(httpbody.Pool); ok {
+			httpbody.Release(p)
+		}
+		c.Request.Body = nil
+	}
+
+	if c.Response.Body != nil {
+		if bc, ok := c.Response.Body.(io.Closer); ok {
+			_ = bc.Close()
+		}
+		if p, ok := c.Response.Body.(httpbody.Pool); ok {
+			httpbody.Release(p)
+		}
+		c.Response.Body = nil
+	}
+}
+
 func (c *Context) Reset() {
 	c.c = nil
 	c.s = nil
