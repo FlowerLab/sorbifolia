@@ -17,6 +17,13 @@ var (
 	_RequestParserPool = sync.Pool{}
 )
 
+func AcquireRequestParserAAAA() *RequestParser {
+	if v := _RequestParserPool.Get(); v != nil {
+		return v.(*RequestParser)
+	}
+	return &RequestParser{}
+}
+
 func AcquireRequestParser(
 	setMethod, setURI, setVersion func([]byte) error,
 	setHeader func([]byte) (length int, err error),
