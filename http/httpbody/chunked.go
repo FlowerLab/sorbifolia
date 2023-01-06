@@ -20,9 +20,6 @@ type Chunked struct {
 	buf    bufpool.Buffer
 }
 
-func (c *Chunked) BodyReader() io.ReadCloser  { return c }
-func (c *Chunked) BodyWriter() io.WriteCloser { return c }
-
 func (c *Chunked) Write(p []byte) (n int, err error) {
 	if !c.m.IsWrite() {
 		return 0, io.EOF
