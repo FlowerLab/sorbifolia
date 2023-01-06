@@ -15,6 +15,8 @@ type Memory struct {
 
 func (m *Memory) Read(p []byte) (n int, err error) {
 	switch m.mode {
+	case ModeReadWrite:
+		m.mode = ModeRead
 	case ModeRead:
 	case ModeWrite:
 		return 0, httperr.ErrNotYetReady
@@ -34,6 +36,8 @@ func (m *Memory) Read(p []byte) (n int, err error) {
 
 func (m *Memory) Write(p []byte) (n int, err error) {
 	switch m.mode {
+	case ModeReadWrite:
+		m.mode = ModeWrite
 	case ModeWrite:
 	case ModeRead, ModeClose:
 		return 0, io.EOF
@@ -50,14 +54,14 @@ func (m *Memory) Write(p []byte) (n int, err error) {
 }
 
 func (m *Memory) Close() error {
-	switch m.mode {
-	case ModeRead:
-		m.mode = ModeClose
-	case ModeWrite:
-		m.mode = ModeRead
-	case ModeClose:
-	default:
-		panic("BUG: Memory should not exist in this state")
-	}
+	m.mode = ModeClose
 	return nil
 }
+
+func (m *Memory) Reset() {
+	m.Buffer.Reset()
+	m.p = 0
+	m.mode = ModeReadWrite
+}
+
+func (m *Memory) release() { m.Reset(); _MemoryPool.Put(m) }

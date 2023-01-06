@@ -136,11 +136,24 @@ func (c *Chunked) Read(p []byte) (n int, err error) {
 	}
 }
 
+func (c *Chunked) writeChunkedEnd() {
+	c.once.Do(func() { _, _ = c.buf.Write(bChunkedEnd) })
+}
+
+func (c *Chunked) Reset() {
+	c.Data = nil
+	c.Header = nil
+	c.m = ModeReadWrite
+	c.finish = false
+	c.state = chunkedRead
+	c.once = sync.Once{}
+	c.buf.Reset()
+}
+
+func (c *Chunked) release()     { c.Reset(); _ChunkedPool.Put(c) }
 func (c *Chunked) Close() error { return nil }
 
-func (c *Chunked) writeChunkedEnd() {
-	c.once.Do(func() { _, _ = c.buf.Write([]byte("0\r\n")) })
-}
+var bChunkedEnd = []byte("0\r\n")
 
 type chunkedState uint8
 

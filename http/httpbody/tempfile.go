@@ -69,6 +69,14 @@ func (t *TempFile) Close() error {
 	return nil
 }
 
+func (t *TempFile) Reset() {
+	t.File = nil
+	t.filename = t.filename[:0]
+	t.err = nil
+	t.mode = ModeReadWrite
+}
+
+func (t *TempFile) release()         { t.Reset(); _TempFilePool.Put(t) }
 func (t *TempFile) Filename() string { return pyrokinesis.Bytes.ToString(t.filename) }
 
 func (t *TempFile) create() (err error) {

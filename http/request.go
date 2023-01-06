@@ -7,6 +7,7 @@ import (
 
 	"go.x2ox.com/sorbifolia/http/httpbody"
 	"go.x2ox.com/sorbifolia/http/httperr"
+	"go.x2ox.com/sorbifolia/http/httpheader"
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/internal/parser"
 	"go.x2ox.com/sorbifolia/http/internal/util"
@@ -17,7 +18,7 @@ import (
 type Request struct {
 	ver    version.Version
 	Method method.Method
-	Header RequestHeader
+	Header httpheader.RequestHeader
 	Body   io.ReadCloser
 }
 
