@@ -19,3 +19,7 @@ var (
 
 var ErrHijacked = errors.New("connection has been hijacked")
 var ErrBadTrailer = errors.New("contain forbidden trailer")
+
+var (
+	ErrNotYetReady = errors.New("not yet ready")
+)

@@ -10,12 +10,6 @@ import (
 	"go.x2ox.com/sorbifolia/http/internal/char"
 )
 
-var (
-	_ io.ReadCloser  = (*Chunked)(nil)
-	_ io.WriteCloser = (*Chunked)(nil)
-	_ HTTPBody       = (*Chunked)(nil)
-)
-
 type Chunked struct {
 	Data, Header chan []byte
 
@@ -102,7 +96,7 @@ func (c *Chunked) write(p []byte) (n int, err error) {
 }
 
 func (c *Chunked) Read(p []byte) (n int, err error) {
-	if !c.m.IsWrite() || (c.finish && c.buf.Len() == 0) {
+	if !c.m.IsRead() || (c.finish && c.buf.Len() == 0) {
 		return 0, io.EOF
 	}
 
