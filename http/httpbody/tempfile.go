@@ -7,12 +7,6 @@ import (
 	"go.x2ox.com/sorbifolia/pyrokinesis"
 )
 
-var (
-	_ io.ReadCloser  = (*TempFile)(nil)
-	_ io.WriteCloser = (*TempFile)(nil)
-	_ HTTPBody       = (*TempFile)(nil)
-)
-
 type TempFile struct {
 	*os.File
 	filename []byte
@@ -20,29 +14,39 @@ type TempFile struct {
 	mode     rwcMode
 }
 
-func (t *TempFile) Filename() string { return pyrokinesis.Bytes.ToString(t.filename) }
-
 func (t *TempFile) Read(p []byte) (n int, err error) {
-	if t.File == nil {
+	switch t.mode {
+	case ModeReadWrite:
+		t.mode = ModeRead
 		if t.File, err = os.Open(t.Filename()); err != nil {
 			return
 		}
+	case ModeRead:
+	case ModeWrite, ModeClose:
+		return 0, io.EOF
+	default:
+		panic("BUG: unknown state")
 	}
+
 	return t.File.Read(p)
 }
 
 func (t *TempFile) Write(p []byte) (n int, err error) {
-	if t.File == nil {
+	switch t.mode { // 0:rw, 1:w, 2:r, 3:c
+	case ModeReadWrite:
+		t.mode = ModeWrite
 		if t.File, err = os.Open(t.Filename()); err != nil {
 			return
 		}
+	case ModeWrite:
+	case ModeRead, ModeClose:
+		return 0, io.EOF
+	default:
+		panic("BUG: unknown state")
 	}
+
 	return t.File.Write(p)
 }
-
-func (t *TempFile) BodyReader() io.ReadCloser   { return t.getIO(ModeRead) }
-func (t *TempFile) BodyWriter() io.WriteCloser  { return t.getIO(ModeWrite) }
-func (t *TempFile) getIO(rwc rwcMode) *TempFile { t.mode.SetMode(rwc); return t }
 
 func (t *TempFile) Close() error {
 	switch t.mode { // 0:rw, 1:w, 2:r, 3:c
@@ -64,6 +68,8 @@ func (t *TempFile) Close() error {
 
 	return nil
 }
+
+func (t *TempFile) Filename() string { return pyrokinesis.Bytes.ToString(t.filename) }
 
 func (t *TempFile) create() (err error) {
 	if t.File, err = os.CreateTemp("", tempFilePattern); err != nil {

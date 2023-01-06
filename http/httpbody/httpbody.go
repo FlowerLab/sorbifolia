@@ -4,7 +4,9 @@ import (
 	"io"
 )
 
-type HTTPBody interface {
-	BodyReader() io.ReadCloser
-	BodyWriter() io.WriteCloser
-}
+var (
+	_ io.ReadWriteCloser = (*Chunked)(nil)
+	_ io.ReadWriteCloser = (*Memory)(nil)
+	_ io.ReadWriteCloser = (*TempFile)(nil)
+	_ io.ReadWriteCloser = (*nobody)(nil)
+)
