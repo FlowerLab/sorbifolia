@@ -6,6 +6,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"go.x2ox.com/sorbifolia/coarsetime"
 	"go.x2ox.com/sorbifolia/http/httpconfig"
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/internal/util"
@@ -67,36 +68,34 @@ func (s *Server) getCtx(conn net.Conn) *Context {
 	return ctx
 }
 
-func (s *Server) handle(conn net.Conn) error {
-	defer s.serveConnCleanup()
+func (s *Server) serveConn(conn net.Conn) error {
 	atomic.AddUint32(&s.concurrency, 1)
+	defer s.serveConnCleanup()
 
-	// conn.SetReadDeadline(coarsetime.Now().Add(s.ReadTimeout))
-	// conn.SetWriteDeadline(coarsetime.Now().Add(s.WriteTimeout))
+	err := conn.SetReadDeadline(coarsetime.Now().Add(s.Config.GetReadTimeout()))
+	// _ = conn.SetWriteDeadline(coarsetime.Now().Add(s.Config.WriteTimeout))
 
 	ctx := s.getCtx(conn)
 	defer ReleaseContext(ctx)
 
-	ctx.Request.parse(conn)
+	for {
+		ctx.Request.parse(conn)
 
-	s.Handler(ctx)
+		s.Handler(ctx)
 
-	ctx.Response.Header.Set(kv.KV{
-		K: char.Server,
-		V: s.Config.GetName(),
-	})
-	ctx.Response.Header.Set(kv.KV{
-		K: char.Date,
-		V: util.GetDate(),
-	})
+		ctx.Response.Header.Set(kv.KV{K: char.Server, V: s.Config.GetName()})
+		ctx.Response.Header.Set(kv.KV{K: char.Date, V: util.GetDate()})
 
-	resp, err := ctx.Response.Encode(ctx.Request.ver)
-	if err != nil {
-		_ = s.fastWriteCode(conn, ctx.Request.ver, status.InternalServerError)
-		return nil
-	}
-	if _, err = util.Copy(conn, resp); err == io.EOF {
-		err = nil
+		var rc io.ReadCloser
+		if rc, err = ctx.Response.Encode(ctx.Request.ver); err != nil {
+			_ = s.fastWriteCode(conn, ctx.Request.ver, status.InternalServerError)
+			break
+		}
+		if _, err = util.Copy(conn, rc); err != nil && err != io.EOF {
+			break
+		}
+
+		ctx.cleanup()
 	}
 
 	return err
@@ -108,7 +107,7 @@ func (s *Server) Serve(ln net.Listener) error {
 		MaxIdleWorkerDuration: s.Config.MaxIdleWorkerDuration,
 	}
 	wp.WorkerFunc = func(c net.Conn) error {
-		err := s.handle(c)
+		err := s.serveConn(c)
 		if err == nil {
 			wp.SetConnState(c, workerpool.StateIdle)
 		}

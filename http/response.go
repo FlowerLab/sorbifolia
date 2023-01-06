@@ -29,8 +29,14 @@ func (r *Response) SetBody(body any) {
 	var rend render.Render
 	switch body := body.(type) {
 	case string:
+		if len(body) == 0 {
+			return
+		}
 		rend = render.Text(body)
 	case []byte:
+		if len(body) == 0 {
+			return
+		}
 		rend = render.Text(body)
 	case render.Render:
 		rend = body
@@ -44,7 +50,7 @@ func (r *Response) SetBody(body any) {
 func (r *Response) Encode(ver version.Version) (io.ReadCloser, error) {
 	if r.Body != nil && r.Header.ContentLength.Length() == 0 {
 		if bytes.Equal(r.Header.Get([]byte("Transfer-Encoding")).V, char.Chunked) {
-			// TODO: support chunked encoding
+			panic("TODO: support chunked encoding")
 		}
 		return nil, errors.New("ContentLength must set")
 	}

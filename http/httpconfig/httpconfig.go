@@ -15,6 +15,8 @@ const (
 
 	defaultMaxRequestMethodSize = 7        // Up to 7 if it has not custom methods
 	defaultMaxRequestURISize    = 4 * 1024 // Up to 7 if it has not custom methods
+
+	defaultReadTimeout = 60 * time.Second
 )
 
 type Config struct {
@@ -51,7 +53,8 @@ func (c Config) GetMaxRequestHeaderSize() int {
 func (c Config) GetMaxRequestBodySize() int {
 	return aObI(c.MaxRequestBodySize, defaultMaxRequestBodySize)
 }
-func (c Config) GetConcurrency() int { return aObI(c.Concurrency, defaultConcurrency) }
+func (c Config) GetConcurrency() int           { return aObI(c.Concurrency, defaultConcurrency) }
+func (c Config) GetReadTimeout() time.Duration { return aObD(c.ReadTimeout, defaultReadTimeout) }
 
 func aObB(a, b []byte) []byte {
 	if a != nil {
@@ -61,6 +64,12 @@ func aObB(a, b []byte) []byte {
 }
 
 func aObI(a, b int) int {
+	if a != 0 {
+		return a
+	}
+	return b
+}
+func aObD(a, b time.Duration) time.Duration {
 	if a != 0 {
 		return a
 	}
