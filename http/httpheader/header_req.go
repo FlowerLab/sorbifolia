@@ -32,6 +32,29 @@ type RequestHeader struct {
 	Close      bool
 }
 
+func (rh *RequestHeader) Parse(b []byte) error {
+	if len(b) == 0 {
+		return nil
+	}
+	rh.KVs.PreAlloc(bytes.Count(b, char.CRLF) + 1)
+
+	for len(b) > 0 {
+		idx := bytes.Index(b, char.CRLF)
+		switch idx {
+		case 0:
+		case -1:
+			rh.KVs.AddHeader(b)
+			idx = len(b) - 2
+		default:
+			rh.KVs.AddHeader(b[:idx])
+		}
+
+		b = b[idx+2:]
+	}
+
+	return rh.RawParse()
+}
+
 func (rh *RequestHeader) RawParse() error {
 	rh.Each(func(kv kv.KV) bool {
 		switch {

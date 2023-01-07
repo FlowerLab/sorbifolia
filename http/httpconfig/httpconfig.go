@@ -5,7 +5,8 @@ import (
 )
 
 var (
-	defaultName = []byte{'S', 'o', 'r', 'b', 'i', 'f', 'o', 'l', 'i', 'a'}
+	defaultName   = []byte{'S', 'o', 'r', 'b', 'i', 'f', 'o', 'l', 'i', 'a'}
+	defaultConfig = &Config{}
 )
 
 const (
@@ -40,21 +41,28 @@ type Config struct {
 	Concurrency int
 }
 
-func (c Config) GetName() []byte { return aObB(c.Name, defaultName) }
-func (c Config) GetMaxRequestMethodSize() int {
-	return aObI(c.MaxRequestMethodSize, defaultMaxRequestMethodSize)
+func (c *Config) GetName() []byte { return aObB(dc(c).Name, defaultName) }
+func (c *Config) GetMaxRequestMethodSize() int {
+	return aObI(dc(c).MaxRequestMethodSize, defaultMaxRequestMethodSize)
 }
-func (c Config) GetMaxRequestURISize() int {
-	return aObI(c.MaxRequestURISize, defaultMaxRequestURISize)
+func (c *Config) GetMaxRequestURISize() int {
+	return aObI(dc(c).MaxRequestURISize, defaultMaxRequestURISize)
 }
-func (c Config) GetMaxRequestHeaderSize() int {
-	return aObI(c.MaxRequestHeaderSize, defaultMaxRequestHeaderSize)
+func (c *Config) GetMaxRequestHeaderSize() int {
+	return aObI(dc(c).MaxRequestHeaderSize, defaultMaxRequestHeaderSize)
 }
-func (c Config) GetMaxRequestBodySize() int {
-	return aObI(c.MaxRequestBodySize, defaultMaxRequestBodySize)
+func (c *Config) GetMaxRequestBodySize() int {
+	return aObI(dc(c).MaxRequestBodySize, defaultMaxRequestBodySize)
 }
-func (c Config) GetConcurrency() int           { return aObI(c.Concurrency, defaultConcurrency) }
-func (c Config) GetReadTimeout() time.Duration { return aObD(c.ReadTimeout, defaultReadTimeout) }
+func (c *Config) GetConcurrency() int           { return aObI(dc(c).Concurrency, defaultConcurrency) }
+func (c *Config) GetReadTimeout() time.Duration { return aObD(dc(c).ReadTimeout, defaultReadTimeout) }
+
+func dc(c *Config) *Config {
+	if c != nil {
+		return c
+	}
+	return defaultConfig
+}
 
 func aObB(a, b []byte) []byte {
 	if a != nil {
