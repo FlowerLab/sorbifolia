@@ -32,7 +32,7 @@ func parseHTTPVersion(ver []byte) (major, minor int, ok bool) {
 		idx = length
 	}
 
-	maj, err := strconv.ParseUint(string(ver[5:idx]), 10, 0)
+	maj, err := strconv.ParseUint(string(ver[5:5+idx]), 10, 0)
 	if err != nil {
 		return 0, 0, false
 	}
