@@ -123,14 +123,19 @@ func (b *Buffer) Discard(start, end int) { b.B = append(b.B[:start], b.B[end:]..
 
 type ReadBuffer struct {
 	Buffer
-	p int
+	P int
 }
 
 func (r *ReadBuffer) Read(p []byte) (n int, err error) {
-	if r.p == r.Len() {
+	if r.P == r.Len() {
 		return 0, io.EOF
 	}
-	n = copy(p, r.B[r.p:])
-	r.p += n
+	n = copy(p, r.B[r.P:])
+	r.P += n
 	return
+}
+
+func (r *ReadBuffer) Reset() {
+	r.B = r.B[:0]
+	r.P = 0
 }

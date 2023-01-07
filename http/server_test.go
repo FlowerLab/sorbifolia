@@ -3,6 +3,7 @@ package http
 import (
 	"io"
 	"net"
+	"net/http"
 	_ "net/http/pprof"
 	"testing"
 	"time"
@@ -27,7 +28,7 @@ func TestS(t *testing.T) {
 			ctx.Response.SetBody(b)
 		},
 	}
-	// go http.ListenAndServe("127.0.0.1:6060", nil)
+	go http.ListenAndServe("127.0.0.1:6060", nil)
 
 	ln, _ := net.Listen("tcp", "127.0.0.1:8808")
 	s.Serve(ln)
