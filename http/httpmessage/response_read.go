@@ -1,7 +1,6 @@
 package httpmessage
 
 import (
-	"fmt"
 	"io"
 
 	"go.x2ox.com/sorbifolia/http/internal/bufpool"
@@ -11,29 +10,27 @@ import (
 var _ io.ReadCloser = (*Response)(nil)
 
 func (r *Response) Read(p []byte) (n int, err error) {
-	switch r.state {
-	case 0: // RW
+	if r.state == _Init {
 		r.buf = &bufpool.ReadBuffer{}
-		r.state = 1
-	case 1: // R
-	case 2, 3: // C
+	}
+	if !r.state.Readable() {
 		return 0, io.EOF
 	}
 
 	var wn int
 
 	for n < len(p) {
-		switch r.status {
-		case 0: // 0 init，1 status，2 header，3 body, 4 END
+		switch r.state.Operate() {
+		case _Init:
 			_, _ = r.buf.Write(r.StatusCode.Bytes())
 			_, _ = r.buf.Write(char.CRLF)
-			r.status = 1
+			r.state.SetOperate(_Status)
 			continue
-		case 1:
+		case _Status:
 			wn, err = r.writeStatus(p[n:])
-		case 2:
+		case _Header:
 			wn, err = r.writeHeader(p[n:])
-		case 3:
+		case _Body:
 			wn, err = r.writeBody(p[n:])
 		default:
 			panic("?")
@@ -54,7 +51,7 @@ func (r *Response) writeStatus(p []byte) (n int, err error) {
 	r.buf.Discard(0, n)
 
 	if r.buf.Len() == 0 {
-		r.status++
+		r.state.SetOperate(_Header)
 	}
 
 	return
@@ -76,7 +73,7 @@ func (r *Response) writeHeader(p []byte) (n int, err error) {
 		r.buf.Reset()
 
 		if r.p >= headerLen {
-			r.status++
+			r.state.SetOperate(_Body)
 			break
 		}
 
@@ -92,13 +89,12 @@ func (r *Response) writeHeader(p []byte) (n int, err error) {
 
 func (r *Response) writeBody(p []byte) (n int, err error) {
 	if n, err = r.Body.Read(p); err == nil {
-		fmt.Println(err)
 		return
 	}
-	r.status++
+	r.state.Close()
 
 	if c, ok := r.Body.(io.Closer); ok {
-		if cErr := c.Close(); err != nil {
+		if cErr := c.Close(); err != nil && err != io.EOF {
 			err = cErr
 		}
 	}

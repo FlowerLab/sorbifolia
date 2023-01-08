@@ -2,7 +2,6 @@ package httpmessage
 
 import (
 	"bytes"
-	"errors"
 	"io"
 
 	"go.x2ox.com/sorbifolia/http/httpbody"
@@ -14,31 +13,26 @@ import (
 
 var http09 = []byte("HTTP/0.9")
 
-type parseRequestState uint8
-
-const (
-	_sReadMethod parseRequestState = iota
-	_sReadURI
-	_sReadVersion
-	_sReadHeader
-	_sReadBody
-	_sEND
-)
-
 func (r *Request) Write(p []byte) (n int, err error) {
+	if !r.state.Writable() {
+		return 0, io.EOF
+	}
 	pLen := len(p)
 
 	for len(p) > 0 {
-		switch r.state {
-		case _sReadMethod:
+		switch r.state.Operate() {
+		case _Init:
+			r.state.SetOperate(_Method)
+			continue
+		case _Method:
 			n, err = r.parseMethod(p)
-		case _sReadURI:
+		case _URI:
 			n, err = r.parseURI(p)
-		case _sReadVersion:
+		case _Version:
 			n, err = r.parseVersion(p)
-		case _sReadHeader:
+		case _Header:
 			n, err = r.parseHeader(p)
-		case _sReadBody:
+		case _Body:
 			n, err = r.parseBody(p)
 		default:
 			break
@@ -50,7 +44,7 @@ func (r *Request) Write(p []byte) (n int, err error) {
 		p = p[n:]
 	}
 
-	if r.state == _sEND {
+	if r.state.IsClose() {
 		err = io.EOF
 	}
 
@@ -64,7 +58,7 @@ func (r *Request) parseBody(p []byte) (n int, err error) {
 				if cErr := r.Body.Close(); cErr != nil {
 					err = cErr
 				}
-				r.state = _sEND
+				r.state.Close()
 			}
 		}
 		return
@@ -80,7 +74,7 @@ func (r *Request) parseBody(p []byte) (n int, err error) {
 		if err = r.Body.Close(); err == nil {
 			err = io.EOF
 		}
-		r.state = _sEND
+		r.state.Close()
 	}
 	return
 }
@@ -129,7 +123,7 @@ func (r *Request) parseHeader(p []byte) (n int, err error) {
 	}
 
 	n += 4 // Discard four bytes
-	r.state++
+	r.state.SetOperate(_Body)
 
 	if err = r.Header.Parse(buf.Bytes()); err != nil {
 		return
@@ -138,7 +132,7 @@ func (r *Request) parseHeader(p []byte) (n int, err error) {
 	r.bodyLength = int(r.Header.ContentLength.Length())
 	switch r.bodyLength {
 	case 0:
-		r.state = _sEND
+		r.state.Close()
 		r.Body = httpbody.Null()
 	case -1:
 		c := httpbody.AcquireChunked()
@@ -172,8 +166,8 @@ func (r *Request) parseMethod(p []byte) (n int, err error) {
 		n, _ = buf.Write(p[:i])
 	}
 
-	n++       // Discard a byte, it's a space
-	r.state++ // Continue to read URI
+	n++                      // Discard a byte, it's a space
+	r.state.SetOperate(_URI) // Continue to read URI
 
 	r.Method = method.Parse(buf.Bytes())
 	buf.Reset()
@@ -212,7 +206,7 @@ func (r *Request) parseURI(p []byte) (n int, err error) {
 	}
 
 	n++ // Discard a byte, it's a space
-	r.state++
+	r.state.SetOperate(_Version)
 
 	r.Header.RequestURI = append(r.Header.RequestURI, buf.Bytes()...)
 
@@ -221,7 +215,7 @@ func (r *Request) parseURI(p []byte) (n int, err error) {
 	if is09 {
 		n++                              // Discard two bytes
 		r.ver, _ = version.Parse(http09) // this can't go wrong
-		r.state = _sEND                  // HTTP/0.9 no header and body
+		r.state.Close()                  // HTTP/0.9 no header and body
 	}
 
 	return
@@ -259,25 +253,8 @@ func (r *Request) parseVersion(p []byte) (n int, err error) {
 	}
 
 	n += 2 // Discard two bytes
-	r.state++
+	r.state.SetOperate(_Header)
 	buf.Reset()
 
-	return
-}
-
-func (r *Request) Close() error {
-	r.buf.Reset()
-	return nil
-}
-
-func (r *Request) Read(p []byte) (n int, err error) {
-	if r.state != _sEND {
-		return 0, errors.New("? TODO: here we need to think about how to deal with")
-	}
-	if length := r.buf.Len(); length == 0 || length == r.rp {
-		return 0, io.EOF
-	}
-	n = copy(p, r.buf.B[r.rp:])
-	r.rp += n
 	return
 }

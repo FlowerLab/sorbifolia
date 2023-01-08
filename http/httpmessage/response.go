@@ -15,9 +15,9 @@ type Response struct {
 	Header     httpheader.ResponseHeader
 	Body       io.Reader
 
-	buf           *bufpool.ReadBuffer
-	state, status uint8
-	p             int
+	buf   *bufpool.ReadBuffer
+	state state
+	p     int
 }
 
 func (r *Response) SetBody(body any) {
