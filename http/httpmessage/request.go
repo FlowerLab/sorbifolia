@@ -12,7 +12,7 @@ import (
 
 type Request struct {
 	cfg        *httpconfig.Config
-	state      parseRequestState
+	state      state
 	buf        bufpool.Buffer
 	rp         int
 	bodyLength int
@@ -21,16 +21,4 @@ type Request struct {
 	Method method.Method
 	Header httpheader.RequestHeader
 	Body   io.ReadWriteCloser
-}
-
-func (r *Request) Reset() {
-	r.state = 0
-	r.buf.Reset()
-	r.rp = 0
-	r.bodyLength = 0
-	r.Header.Reset()
-	if r.Body != nil {
-		_ = r.Body.Close()
-		r.Body = nil
-	}
 }
