@@ -1,6 +1,7 @@
 package http
 
 import (
+	"bytes"
 	"io"
 	"net"
 	"sync/atomic"
@@ -72,26 +73,40 @@ func (s *Server) serveConn(conn net.Conn) error {
 	atomic.AddUint32(&s.concurrency, 1)
 	defer s.serveConnCleanup()
 
-	err := conn.SetReadDeadline(coarsetime.Now().Add(s.Config.GetReadTimeout()))
 	// _ = conn.SetWriteDeadline(coarsetime.Now().Add(s.Config.WriteTimeout))
 
 	ctx := s.getCtx(conn)
 	defer ReleaseContext(ctx)
 
+	var (
+		err error
+	)
+
 	for {
-		ctx.Request.parse(conn)
+		if err = conn.SetReadDeadline(coarsetime.Now().Add(s.Config.GetReadTimeout())); err != nil {
+			break
+		}
+		if _, err = util.Copy(&ctx.Request, conn); err != nil && err != io.EOF {
+			break
+		}
 
 		s.Handler(ctx)
 
 		ctx.Response.Header.Set(kv.KV{K: char.Server, V: s.Config.GetName()})
 		ctx.Response.Header.Set(kv.KV{K: char.Date, V: util.GetDate()})
 
-		var rc io.ReadCloser
-		if rc, err = ctx.Response.Encode(ctx.Request.ver); err != nil {
-			_ = s.fastWriteCode(conn, ctx.Request.ver, status.InternalServerError)
+		// if _, err = conn.Write([]byte("HTTP/1.1 ")); err != nil && err != io.EOF {
+		// 	break
+		// }
+
+		var buf = &bytes.Buffer{}
+		buf.Write([]byte("HTTP/1.1 "))
+
+		if _, err = util.Copy(buf, &ctx.Response); err != nil && err != io.EOF {
 			break
 		}
-		if _, err = util.Copy(conn, rc); err != nil && err != io.EOF {
+
+		if _, err = util.Copy(conn, buf); err != nil && err != io.EOF {
 			break
 		}
 
