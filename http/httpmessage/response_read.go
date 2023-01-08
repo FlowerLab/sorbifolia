@@ -22,10 +22,12 @@ func (r *Response) Read(p []byte) (n int, err error) {
 	for n < len(p) {
 		switch r.state.Operate() {
 		case _Init:
-			_, _ = r.buf.Write(r.StatusCode.Bytes())
-			_, _ = r.buf.Write(char.CRLF)
-			r.state.SetOperate(_Status)
+			_, _ = r.buf.Write(r.Version.Bytes())
+			_, _ = r.buf.Write(char.Spaces)
+			r.state.SetOperate(_Version)
 			continue
+		case _Version:
+			wn, err = r.writeVersion(p[n:])
 		case _Status:
 			wn, err = r.writeStatus(p[n:])
 		case _Header:
@@ -41,6 +43,19 @@ func (r *Response) Read(p []byte) (n int, err error) {
 		if err != nil {
 			break
 		}
+	}
+
+	return
+}
+
+func (r *Response) writeVersion(p []byte) (n int, err error) {
+	n = copy(p, r.buf.B)
+	r.buf.Discard(0, n)
+
+	if r.buf.Len() == 0 {
+		r.state.SetOperate(_Status)
+		_, _ = r.buf.Write(r.StatusCode.Bytes())
+		_, _ = r.buf.Write(char.CRLF)
 	}
 
 	return

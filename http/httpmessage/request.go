@@ -17,8 +17,8 @@ type Request struct {
 	rp         int
 	bodyLength int
 
-	ver    version.Version
-	Method method.Method
-	Header httpheader.RequestHeader
-	Body   io.ReadWriteCloser
+	Version version.Version
+	Method  method.Method
+	Header  httpheader.RequestHeader
+	Body    io.ReadWriteCloser
 }

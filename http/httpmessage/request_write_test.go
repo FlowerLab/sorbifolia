@@ -27,8 +27,8 @@ func TestRequest_Write(t *testing.T) {
 				"Connection: keep-alive\r\n\r\n" +
 				""),
 			expected: &Request{
-				ver:    version.Version{Major: 1, Minor: 1},
-				Method: "GET",
+				Version: version.Version{Major: 1, Minor: 1},
+				Method:  "GET",
 				Header: httpheader.RequestHeader{
 					KVs: kv.KVs{
 						{[]byte("Host"), []byte("localhost"), false},

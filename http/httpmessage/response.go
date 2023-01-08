@@ -8,9 +8,11 @@ import (
 	"go.x2ox.com/sorbifolia/http/internal/bufpool"
 	"go.x2ox.com/sorbifolia/http/render"
 	"go.x2ox.com/sorbifolia/http/status"
+	"go.x2ox.com/sorbifolia/http/version"
 )
 
 type Response struct {
+	Version    version.Version
 	StatusCode status.Status
 	Header     httpheader.ResponseHeader
 	Body       io.Reader
