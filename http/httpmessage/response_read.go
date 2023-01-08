@@ -47,7 +47,7 @@ func (r *Response) Read(p []byte) (n int, err error) {
 }
 
 func (r *Response) writeStatus(p []byte) (n int, err error) {
-	n = copy(p, r.buf.B[r.p:])
+	n = copy(p, r.buf.B)
 	r.buf.Discard(0, n)
 
 	if r.buf.Len() == 0 {
@@ -65,14 +65,13 @@ func (r *Response) writeHeader(p []byte) (n int, err error) {
 			break
 		}
 		if r.buf.Len() > r.buf.P {
-			wn, _ := r.buf.Read(p)
+			wn, _ := r.buf.Read(p[n:])
 			n += wn
-			p = p[wn:]
 			continue
 		}
 		r.buf.Reset()
 
-		if r.p >= headerLen {
+		if r.p == headerLen {
 			r.state.SetOperate(_Body)
 			break
 		}
@@ -88,6 +87,9 @@ func (r *Response) writeHeader(p []byte) (n int, err error) {
 }
 
 func (r *Response) writeBody(p []byte) (n int, err error) {
+	if r.Body == nil {
+		return 0, io.EOF
+	}
 	if n, err = r.Body.Read(p); err == nil {
 		return
 	}

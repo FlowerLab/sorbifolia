@@ -5,6 +5,7 @@ func (r *Request) Reset() {
 	r.buf.Reset()
 	r.rp = 0
 	r.bodyLength = 0
+	r.Method = r.Method[:0]
 	r.Header.Reset()
 	if r.Body != nil {
 		_ = r.Body.Close()
