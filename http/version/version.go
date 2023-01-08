@@ -40,3 +40,5 @@ func (v Version) Bytes() []byte {
 	}
 	return pyrokinesis.String.ToBytes(v.String())
 }
+
+func (v Version) Null() bool { return v.Major == 0 && v.Minor == 0 }

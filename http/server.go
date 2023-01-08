@@ -89,18 +89,16 @@ func (s *Server) serveConn(conn net.Conn) error {
 		if _, err = util.Copy(&ctx.Request, conn); err != nil && err != io.EOF {
 			break
 		}
-
 		s.Handler(ctx)
+
+		if ctx.Response.Version.Null() {
+			ctx.Response.Version = ctx.Request.Version
+		}
 
 		ctx.Response.Header.Set(kv.KV{K: char.Server, V: s.Config.GetName()})
 		ctx.Response.Header.Set(kv.KV{K: char.Date, V: util.GetDate()})
 
-		// if _, err = conn.Write([]byte("HTTP/1.1 ")); err != nil && err != io.EOF {
-		// 	break
-		// }
-
 		var buf = &bytes.Buffer{}
-		buf.Write([]byte("HTTP/1.1 "))
 
 		if _, err = util.Copy(buf, &ctx.Response); err != nil && err != io.EOF {
 			break

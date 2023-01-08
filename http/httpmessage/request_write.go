@@ -213,9 +213,9 @@ func (r *Request) parseURI(p []byte) (n int, err error) {
 	buf.Reset()
 
 	if is09 {
-		n++                              // Discard two bytes
-		r.ver, _ = version.Parse(http09) // this can't go wrong
-		r.state.Close()                  // HTTP/0.9 no header and body
+		n++                                  // Discard two bytes
+		r.Version, _ = version.Parse(http09) // this can't go wrong
+		r.state.Close()                      // HTTP/0.9 no header and body
 	}
 
 	return
@@ -248,7 +248,7 @@ func (r *Request) parseVersion(p []byte) (n int, err error) {
 	}
 
 	var ok bool
-	if r.ver, ok = version.Parse(buf.Bytes()); !ok {
+	if r.Version, ok = version.Parse(buf.Bytes()); !ok {
 		err = httperr.ParseHTTPVersionErr
 	}
 
