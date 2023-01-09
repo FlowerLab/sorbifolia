@@ -6,6 +6,7 @@ import (
 
 	"go.x2ox.com/sorbifolia/http/httpbody"
 	"go.x2ox.com/sorbifolia/http/httperr"
+	"go.x2ox.com/sorbifolia/http/internal/bufpool"
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/method"
 	"go.x2ox.com/sorbifolia/http/version"
@@ -14,9 +15,10 @@ import (
 var http09 = []byte("HTTP/0.9")
 
 func (r *Request) Write(p []byte) (n int, err error) {
-	if !r.state.Writable() {
-		return 0, io.EOF
+	if err = r.preprocessWrite(); err != nil {
+		return
 	}
+
 	pLen := len(p)
 
 	for len(p) > 0 {
@@ -82,7 +84,7 @@ func (r *Request) parseBody(p []byte) (n int, err error) {
 func (r *Request) parseHeader(p []byte) (n int, err error) {
 	var (
 		i   = bytes.Index(p, char.CRLF2) // \r\n
-		buf = &r.buf
+		buf = r.buf
 	)
 
 	if length := buf.Len(); i == -1 && buf.Len()+len(p) >= 4 { // Check "\r\n\r\n" is straddles the buffer.
@@ -134,11 +136,19 @@ func (r *Request) parseHeader(p []byte) (n int, err error) {
 	case 0:
 		r.state.Close()
 		r.Body = httpbody.Null()
-	case -1: // TODO no length or empty body
-		c := httpbody.AcquireChunked()
-		c.Data = make(chan []byte, 1)
-		c.Header = make(chan []byte, 1)
-		r.Body = c
+	case -1:
+		r.state.Close()
+		r.Header.TransferEncoding().Each(func(val []byte) bool {
+			if bytes.Equal(val, char.Chunked) {
+				r.state.SetOperate(_Body)
+				c := httpbody.AcquireChunked()
+				c.Data = make(chan []byte, 1)
+				c.Header = make(chan []byte, 1)
+				r.Body = c
+				return false
+			}
+			return true
+		})
 	default:
 		r.Body = httpbody.AcquireMemory()
 	}
@@ -149,7 +159,7 @@ func (r *Request) parseHeader(p []byte) (n int, err error) {
 func (r *Request) parseMethod(p []byte) (n int, err error) {
 	var (
 		i   = bytes.IndexByte(p, char.Space) // Method URI HTTP/1.1
-		buf = &r.buf
+		buf = r.buf
 	)
 
 	switch i {
@@ -178,7 +188,7 @@ func (r *Request) parseMethod(p []byte) (n int, err error) {
 func (r *Request) parseURI(p []byte) (n int, err error) {
 	var (
 		i    = bytes.IndexByte(p, char.Space) // Method URI HTTP/1.1
-		buf  = &r.buf
+		buf  = r.buf
 		is09 = false
 	)
 	if i == -1 {
@@ -224,7 +234,7 @@ func (r *Request) parseURI(p []byte) (n int, err error) {
 func (r *Request) parseVersion(p []byte) (n int, err error) {
 	var (
 		i   = bytes.Index(p, char.CRLF) // Method URI HTTP/1.1
-		buf = &r.buf
+		buf = r.buf
 	)
 	if i == -1 {
 		if p[0] == '\n' && buf.Len() > 0 && buf.B[buf.Len()-1] == 'r' { // Check "\r\n" is straddles the buffer.
@@ -256,5 +266,19 @@ func (r *Request) parseVersion(p []byte) (n int, err error) {
 	r.state.SetOperate(_Header)
 	buf.Reset()
 
+	return
+}
+
+func (r *Request) preprocessWrite() (err error) {
+	if r.state == _Init {
+		r.state.SetWrite()
+		r.state.SetOperate(_Method)
+
+		r.buf = &bufpool.Buffer{}
+	}
+
+	if !r.state.Writable() {
+		return io.EOF
+	}
 	return
 }

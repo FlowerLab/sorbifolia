@@ -16,19 +16,17 @@ const (
 	_Status = _URI
 )
 
-func (rs *state) Readable() bool {
-	if *rs == _Init {
-		*rs += _Read
-	}
-	return !rs.IsClose() && *rs&_Read == _Read
-}
-func (rs *state) Writable() bool {
-	if *rs == _Init {
-		*rs += _Write
-	}
-	return !rs.IsClose() && *rs&_Write == _Write
-}
+func (rs *state) Readable() bool     { return !rs.IsClose() && *rs&_Read == _Read }
+func (rs *state) Writable() bool     { return !rs.IsClose() && *rs&_Write == _Write }
 func (rs *state) Operate() state     { return *rs >> 3 << 3 }
 func (rs *state) SetOperate(o state) { *rs = *rs<<5>>5 + o }
 func (rs *state) IsClose() bool      { return *rs&_Close == _Close }
 func (rs *state) Close()             { *rs = _Close }
+func (rs *state) SetRead()           { rs.setRW(_Read) }
+func (rs *state) SetWrite()          { rs.setRW(_Write) }
+func (rs *state) setRW(s state) {
+	if *rs != _Init && *rs&s == s {
+		panic("BUG: not set state rw")
+	}
+	*rs += s
+}

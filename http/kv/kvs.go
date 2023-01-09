@@ -8,12 +8,9 @@ import (
 
 type KVs []KV
 
-func (ks *KVs) Reset() {
-	for i := range *ks {
-		(*ks)[i].Reset()
-	}
-	*ks = (*ks)[:0]
-}
+func (ks *KVs) Len() int               { return len(*ks) }
+func (ks *KVs) Reset()                 { *ks = (*ks)[:0] }
+func (ks *KVs) HasKey(key []byte) bool { return ks.Index(key) != -1 }
 
 func (ks *KVs) Each(fn func(kv KV) bool) {
 	for _, v := range *ks {
@@ -23,14 +20,7 @@ func (ks *KVs) Each(fn func(kv KV) bool) {
 	}
 }
 
-func (ks *KVs) HasKey(key []byte) bool { return ks.Index(key) != -1 }
-
-func (ks *KVs) Get(key []byte) *KV {
-	if i := ks.Index(key); i != -1 {
-		return &(*ks)[i]
-	}
-	return nil
-}
+func (ks *KVs) Get(key []byte) *KV { return ks.get(key) }
 func (ks *KVs) GetValue(key []byte) []byte {
 	if i := ks.Index(key); i != -1 {
 		return (*ks)[i].V
@@ -56,21 +46,32 @@ func (ks *KVs) AddHeader(b []byte) {
 	}
 }
 
-func (ks *KVs) Add(k, v []byte) { kv := ks.alloc(); kv.K, kv.V = k, v }
-func (ks *KVs) AddKV(kv KV)     { *ks = append(*ks, kv) }
+func (ks *KVs) Add(k, v []byte) { kv := ks.alloc(); kv.SetK(k); kv.SetV(v) }
 func (ks *KVs) Set(k, v []byte) {
-	if i := ks.Index(k); i != -1 {
-		(*ks)[i].V, (*ks)[i].Null = v, false
+	if val := ks.get(k); val != nil {
+		val.SetV(v)
+		val.Null = false
 		return
 	}
 	ks.Add(k, v)
 }
+func (ks *KVs) AddKV(kv KV) { v := ks.alloc(); v.SetK(kv.K); v.SetV(kv.V); v.Null = kv.Null }
 func (ks *KVs) SetKV(kv KV) {
-	if i := ks.Index(kv.K); i != -1 {
-		(*ks)[i].V, (*ks)[i].Null = kv.V, kv.Null
+	if val := ks.get(kv.K); val != nil {
+		val.SetV(kv.V)
+		val.Null = kv.Null
 		return
 	}
 	ks.AddKV(kv)
+}
+
+func (ks *KVs) GetOrAdd(k []byte) *KV {
+	v := ks.get(k)
+	if v == nil {
+		v = ks.alloc()
+		v.SetK(k)
+	}
+	return v
 }
 
 func (ks *KVs) Index(k []byte) int {
@@ -101,5 +102,14 @@ func (ks *KVs) alloc() *KV {
 	} else {
 		*ks = append(*ks, KV{})
 	}
-	return &(*ks)[l]
+	v := &(*ks)[l]
+	v.Reset()
+	return v
+}
+
+func (ks *KVs) get(key []byte) *KV {
+	if i := ks.Index(key); i != -1 {
+		return &(*ks)[i]
+	}
+	return nil
 }

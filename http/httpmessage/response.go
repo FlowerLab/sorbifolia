@@ -44,10 +44,8 @@ func (r *Response) SetBody(body any) {
 	}
 
 	r.Body = rend.Render()
-	// r.Header.ContentType = rend.ContentType()
-	// r.Header.ContentLength = strconv.AppendInt(r.Header.ContentLength, rend.Length(), 10) // need to try to optimize
-	r.Header.AddHeader(append([]byte("Content-Type: "), rend.ContentType()...))
-	r.Header.AddHeader(append([]byte("Content-Length: "), strconv.AppendInt(nil, rend.Length(), 10)...))
+	r.Header.Set([]byte("Content-Type"), rend.ContentType())
+	r.Header.Set([]byte("Content-Length"), strconv.AppendInt(nil, rend.Length(), 10))
 }
 
 func (r *Response) Close() error {

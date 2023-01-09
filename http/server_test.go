@@ -23,6 +23,8 @@ func TestS(t *testing.T) {
 				if b, _ = io.ReadAll(ctx.Request.Body); len(b) == 0 {
 					b = []byte("nobody nobody")
 				}
+			} else {
+				b = []byte("nobody nobody")
 			}
 			ctx.Response.StatusCode = 200
 			ctx.Response.SetBody(b)
