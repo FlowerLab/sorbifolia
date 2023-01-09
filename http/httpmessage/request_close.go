@@ -2,7 +2,7 @@ package httpmessage
 
 func (r *Request) Reset() {
 	r.state = _Init
-	r.buf.Reset()
+	r.buf = nil
 	r.rp = 0
 	r.bodyLength = 0
 	r.Method = r.Method[:0]
@@ -14,7 +14,7 @@ func (r *Request) Reset() {
 }
 
 func (r *Request) Close() error {
-	r.buf.Reset()
+	r.buf = nil
 	r.state.Close()
 	return nil
 }
