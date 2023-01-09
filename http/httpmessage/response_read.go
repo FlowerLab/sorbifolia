@@ -3,6 +3,7 @@ package httpmessage
 import (
 	"io"
 
+	"go.x2ox.com/sorbifolia/http/httpheader"
 	"go.x2ox.com/sorbifolia/http/internal/bufpool"
 	"go.x2ox.com/sorbifolia/http/internal/char"
 )
@@ -91,7 +92,7 @@ func (r *Response) writeHeader(p []byte) (n int, err error) {
 			break
 		}
 
-		r.buf.B = r.Header.KVs[r.p].AppendHeader(r.buf.B)
+		r.buf.B = httpheader.AppendHeader(r.buf.B, r.Header.KVs[r.p])
 		r.p++
 		if r.p == headerLen {
 			_, _ = r.buf.Write(char.CRLF)

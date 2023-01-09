@@ -12,7 +12,6 @@ import (
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/internal/util"
 	"go.x2ox.com/sorbifolia/http/internal/workerpool"
-	"go.x2ox.com/sorbifolia/http/kv"
 	"go.x2ox.com/sorbifolia/http/status"
 	"go.x2ox.com/sorbifolia/http/version"
 )
@@ -73,8 +72,6 @@ func (s *Server) serveConn(conn net.Conn) error {
 	atomic.AddUint32(&s.concurrency, 1)
 	defer s.serveConnCleanup()
 
-	// _ = conn.SetWriteDeadline(coarsetime.Now().Add(s.Config.WriteTimeout))
-
 	ctx := s.getCtx(conn)
 	defer ReleaseContext(ctx)
 
@@ -95,8 +92,8 @@ func (s *Server) serveConn(conn net.Conn) error {
 			ctx.Response.Version = ctx.Request.Version
 		}
 
-		ctx.Response.Header.Set(kv.KV{K: char.Server, V: s.Config.GetName()})
-		ctx.Response.Header.Set(kv.KV{K: char.Date, V: util.GetDate()})
+		ctx.Response.Header.Set(char.Server, s.Config.GetName())
+		ctx.Response.Header.Set(char.Date, util.GetDate())
 
 		var buf = &bytes.Buffer{}
 
@@ -137,10 +134,10 @@ func (s *Server) Serve(ln net.Listener) error {
 
 		wp.SetConnState(conn, workerpool.StateNew)
 		if !wp.Serve(conn) {
-			_ = s.fastWriteCode(conn, version.Version{
-				Major: 1, // read first line
-				Minor: 1,
-			}, status.ServiceUnavailable)
+			// _ = s.fastWriteCode(conn, version.Version{
+			// 	Major: 1, // read first line
+			// 	Minor: 1,
+			// }, status.ServiceUnavailable)
 			_ = conn.Close()
 			wp.SetConnState(conn, workerpool.StateClosed)
 
