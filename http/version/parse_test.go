@@ -22,11 +22,8 @@ func TestParse(t *testing.T) {
 				t.Error("parse error")
 			}
 
-			if !reflect.DeepEqual(v.Major, version.Major) {
-				t.Errorf("expected %v,got %v", v.Major, version.Major)
-			}
-			if !reflect.DeepEqual(v.Minor, version.Minor) {
-				t.Errorf("expected %v,got %v", v.Minor, version.Minor)
+			if !reflect.DeepEqual(v, version) {
+				t.Errorf("expected %v,got %v", v, version)
 			}
 		})
 	}
