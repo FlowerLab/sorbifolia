@@ -1,6 +1,7 @@
 package version
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -14,18 +15,19 @@ func TestParse(t *testing.T) {
 		{Major: 3, Minor: 0},
 	}
 
-	for i := 0; i < len(testVersion); i++ {
-		version := testVersion[i]
-		major, minor, ok := parseHTTPVersion(version.Bytes())
-		if !ok {
-			t.Error("parse error")
-		}
+	for i, v := range testVersion {
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			version, ok := Parse(v.Bytes())
+			if !ok {
+				t.Error("parse error")
+			}
 
-		if !reflect.DeepEqual(version.Major, major) {
-			t.Errorf("expected %v,got %v", version.Major, major)
-		}
-		if !reflect.DeepEqual(version.Minor, minor) {
-			t.Errorf("expected %v,got %v", version.Minor, minor)
-		}
+			if !reflect.DeepEqual(v.Major, version.Major) {
+				t.Errorf("expected %v,got %v", v.Major, version.Major)
+			}
+			if !reflect.DeepEqual(v.Minor, version.Minor) {
+				t.Errorf("expected %v,got %v", v.Minor, version.Minor)
+			}
+		})
 	}
 }
