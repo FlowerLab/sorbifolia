@@ -21,13 +21,13 @@ func (r *Response) Read(p []byte) (n int, err error) {
 	for n < len(p) {
 		switch r.state.Operate() {
 		case _Version:
-			wn, err = r.writeVersion(p[n:])
+			wn, err = r.readVersion(p[n:])
 		case _Status:
-			wn, err = r.writeStatus(p[n:])
+			wn, err = r.readStatus(p[n:])
 		case _Header:
-			wn, err = r.writeHeader(p[n:])
+			wn, err = r.readHeader(p[n:])
 		case _Body:
-			wn, err = r.writeBody(p[n:])
+			wn, err = r.readBody(p[n:])
 		default:
 			panic("?")
 		}
@@ -42,7 +42,7 @@ func (r *Response) Read(p []byte) (n int, err error) {
 	return
 }
 
-func (r *Response) writeVersion(p []byte) (n int, err error) {
+func (r *Response) readVersion(p []byte) (n int, err error) {
 	n = copy(p, r.buf.B)
 	r.buf.Discard(0, n)
 
@@ -55,7 +55,7 @@ func (r *Response) writeVersion(p []byte) (n int, err error) {
 	return
 }
 
-func (r *Response) writeStatus(p []byte) (n int, err error) {
+func (r *Response) readStatus(p []byte) (n int, err error) {
 	n = copy(p, r.buf.B)
 	r.buf.Discard(0, n)
 
@@ -66,7 +66,7 @@ func (r *Response) writeStatus(p []byte) (n int, err error) {
 	return
 }
 
-func (r *Response) writeHeader(p []byte) (n int, err error) {
+func (r *Response) readHeader(p []byte) (n int, err error) {
 	var headerLen = r.Header.KVs.Len()
 
 	for r.p <= headerLen {
@@ -95,7 +95,7 @@ func (r *Response) writeHeader(p []byte) (n int, err error) {
 	return
 }
 
-func (r *Response) writeBody(p []byte) (n int, err error) {
+func (r *Response) readBody(p []byte) (n int, err error) {
 	if r.Body == nil {
 		return 0, io.EOF
 	}
