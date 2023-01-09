@@ -3,7 +3,7 @@ package httpmessage
 func (r *Request) Reset() {
 	r.state = _Init
 	r.buf = nil
-	r.rp = 0
+	r.p = 0
 	r.bodyLength = 0
 	r.Method = r.Method[:0]
 	r.Header.Reset()

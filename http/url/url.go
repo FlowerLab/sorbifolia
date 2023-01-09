@@ -19,6 +19,48 @@ type URL struct {
 	Username    []byte
 	Password    []byte
 	HasPassword bool
+
+	full, path []byte
+}
+
+func (u *URL) Bytes() []byte {
+	u.path = u.path[:0]
+	if len(u.Path) == 0 {
+		u.path = append(u.path, char.Slash[0])
+		return u.path
+	}
+
+	u.path = append(u.path, u.Path...)
+	if len(u.Query) > 0 {
+		u.path = append(u.path, char.QuestionMark)
+		u.path = append(u.path, u.Query...)
+	}
+	if len(u.Fragment) > 0 {
+		u.path = append(u.path, char.Hashtag)
+		u.path = append(u.path, u.Fragment...)
+	}
+
+	return u.path
+}
+
+func (u *URL) FullBytes() []byte {
+	u.full = u.full[:0]
+	if len(u.Scheme) > 0 {
+		u.full = append(u.full, u.Scheme...)
+		u.full = append(u.full, char.ColonSlashSlash...)
+	}
+	if len(u.Username) > 0 {
+		u.full = append(u.full, u.Username...)
+		if u.HasPassword {
+			u.full = append(u.full, char.Colon)
+			u.full = append(u.full, u.Password...)
+		}
+	}
+	if len(u.Host) > 0 {
+		u.full = append(u.full, u.Host...)
+	}
+	u.full = append(u.full, u.Bytes()...)
+	return u.full
 }
 
 // SetSchemeBytes sets URI scheme, i.e. http, https, ftp, etc.

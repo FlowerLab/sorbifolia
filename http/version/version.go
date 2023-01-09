@@ -42,3 +42,4 @@ func (v Version) Bytes() []byte {
 }
 
 func (v Version) Null() bool { return v.Major == 0 && v.Minor == 0 }
+func (v Version) Is09() bool { return v.Major == 0 && v.Minor == 9 }
