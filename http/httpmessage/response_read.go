@@ -3,6 +3,7 @@ package httpmessage
 import (
 	"io"
 
+	"go.x2ox.com/sorbifolia/http/httperr"
 	"go.x2ox.com/sorbifolia/http/httpheader"
 	"go.x2ox.com/sorbifolia/http/internal/bufpool"
 	"go.x2ox.com/sorbifolia/http/internal/char"
@@ -11,22 +12,14 @@ import (
 var _ io.ReadCloser = (*Response)(nil)
 
 func (r *Response) Read(p []byte) (n int, err error) {
-	if r.state == _Init {
-		r.buf = &bufpool.ReadBuffer{}
-	}
-	if !r.state.Readable() {
-		return 0, io.EOF
+	if err = r.preprocessRead(); err != nil {
+		return
 	}
 
 	var wn int
 
 	for n < len(p) {
 		switch r.state.Operate() {
-		case _Init:
-			_, _ = r.buf.Write(r.Version.Bytes())
-			_, _ = r.buf.Write(char.Spaces)
-			r.state.SetOperate(_Version)
-			continue
 		case _Version:
 			wn, err = r.writeVersion(p[n:])
 		case _Status:
@@ -74,7 +67,7 @@ func (r *Response) writeStatus(p []byte) (n int, err error) {
 }
 
 func (r *Response) writeHeader(p []byte) (n int, err error) {
-	var headerLen = len(r.Header.KVs)
+	var headerLen = r.Header.KVs.Len()
 
 	for r.p <= headerLen {
 		if len(p) == 0 {
@@ -117,4 +110,29 @@ func (r *Response) writeBody(p []byte) (n int, err error) {
 		}
 	}
 	return
+}
+
+func (r *Response) preprocessRead() (err error) {
+	if r.state == _Init {
+		r.state.SetRead()
+		r.state.SetOperate(_Version)
+
+		r.buf = &bufpool.ReadBuffer{}
+		_, _ = r.buf.Write(r.Version.Bytes())
+		_, _ = r.buf.Write(char.Spaces)
+
+		if r.Body != nil {
+			if r.Header.ContentLength().Length() <= 0 {
+				return httperr.BodyLengthMismatch
+			}
+		} else {
+			r.Header.SetContentLength(0)
+		}
+	}
+
+	if !r.state.Readable() {
+		return io.EOF
+	}
+
+	return nil
 }

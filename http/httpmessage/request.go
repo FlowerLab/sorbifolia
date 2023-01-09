@@ -13,7 +13,7 @@ import (
 type Request struct {
 	cfg        *httpconfig.Config
 	state      state
-	buf        bufpool.Buffer
+	buf        *bufpool.Buffer
 	rp         int
 	bodyLength int
 

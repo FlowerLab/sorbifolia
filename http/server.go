@@ -134,10 +134,6 @@ func (s *Server) Serve(ln net.Listener) error {
 
 		wp.SetConnState(conn, workerpool.StateNew)
 		if !wp.Serve(conn) {
-			// _ = s.fastWriteCode(conn, version.Version{
-			// 	Major: 1, // read first line
-			// 	Minor: 1,
-			// }, status.ServiceUnavailable)
 			_ = conn.Close()
 			wp.SetConnState(conn, workerpool.StateClosed)
 
