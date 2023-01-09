@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"io"
 	"reflect"
+	"strings"
 	"testing"
 
 	"go.x2ox.com/sorbifolia/http/httpbody"
 	"go.x2ox.com/sorbifolia/http/httpheader"
+	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/kv"
+	"go.x2ox.com/sorbifolia/http/url"
 	"go.x2ox.com/sorbifolia/http/version"
 )
 
@@ -27,8 +30,8 @@ func TestRequest_Write(t *testing.T) {
 				"Connection: keep-alive\r\n\r\n" +
 				""),
 			expected: &Request{
-				ver:    version.Version{Major: 1, Minor: 1},
-				Method: "GET",
+				Version: version.Version{Major: 1, Minor: 1},
+				Method:  "GET",
 				Header: httpheader.RequestHeader{
 					KVs: kv.KVs{
 						{[]byte("Host"), []byte("localhost"), false},
@@ -59,3 +62,38 @@ func TestRequest_Write(t *testing.T) {
 		})
 	}
 }
+
+func TestRequest_Read(t *testing.T) {
+	req := &Request{
+		Version: version.Version{Major: 1, Minor: 1},
+		Method:  "",
+		Header: httpheader.RequestHeader{
+			KVs: kv.KVs{
+				kv.KV{K: char.ContentLength, V: []byte("18")},
+			},
+			RemoteAddr: nil,
+			RequestURI: nil,
+			URL: url.URL{
+				Scheme:   []byte("https"),
+				Host:     []byte("example.com"),
+				Path:     []byte("/index.html"),
+				Query:    []byte("id=1"),
+				Fragment: []byte("post"),
+			},
+		},
+		Body: NopWriteCloser{Reader: strings.NewReader("111-222-333-444-18")},
+	}
+	buf := new(bytes.Buffer)
+
+	if _, err := io.Copy(buf, req); err != nil {
+		t.Error(err)
+	}
+	fmt.Println(buf.String())
+}
+
+type NopWriteCloser struct {
+	io.Reader
+}
+
+func (n2 NopWriteCloser) Write(p []byte) (n int, err error) { return 0, io.EOF }
+func (n2 NopWriteCloser) Close() error                      { return nil }

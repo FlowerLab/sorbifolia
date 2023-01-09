@@ -8,12 +8,9 @@ import (
 
 type KVs []KV
 
-func (ks *KVs) Reset() {
-	for i := range *ks {
-		(*ks)[i].Reset()
-	}
-	*ks = (*ks)[:0]
-}
+func (ks *KVs) Len() int               { return len(*ks) }
+func (ks *KVs) Reset()                 { *ks = (*ks)[:0] }
+func (ks *KVs) HasKey(key []byte) bool { return ks.Index(key) != -1 }
 
 func (ks *KVs) Each(fn func(kv KV) bool) {
 	for _, v := range *ks {
@@ -23,44 +20,67 @@ func (ks *KVs) Each(fn func(kv KV) bool) {
 	}
 }
 
-func (ks *KVs) HasKey(key []byte) bool {
-	for _, v := range *ks {
-		if bytes.EqualFold(key, v.K) {
-			return true
-		}
+func (ks *KVs) Get(key []byte) *KV { return ks.get(key) }
+func (ks *KVs) GetValue(key []byte) []byte {
+	if i := ks.Index(key); i != -1 {
+		return (*ks)[i].V
 	}
-	return false
+	return nil
 }
 
-func (ks *KVs) Get(key []byte) KV {
-	for _, v := range *ks {
-		if bytes.EqualFold(key, v.K) {
-			return v
+func (ks *KVs) AddHeader(b []byte) {
+	kv := ks.alloc()
+	idx := bytes.IndexByte(b, char.Colon)
+	if idx == -1 {
+		kv.SetK(b)
+		return
+	}
+
+	kv.SetK(b[:idx])
+	idx++
+	for ; idx < len(b); idx++ {
+		if b[idx] != char.Space {
+			kv.SetV(b[idx:])
+			break
 		}
 	}
-	return nullKV
 }
 
-func (ks *KVs) Find(key []byte) []KV {
-	arr := make([]int, 0, len(*ks))
-	for i, v := range *ks {
-		if bytes.EqualFold(key, v.K) {
-			arr = append(arr, i)
+func (ks *KVs) Add(k, v []byte) { kv := ks.alloc(); kv.SetK(k); kv.SetV(v) }
+func (ks *KVs) Set(k, v []byte) {
+	if val := ks.get(k); val != nil {
+		val.SetV(v)
+		val.Null = false
+		return
+	}
+	ks.Add(k, v)
+}
+func (ks *KVs) AddKV(kv KV) { v := ks.alloc(); v.SetK(kv.K); v.SetV(kv.V); v.Null = kv.Null }
+func (ks *KVs) SetKV(kv KV) {
+	if val := ks.get(kv.K); val != nil {
+		val.SetV(kv.V)
+		val.Null = kv.Null
+		return
+	}
+	ks.AddKV(kv)
+}
+
+func (ks *KVs) GetOrAdd(k []byte) *KV {
+	v := ks.get(k)
+	if v == nil {
+		v = ks.alloc()
+		v.SetK(k)
+	}
+	return v
+}
+
+func (ks *KVs) Index(k []byte) int {
+	for i := range *ks {
+		if bytes.EqualFold((*ks)[i].K, k) {
+			return i
 		}
 	}
-	if len(arr) == 0 {
-		return nil
-	}
-
-	kvs := make([]KV, 0, len(arr))
-	for i := range arr {
-		kvs = append(kvs, (*ks)[i])
-	}
-	return kvs
-}
-
-func (ks *KVs) Add(kv KV) {
-	*ks = append(*ks, kv)
+	return -1
 }
 
 func (ks *KVs) PreAlloc(size int) {
@@ -82,35 +102,14 @@ func (ks *KVs) alloc() *KV {
 	} else {
 		*ks = append(*ks, KV{})
 	}
-	return &(*ks)[l]
+	v := &(*ks)[l]
+	v.Reset()
+	return v
 }
 
-func (ks *KVs) AddHeader(b []byte) {
-	kv := ks.alloc()
-	idx := bytes.IndexByte(b, char.Colon)
-	if idx == -1 {
-		kv.SetK(b)
-		return
+func (ks *KVs) get(key []byte) *KV {
+	if i := ks.Index(key); i != -1 {
+		return &(*ks)[i]
 	}
-
-	kv.SetK(b[:idx])
-	idx++
-	for ; idx < len(b); idx++ {
-		if b[idx] != char.Space {
-			kv.SetV(b[idx:])
-			break
-		}
-	}
+	return nil
 }
-
-func (ks *KVs) Set(kv KV) {
-	for _, v := range *ks {
-		if bytes.EqualFold(v.K, kv.K) {
-			v.V = kv.V
-			return
-		}
-	}
-	ks.Add(kv)
-}
-
-var nullKV = KV{Null: true}

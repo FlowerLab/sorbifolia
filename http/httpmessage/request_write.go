@@ -2,11 +2,11 @@ package httpmessage
 
 import (
 	"bytes"
-	"errors"
 	"io"
 
 	"go.x2ox.com/sorbifolia/http/httpbody"
 	"go.x2ox.com/sorbifolia/http/httperr"
+	"go.x2ox.com/sorbifolia/http/internal/bufpool"
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/method"
 	"go.x2ox.com/sorbifolia/http/version"
@@ -14,31 +14,24 @@ import (
 
 var http09 = []byte("HTTP/0.9")
 
-type parseRequestState uint8
-
-const (
-	_sReadMethod parseRequestState = iota
-	_sReadURI
-	_sReadVersion
-	_sReadHeader
-	_sReadBody
-	_sEND
-)
-
 func (r *Request) Write(p []byte) (n int, err error) {
+	if err = r.preprocessWrite(); err != nil {
+		return
+	}
+
 	pLen := len(p)
 
 	for len(p) > 0 {
-		switch r.state {
-		case _sReadMethod:
+		switch r.state.Operate() {
+		case _Method:
 			n, err = r.parseMethod(p)
-		case _sReadURI:
+		case _URI:
 			n, err = r.parseURI(p)
-		case _sReadVersion:
+		case _Version:
 			n, err = r.parseVersion(p)
-		case _sReadHeader:
+		case _Header:
 			n, err = r.parseHeader(p)
-		case _sReadBody:
+		case _Body:
 			n, err = r.parseBody(p)
 		default:
 			break
@@ -50,7 +43,7 @@ func (r *Request) Write(p []byte) (n int, err error) {
 		p = p[n:]
 	}
 
-	if r.state == _sEND {
+	if r.state.IsClose() {
 		err = io.EOF
 	}
 
@@ -64,7 +57,7 @@ func (r *Request) parseBody(p []byte) (n int, err error) {
 				if cErr := r.Body.Close(); cErr != nil {
 					err = cErr
 				}
-				r.state = _sEND
+				r.state.Close()
 			}
 		}
 		return
@@ -80,7 +73,7 @@ func (r *Request) parseBody(p []byte) (n int, err error) {
 		if err = r.Body.Close(); err == nil {
 			err = io.EOF
 		}
-		r.state = _sEND
+		r.state.Close()
 	}
 	return
 }
@@ -88,7 +81,7 @@ func (r *Request) parseBody(p []byte) (n int, err error) {
 func (r *Request) parseHeader(p []byte) (n int, err error) {
 	var (
 		i   = bytes.Index(p, char.CRLF2) // \r\n
-		buf = &r.buf
+		buf = r.buf
 	)
 
 	if length := buf.Len(); i == -1 && buf.Len()+len(p) >= 4 { // Check "\r\n\r\n" is straddles the buffer.
@@ -129,22 +122,30 @@ func (r *Request) parseHeader(p []byte) (n int, err error) {
 	}
 
 	n += 4 // Discard four bytes
-	r.state++
+	r.state.SetOperate(_Body)
 
 	if err = r.Header.Parse(buf.Bytes()); err != nil {
 		return
 	}
 
-	r.bodyLength = int(r.Header.ContentLength.Length())
+	r.bodyLength = r.Header.ContentLength().Length()
 	switch r.bodyLength {
 	case 0:
-		r.state = _sEND
+		r.state.Close()
 		r.Body = httpbody.Null()
 	case -1:
-		c := httpbody.AcquireChunked()
-		c.Data = make(chan []byte, 1)
-		c.Header = make(chan []byte, 1)
-		r.Body = c
+		r.state.Close()
+		r.Header.TransferEncoding().Each(func(val []byte) bool {
+			if bytes.Equal(val, char.Chunked) {
+				r.state.SetOperate(_Body)
+				c := httpbody.AcquireChunked()
+				c.Data = make(chan []byte, 1)
+				c.Header = make(chan []byte, 1)
+				r.Body = c
+				return false
+			}
+			return true
+		})
 	default:
 		r.Body = httpbody.AcquireMemory()
 	}
@@ -155,7 +156,7 @@ func (r *Request) parseHeader(p []byte) (n int, err error) {
 func (r *Request) parseMethod(p []byte) (n int, err error) {
 	var (
 		i   = bytes.IndexByte(p, char.Space) // Method URI HTTP/1.1
-		buf = &r.buf
+		buf = r.buf
 	)
 
 	switch i {
@@ -172,8 +173,8 @@ func (r *Request) parseMethod(p []byte) (n int, err error) {
 		n, _ = buf.Write(p[:i])
 	}
 
-	n++       // Discard a byte, it's a space
-	r.state++ // Continue to read URI
+	n++                      // Discard a byte, it's a space
+	r.state.SetOperate(_URI) // Continue to read URI
 
 	r.Method = method.Parse(buf.Bytes())
 	buf.Reset()
@@ -184,7 +185,7 @@ func (r *Request) parseMethod(p []byte) (n int, err error) {
 func (r *Request) parseURI(p []byte) (n int, err error) {
 	var (
 		i    = bytes.IndexByte(p, char.Space) // Method URI HTTP/1.1
-		buf  = &r.buf
+		buf  = r.buf
 		is09 = false
 	)
 	if i == -1 {
@@ -212,16 +213,16 @@ func (r *Request) parseURI(p []byte) (n int, err error) {
 	}
 
 	n++ // Discard a byte, it's a space
-	r.state++
+	r.state.SetOperate(_Version)
 
 	r.Header.RequestURI = append(r.Header.RequestURI, buf.Bytes()...)
 
 	buf.Reset()
 
 	if is09 {
-		n++                              // Discard two bytes
-		r.ver, _ = version.Parse(http09) // this can't go wrong
-		r.state = _sEND                  // HTTP/0.9 no header and body
+		n++                                  // Discard two bytes
+		r.Version, _ = version.Parse(http09) // this can't go wrong
+		r.state.Close()                      // HTTP/0.9 no header and body
 	}
 
 	return
@@ -230,7 +231,7 @@ func (r *Request) parseURI(p []byte) (n int, err error) {
 func (r *Request) parseVersion(p []byte) (n int, err error) {
 	var (
 		i   = bytes.Index(p, char.CRLF) // Method URI HTTP/1.1
-		buf = &r.buf
+		buf = r.buf
 	)
 	if i == -1 {
 		if p[0] == '\n' && buf.Len() > 0 && buf.B[buf.Len()-1] == 'r' { // Check "\r\n" is straddles the buffer.
@@ -254,30 +255,27 @@ func (r *Request) parseVersion(p []byte) (n int, err error) {
 	}
 
 	var ok bool
-	if r.ver, ok = version.Parse(buf.Bytes()); !ok {
+	if r.Version, ok = version.Parse(buf.Bytes()); !ok {
 		err = httperr.ParseHTTPVersionErr
 	}
 
 	n += 2 // Discard two bytes
-	r.state++
+	r.state.SetOperate(_Header)
 	buf.Reset()
 
 	return
 }
 
-func (r *Request) Close() error {
-	r.buf.Reset()
-	return nil
-}
+func (r *Request) preprocessWrite() (err error) {
+	if r.state == _Init {
+		r.state.SetWrite()
+		r.state.SetOperate(_Method)
 
-func (r *Request) Read(p []byte) (n int, err error) {
-	if r.state != _sEND {
-		return 0, errors.New("? TODO: here we need to think about how to deal with")
+		r.buf = &bufpool.ReadBuffer{}
 	}
-	if length := r.buf.Len(); length == 0 || length == r.rp {
-		return 0, io.EOF
+
+	if !r.state.Writable() {
+		return io.EOF
 	}
-	n = copy(p, r.buf.B[r.rp:])
-	r.rp += n
 	return
 }

@@ -2,12 +2,11 @@ package http
 
 import (
 	"context"
-	"io"
 	"net"
 	"sync"
 	"time"
 
-	"go.x2ox.com/sorbifolia/http/httpbody"
+	"go.x2ox.com/sorbifolia/http/httpmessage"
 )
 
 type Context struct {
@@ -18,8 +17,8 @@ type Context struct {
 	time time.Time
 	addr net.Addr
 
-	Request  Request
-	Response Response
+	Request  httpmessage.Request
+	Response httpmessage.Response
 }
 
 func (c *Context) Deadline() (deadline time.Time, ok bool) { return }
@@ -37,52 +36,16 @@ func (c *Context) Value(key any) any {
 }
 
 func (c *Context) cleanup() {
-	c.Request.Header.Reset()
-	c.Response.Header.Reset()
-
-	if c.Request.Body != nil {
-		_ = c.Request.Body.Close()
-		if p, ok := c.Request.Body.(httpbody.Pool); ok {
-			httpbody.Release(p)
-		}
-		c.Request.Body = nil
-	}
-
-	if c.Response.Body != nil {
-		if bc, ok := c.Response.Body.(io.Closer); ok {
-			_ = bc.Close()
-		}
-		if p, ok := c.Response.Body.(httpbody.Pool); ok {
-			httpbody.Release(p)
-		}
-		c.Response.Body = nil
-	}
+	c.Request.Reset()
+	c.Response.Reset()
 }
 
 func (c *Context) Reset() {
 	c.c = nil
 	c.s = nil
 	c.addr = nil
-	c.Request.Header.Reset()
-	c.Response.Header.Reset()
-
-	if c.Request.Body != nil {
-		_ = c.Request.Body.Close()
-		if p, ok := c.Request.Body.(httpbody.Pool); ok {
-			httpbody.Release(p)
-		}
-		c.Request.Body = nil
-	}
-
-	if c.Response.Body != nil {
-		if bc, ok := c.Response.Body.(io.Closer); ok {
-			_ = bc.Close()
-		}
-		if p, ok := c.Response.Body.(httpbody.Pool); ok {
-			httpbody.Release(p)
-		}
-		c.Response.Body = nil
-	}
+	c.Request.Reset()
+	c.Response.Reset()
 }
 
 func AcquireContext() *Context {

@@ -12,25 +12,13 @@ import (
 
 type Request struct {
 	cfg        *httpconfig.Config
-	state      parseRequestState
-	buf        bufpool.Buffer
-	rp         int
+	state      state
+	buf        *bufpool.ReadBuffer
+	p          int
 	bodyLength int
 
-	ver    version.Version
-	Method method.Method
-	Header httpheader.RequestHeader
-	Body   io.ReadWriteCloser
-}
-
-func (r *Request) Reset() {
-	r.state = 0
-	r.buf.Reset()
-	r.rp = 0
-	r.bodyLength = 0
-	r.Header.Reset()
-	if r.Body != nil {
-		_ = r.Body.Close()
-		r.Body = nil
-	}
+	Version version.Version
+	Method  method.Method
+	Header  httpheader.RequestHeader
+	Body    io.ReadWriteCloser
 }

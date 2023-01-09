@@ -15,9 +15,7 @@ type Client struct {
 	Dial DialFunc
 }
 
-func (c Client) Do(req *Request, resp *Response) error {
-	return nil
-}
+// func (c Client) Do(req *Request, resp *Response) error {return nil}
 
 type ClientPool struct {
 }

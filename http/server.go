@@ -1,6 +1,7 @@
 package http
 
 import (
+	"bytes"
 	"io"
 	"net"
 	"sync/atomic"
@@ -11,7 +12,6 @@ import (
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/internal/util"
 	"go.x2ox.com/sorbifolia/http/internal/workerpool"
-	"go.x2ox.com/sorbifolia/http/kv"
 	"go.x2ox.com/sorbifolia/http/status"
 	"go.x2ox.com/sorbifolia/http/version"
 )
@@ -72,26 +72,36 @@ func (s *Server) serveConn(conn net.Conn) error {
 	atomic.AddUint32(&s.concurrency, 1)
 	defer s.serveConnCleanup()
 
-	err := conn.SetReadDeadline(coarsetime.Now().Add(s.Config.GetReadTimeout()))
-	// _ = conn.SetWriteDeadline(coarsetime.Now().Add(s.Config.WriteTimeout))
-
 	ctx := s.getCtx(conn)
 	defer ReleaseContext(ctx)
 
+	var (
+		err error
+	)
+
 	for {
-		ctx.Request.parse(conn)
-
-		s.Handler(ctx)
-
-		ctx.Response.Header.Set(kv.KV{K: char.Server, V: s.Config.GetName()})
-		ctx.Response.Header.Set(kv.KV{K: char.Date, V: util.GetDate()})
-
-		var rc io.ReadCloser
-		if rc, err = ctx.Response.Encode(ctx.Request.ver); err != nil {
-			_ = s.fastWriteCode(conn, ctx.Request.ver, status.InternalServerError)
+		if err = conn.SetReadDeadline(coarsetime.Now().Add(s.Config.GetReadTimeout())); err != nil {
 			break
 		}
-		if _, err = util.Copy(conn, rc); err != nil && err != io.EOF {
+		if _, err = util.Copy(&ctx.Request, conn); err != nil && err != io.EOF {
+			break
+		}
+		s.Handler(ctx)
+
+		if ctx.Response.Version.Null() {
+			ctx.Response.Version = ctx.Request.Version
+		}
+
+		ctx.Response.Header.Set(char.Server, s.Config.GetName())
+		ctx.Response.Header.Set(char.Date, util.GetDate())
+
+		var buf = &bytes.Buffer{}
+
+		if _, err = util.Copy(buf, &ctx.Response); err != nil && err != io.EOF {
+			break
+		}
+
+		if _, err = util.Copy(conn, buf); err != nil && err != io.EOF {
 			break
 		}
 
@@ -124,10 +134,6 @@ func (s *Server) Serve(ln net.Listener) error {
 
 		wp.SetConnState(conn, workerpool.StateNew)
 		if !wp.Serve(conn) {
-			_ = s.fastWriteCode(conn, version.Version{
-				Major: 1, // read first line
-				Minor: 1,
-			}, status.ServiceUnavailable)
 			_ = conn.Close()
 			wp.SetConnState(conn, workerpool.StateClosed)
 

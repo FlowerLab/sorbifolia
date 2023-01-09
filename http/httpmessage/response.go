@@ -8,16 +8,18 @@ import (
 	"go.x2ox.com/sorbifolia/http/internal/bufpool"
 	"go.x2ox.com/sorbifolia/http/render"
 	"go.x2ox.com/sorbifolia/http/status"
+	"go.x2ox.com/sorbifolia/http/version"
 )
 
 type Response struct {
+	Version    version.Version
 	StatusCode status.Status
 	Header     httpheader.ResponseHeader
 	Body       io.Reader
 
-	buf           *bufpool.ReadBuffer
-	state, status uint8
-	p             int
+	buf   *bufpool.ReadBuffer
+	state state
+	p     int
 }
 
 func (r *Response) SetBody(body any) {
@@ -42,8 +44,8 @@ func (r *Response) SetBody(body any) {
 	}
 
 	r.Body = rend.Render()
-	r.Header.ContentType = rend.ContentType()
-	r.Header.ContentLength = strconv.AppendInt(r.Header.ContentLength, rend.Length(), 10) // need to try to optimize
+	r.Header.Set([]byte("Content-Type"), rend.ContentType())
+	r.Header.Set([]byte("Content-Length"), strconv.AppendInt(nil, rend.Length(), 10))
 }
 
 func (r *Response) Close() error {
@@ -56,4 +58,15 @@ func (r *Response) Close() error {
 	}
 
 	return nil
+}
+
+func (r *Response) Reset() {
+	r.Header.Reset()
+	if r.Body != nil {
+		r.Body = nil
+	}
+
+	r.buf = nil
+	r.state = _Init
+	r.p = 0
 }

@@ -83,6 +83,12 @@ func parseFirstValue(b []byte, delimiter byte) []byte {
 	}
 	return b
 }
+func parseFirstValueOrNull(b []byte, delimiter byte) []byte {
+	if i := bytes.IndexByte(b, delimiter); i >= 0 {
+		return b[:i]
+	}
+	return nil
+}
 func parseOtherValue(b []byte, delimiter byte) []byte {
 	if i := bytes.IndexByte(b, delimiter); i >= 0 {
 		return b[i+1:]
