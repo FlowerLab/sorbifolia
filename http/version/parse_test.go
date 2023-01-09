@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestParseVersion(t *testing.T) {
+func TestParseHttpVersion(t *testing.T) {
 	major, minor, ok := parseHTTPVersion([]byte("HTTP/2.0"))
 	if !ok {
 		t.Error("parse error")
