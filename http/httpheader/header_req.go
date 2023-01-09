@@ -12,25 +12,25 @@ import (
 type RequestHeader struct {
 	kv.KVs
 
-	Accept           Accept
-	AcceptEncoding   AcceptEncoding
-	AcceptLanguage   AcceptLanguage
-	ContentLength    ContentLength
-	ContentType      ContentType
-	Cookie           Cookie
-	Host             Host
-	UserAgent        UserAgent
-	TransferEncoding TransferEncoding
-
-	Trailer       Trailer
-	TrailerHeader kv.KVs
-
 	RemoteAddr []byte
 	RequestURI []byte
 	URL        url.URL
 	TLS        *tls.ConnectionState
 	Close      bool
 }
+
+func (rh *RequestHeader) Accept() Accept                 { return rh.GetValue(char.Accept) }
+func (rh *RequestHeader) AcceptEncoding() AcceptEncoding { return rh.GetValue(char.AcceptEncoding) }
+func (rh *RequestHeader) AcceptLanguage() AcceptLanguage { return rh.GetValue(char.AcceptLanguage) }
+func (rh *RequestHeader) ContentLength() ContentLength   { return rh.GetValue(char.ContentLength) }
+func (rh *RequestHeader) ContentType() ContentLength     { return rh.GetValue(char.ContentType) }
+func (rh *RequestHeader) Cookie() ContentLength          { return rh.GetValue(char.Cookie) }
+func (rh *RequestHeader) Host() Host                     { return rh.GetValue(char.Host) }
+func (rh *RequestHeader) UserAgent() ContentLength       { return rh.GetValue(char.UserAgent) }
+func (rh *RequestHeader) TransferEncoding() TransferEncoding {
+	return rh.GetValue(char.TransferEncoding)
+}
+func (rh *RequestHeader) Trailer() Trailer { return rh.GetValue(char.Trailer) }
 
 func (rh *RequestHeader) Parse(b []byte) error {
 	if len(b) == 0 {
@@ -52,52 +52,11 @@ func (rh *RequestHeader) Parse(b []byte) error {
 		b = b[idx+2:]
 	}
 
-	return rh.RawParse()
-}
-
-func (rh *RequestHeader) RawParse() error {
-	rh.Each(func(kv kv.KV) bool {
-		switch {
-		case bytes.EqualFold(kv.K, char.Accept):
-			rh.Accept = kv.V
-		case bytes.EqualFold(kv.K, char.AcceptEncoding):
-			rh.AcceptEncoding = kv.V
-		case bytes.EqualFold(kv.K, char.AcceptLanguage):
-			rh.AcceptLanguage = kv.V
-		case bytes.EqualFold(kv.K, char.Connection):
-			if bytes.EqualFold(kv.V, char.Close) {
-				rh.Close = true
-			}
-		case bytes.EqualFold(kv.K, char.ContentLength):
-			rh.ContentLength = kv.V
-		case bytes.EqualFold(kv.K, char.Cookie):
-			rh.Cookie = kv.V
-		case bytes.EqualFold(kv.K, char.Host):
-			rh.Host = kv.V
-		case bytes.EqualFold(kv.K, char.UserAgent):
-			rh.UserAgent = kv.V
-		}
-		return true
-	})
-
-	return rh.URL.Parse(rh.Host, rh.RequestURI, rh.TLS != nil)
+	return rh.URL.Parse(rh.KVs.Get(char.Host).V, rh.RequestURI, rh.TLS != nil)
 }
 
 func (rh *RequestHeader) Reset() {
 	rh.KVs.Reset()
-	rh.Accept = rh.Accept[:0]
-	rh.AcceptEncoding = rh.AcceptEncoding[:0]
-	rh.AcceptLanguage = rh.AcceptLanguage[:0]
-	rh.ContentLength = rh.ContentLength[:0]
-	rh.ContentType = rh.ContentType[:0]
-	rh.Cookie = rh.Cookie[:0]
-	rh.Host = rh.Host[:0]
-	rh.UserAgent = rh.UserAgent[:0]
-	rh.TransferEncoding = rh.TransferEncoding[:0]
-	rh.Trailer = rh.Trailer[:0]
-	rh.TrailerHeader.Reset()
-	rh.RemoteAddr = rh.RemoteAddr[:0]
-	rh.RequestURI = rh.RequestURI[:0]
 	rh.URL.Reset()
 	rh.TLS = nil
 	rh.Close = false

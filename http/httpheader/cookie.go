@@ -57,7 +57,7 @@ func (v Host) Host() []byte {
 
 func (v Host) Port() uint16 {
 	if i := bytes.IndexByte(v, char.Colon); i >= 0 {
-		return uint16(util.ToNonNegativeInt64(v[i+1:]))
+		return uint16(util.ToNonNegativeInt(v[i+1:]))
 	}
 	return 0
 }
@@ -68,18 +68,18 @@ func (v KeepAlive) Timeout() time.Duration {
 	var d time.Duration = -1
 	eachValueWithComma(v, func(value []byte) bool {
 		if k, val := parseKVWithEqual(value); bytes.EqualFold(k, char.Timeout) {
-			d = time.Duration(util.ToNonNegativeInt64(val)) + time.Second
+			d = time.Duration(util.ToNonNegativeInt(val)) + time.Second
 			return false
 		}
 		return true
 	})
 	return d
 }
-func (v KeepAlive) Max() int64 {
-	i := int64(-1)
+func (v KeepAlive) Max() int {
+	i := -1
 	eachValueWithComma(v, func(value []byte) bool {
 		if k, val := parseKVWithEqual(value); bytes.EqualFold(k, char.Max) {
-			i = util.ToNonNegativeInt64(val)
+			i = util.ToNonNegativeInt(val)
 			return false
 		}
 		return true
@@ -126,7 +126,7 @@ func (v Origin) Port() uint16 {
 
 	b := v[i+3:]
 	if i = bytes.IndexByte(b, ':'); i >= 0 {
-		return uint16(util.ToNonNegativeInt64(b[i+1:]))
+		return uint16(util.ToNonNegativeInt(b[i+1:]))
 	}
 
 	return 0
@@ -140,15 +140,15 @@ func (v Range) Unit() []byte {
 }
 
 type Ranger struct {
-	Start, End int64 // Valid range is 0 - 9223372036854775807, -1 means maximum or minimum
-	Length     int64 // Range data Length
+	Start, End int // Valid range is 0 - 9223372036854775807, -1 means maximum or minimum
+	Length     int // Range data Length
 }
 
 func (r *Ranger) IsBad() bool {
 	return (r.Start < 0 && r.End < 0 && r.Length < 0) || (r.Start > r.End)
 }
 
-func (r *Ranger) Reader(read io.ReadSeeker, length int64) (io.Reader, error) {
+func (r *Ranger) Reader(read io.ReadSeeker, length int) (io.Reader, error) {
 	if r.IsBad() {
 		return nil, errors.New("invalid ranges specifier")
 	}
@@ -158,7 +158,7 @@ func (r *Ranger) Reader(read io.ReadSeeker, length int64) (io.Reader, error) {
 			return nil, errors.New("invalid ranges specifier")
 		}
 		r.Length = length - r.Start
-		if _, err := read.Seek(r.Start, io.SeekStart); err != nil {
+		if _, err := read.Seek(int64(r.Start), io.SeekStart); err != nil {
 			return nil, err
 		}
 		return read, nil
@@ -168,7 +168,7 @@ func (r *Ranger) Reader(read io.ReadSeeker, length int64) (io.Reader, error) {
 		if r.Length > length {
 			return nil, errors.New("invalid ranges specifier")
 		}
-		if _, err := read.Seek(length-r.Length, io.SeekStart); err != nil {
+		if _, err := read.Seek(int64(length-r.Length), io.SeekStart); err != nil {
 			return nil, err
 		}
 		return read, nil
@@ -177,10 +177,10 @@ func (r *Ranger) Reader(read io.ReadSeeker, length int64) (io.Reader, error) {
 	if r.Start > length || r.Length > length { // 100-300
 		return nil, errors.New("invalid ranges specifier")
 	}
-	if _, err := read.Seek(r.Start, io.SeekStart); err != nil {
+	if _, err := read.Seek(int64(r.Start), io.SeekStart); err != nil {
 		return nil, err
 	}
-	return io.LimitReader(read, r.Length), nil
+	return io.LimitReader(read, int64(r.Length)), nil
 }
 
 func (v Range) Each(fn EachRanger) {
@@ -193,12 +193,12 @@ func (v Range) Each(fn EachRanger) {
 		case i < 0:
 			return fn(Ranger{Start: -1, End: -1, Length: -1})
 		case i == 0: // -100
-			return fn(Ranger{Start: -1, End: -1, Length: util.ToNonNegativeInt64(value[1:])})
+			return fn(Ranger{Start: -1, End: -1, Length: util.ToNonNegativeInt(value[1:])})
 		case i == len(value)-1: // 100-
-			return fn(Ranger{Start: util.ToNonNegativeInt64(value[1:]), End: -1, Length: -1})
+			return fn(Ranger{Start: util.ToNonNegativeInt(value[1:]), End: -1, Length: -1})
 		}
 
-		r := Ranger{Start: util.ToNonNegativeInt64(value[:i]), End: util.ToNonNegativeInt64(value[:i])}
+		r := Ranger{Start: util.ToNonNegativeInt(value[:i]), End: util.ToNonNegativeInt(value[:i])}
 		r.Length = r.End - r.Start
 		return fn(r)
 	})

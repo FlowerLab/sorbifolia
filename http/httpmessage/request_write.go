@@ -129,12 +129,12 @@ func (r *Request) parseHeader(p []byte) (n int, err error) {
 		return
 	}
 
-	r.bodyLength = int(r.Header.ContentLength.Length())
+	r.bodyLength = r.Header.ContentLength().Length()
 	switch r.bodyLength {
 	case 0:
 		r.state.Close()
 		r.Body = httpbody.Null()
-	case -1:
+	case -1: // TODO no length or empty body
 		c := httpbody.AcquireChunked()
 		c.Data = make(chan []byte, 1)
 		c.Header = make(chan []byte, 1)

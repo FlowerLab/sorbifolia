@@ -58,8 +58,8 @@ func (v ContentLanguage) Each(fn EachValue) { eachValueWithComma(v, fn) }
 type ContentEncoding []byte
 type ContentLength []byte
 
-func (v ContentLength) Length() (n int64) {
-	return util.ToNonNegativeInt64(v)
+func (v ContentLength) Length() (n int) {
+	return util.ToNonNegativeInt(v)
 }
 
 type ContentLocation []byte
@@ -72,7 +72,7 @@ func (v ContentRange) Unit() []byte {
 	return nil
 }
 
-func (v ContentRange) Start() int64 {
+func (v ContentRange) Start() int {
 	i := bytes.IndexByte(v, char.Space)
 	if i < 0 {
 		return -1
@@ -88,10 +88,10 @@ func (v ContentRange) Start() int64 {
 		return -1
 	}
 
-	return util.ToNonNegativeInt64(b[:i])
+	return util.ToNonNegativeInt(b[:i])
 }
 
-func (v ContentRange) End() int64 {
+func (v ContentRange) End() int {
 	i := bytes.IndexByte(v, char.Space)
 	if i < 0 {
 		return -1
@@ -107,10 +107,10 @@ func (v ContentRange) End() int64 {
 		return -1
 	}
 
-	return util.ToNonNegativeInt64(b[i+1:])
+	return util.ToNonNegativeInt(b[i+1:])
 }
 
-func (v ContentRange) Size() int64 {
+func (v ContentRange) Size() int {
 	i := bytes.IndexByte(v, char.Space)
 	if i < 0 {
 		return -1
@@ -120,5 +120,5 @@ func (v ContentRange) Size() int64 {
 	if i = bytes.IndexByte(b, char.Slash[0]); i < 0 {
 		return -1
 	}
-	return util.ToNonNegativeInt64(b[i+1:])
+	return util.ToNonNegativeInt(b[i+1:])
 }
