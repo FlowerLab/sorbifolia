@@ -26,18 +26,18 @@ func parseHTTPVersion(ver []byte) (major, minor int, ok bool) {
 		return 0, 0, false
 	}
 
-	length := len(ver)
 	idx := bytes.IndexByte(ver[5:], '.')
 	if idx == -1 {
-		idx = length
+		maj, err := strconv.ParseUint(string(ver[5:]), 10, 0)
+		if err != nil {
+			return 0, 0, false
+		}
+		return int(maj), 0, true
 	}
 
 	maj, err := strconv.ParseUint(string(ver[5:5+idx]), 10, 0)
 	if err != nil {
 		return 0, 0, false
-	}
-	if length == idx {
-		return int(maj), 0, true
 	}
 
 	var min uint64
