@@ -13,8 +13,8 @@ import (
 type Request struct {
 	cfg        *httpconfig.Config
 	state      state
-	buf        *bufpool.Buffer
-	rp         int
+	buf        *bufpool.ReadBuffer
+	p          int
 	bodyLength int
 
 	Version version.Version

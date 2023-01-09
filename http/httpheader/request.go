@@ -3,6 +3,7 @@ package httpheader
 import (
 	"bytes"
 	"crypto/tls"
+	"strconv"
 
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/kv"
@@ -31,6 +32,20 @@ func (rh *RequestHeader) TransferEncoding() TransferEncoding {
 	return rh.GetValue(char.TransferEncoding)
 }
 func (rh *RequestHeader) Trailer() Trailer { return rh.GetValue(char.Trailer) }
+
+func (rh *RequestHeader) SetContentLength(i int)  { rh.setI(char.ContentLength, i) }
+func (rh *RequestHeader) SetContentType(b []byte) { rh.Set(char.ContentType, b) }
+func (rh *RequestHeader) SetHost(b []byte)        { rh.Set(char.Host, b) }
+
+func (rh *RequestHeader) setS(k []byte, v string) {
+	val := rh.GetOrAdd(k)
+	val.V = append(val.V, v...)
+}
+
+func (rh *RequestHeader) setI(k []byte, i int) {
+	v := rh.GetOrAdd(k)
+	v.V = strconv.AppendInt(v.V, int64(i), 10)
+}
 
 func (rh *RequestHeader) Parse(b []byte) error {
 	if len(b) == 0 {

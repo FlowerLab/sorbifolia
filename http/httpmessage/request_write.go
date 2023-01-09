@@ -23,9 +23,6 @@ func (r *Request) Write(p []byte) (n int, err error) {
 
 	for len(p) > 0 {
 		switch r.state.Operate() {
-		case _Init:
-			r.state.SetOperate(_Method)
-			continue
 		case _Method:
 			n, err = r.parseMethod(p)
 		case _URI:
@@ -274,7 +271,7 @@ func (r *Request) preprocessWrite() (err error) {
 		r.state.SetWrite()
 		r.state.SetOperate(_Method)
 
-		r.buf = &bufpool.Buffer{}
+		r.buf = &bufpool.ReadBuffer{}
 	}
 
 	if !r.state.Writable() {

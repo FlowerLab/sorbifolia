@@ -48,3 +48,10 @@ func (m Method) Is(method Method) bool {
 		pyrokinesis.String.ToBytes(string(method)),
 	)
 }
+
+func (m Method) Bytes() []byte {
+	if len(m) == 0 {
+		return pyrokinesis.String.ToBytes(string(Get))
+	}
+	return pyrokinesis.String.ToBytes(string(m))
+}
