@@ -20,9 +20,9 @@ func TestResponse_Read(t *testing.T) {
 		{
 			res: &Response{
 				StatusCode: status.OK,
-				Header: httpheader.ResponseHeader{KVs: kv.KVs{
+				Header: httpheader.ResponseHeader{Header: httpheader.Header{KVs: kv.KVs{
 					{[]byte("Content-Length"), []byte("12"), false},
-				}},
+				}}},
 				Body: strings.NewReader("abc45qwe9012"),
 			},
 			expected: []byte("200 OK\r\n" +
