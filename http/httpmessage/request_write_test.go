@@ -34,11 +34,11 @@ func TestRequest_Write(t *testing.T) {
 				Method:  "GET",
 				Header: httpheader.RequestHeader{
 					Header: httpheader.Header{KVs: kv.KVs{
-						{[]byte("Host"), []byte("localhost"), false},
-						{[]byte("User-Agent"), []byte("Mozilla/5.0"), false},
-						{[]byte("Accept"), []byte("text/html,*/*;q=0.8"), false},
-						{[]byte("Accept-Language"), []byte("en-US,en;q=0.3"), false},
-						{[]byte("Connection"), []byte("keep-alive"), false},
+						{K: []byte("Host"), V: []byte("localhost")},
+						{K: []byte("User-Agent"), V: []byte("Mozilla/5.0")},
+						{K: []byte("Accept"), V: []byte("text/html,*/*;q=0.8")},
+						{K: []byte("Accept-Language"), V: []byte("en-US,en;q=0.3")},
+						{K: []byte("Connection"), V: []byte("keep-alive")},
 					}}},
 				Body: httpbody.Null(),
 			},
