@@ -33,14 +33,13 @@ func TestRequest_Write(t *testing.T) {
 				Version: version.Version{Major: 1, Minor: 1},
 				Method:  "GET",
 				Header: httpheader.RequestHeader{
-					KVs: kv.KVs{
+					Header: httpheader.Header{KVs: kv.KVs{
 						{[]byte("Host"), []byte("localhost"), false},
 						{[]byte("User-Agent"), []byte("Mozilla/5.0"), false},
 						{[]byte("Accept"), []byte("text/html,*/*;q=0.8"), false},
 						{[]byte("Accept-Language"), []byte("en-US,en;q=0.3"), false},
 						{[]byte("Connection"), []byte("keep-alive"), false},
-					},
-				},
+					}}},
 				Body: httpbody.Null(),
 			},
 		},
@@ -68,9 +67,9 @@ func TestRequest_Read(t *testing.T) {
 		Version: version.Version{Major: 1, Minor: 1},
 		Method:  "",
 		Header: httpheader.RequestHeader{
-			KVs: kv.KVs{
+			Header: httpheader.Header{KVs: kv.KVs{
 				kv.KV{K: char.ContentLength, V: []byte("18")},
-			},
+			}},
 			RemoteAddr: nil,
 			RequestURI: nil,
 			URL: url.URL{

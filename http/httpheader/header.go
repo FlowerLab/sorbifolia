@@ -29,10 +29,10 @@ func (h *Header) SetContentLength(i int)  { h.setI(char.ContentLength, i) }
 func (h *Header) SetContentType(b []byte) { h.Set(char.ContentType, b) }
 func (h *Header) SetHost(b []byte)        { h.Set(char.Host, b) }
 
-func (h *Header) setS(k []byte, v string) {
-	val := h.GetOrAdd(k)
-	val.V = append(val.V, v...)
-}
+// func (h *Header) setS(k []byte, v string) {
+// 	val := h.GetOrAdd(k)
+// 	val.V = append(val.V, v...)
+// }
 
 func (h *Header) setI(k []byte, i int) {
 	v := h.GetOrAdd(k)

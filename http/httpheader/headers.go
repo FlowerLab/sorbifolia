@@ -447,14 +447,14 @@ func (v SetCookie) Path() []byte {
 
 func (v SetCookie) Secure() bool {
 	if i := bytes.IndexByte(v, char.Semi); i >= 0 {
-		return bytes.Index(v[i+1:], char.Secure) >= 0
+		return bytes.Contains(v[i+1:], char.Secure)
 	}
 	return false
 }
 
 func (v SetCookie) HttpOnly() bool {
 	if i := bytes.IndexByte(v, char.Semi); i >= 0 {
-		return bytes.Index(v[i+1:], char.HttpOnly) >= 0
+		return bytes.Contains(v[i+1:], char.HttpOnly)
 	}
 	return false
 }
