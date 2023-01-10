@@ -1,6 +1,7 @@
 package http
 
 import (
+	"bytes"
 	"io"
 	"net"
 	"net/http"
@@ -30,8 +31,18 @@ func TestS(t *testing.T) {
 			ctx.Response.SetBody(b)
 		},
 	}
-	go http.ListenAndServe("127.0.0.1:6060", nil)
-
 	ln, _ := net.Listen("tcp", "127.0.0.1:8808")
-	s.Serve(ln)
+
+	go func() { _ = http.ListenAndServe("127.0.0.1:6060", nil) }()
+	go func() { _ = s.Serve(ln) }()
+
+	defer func() { _ = ln.Close() }()
+
+	resp, err := http.Get("http://127.0.0.1:8808")
+	if err != nil {
+		t.Error(err)
+	}
+	if b, _ := io.ReadAll(resp.Body); !bytes.Equal(b, []byte("nobody nobody")) {
+		t.Errorf("expected: %s , act: %s\n", "nobody nobody", string(b))
+	}
 }

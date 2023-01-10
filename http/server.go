@@ -120,6 +120,8 @@ func (s *Server) Serve(ln net.Listener) error {
 		err := s.serveConn(c)
 		if err == nil {
 			wp.SetConnState(c, workerpool.StateIdle)
+		} else {
+			_ = s.fastWriteCode(c, version.Version{Major: 1, Minor: 1}, 500)
 		}
 		return err
 	}

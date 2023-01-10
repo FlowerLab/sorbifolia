@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	upperhex = "0123456789ABCDEF"
-	lowerhex = "0123456789abcdef"
+	upperHex = "0123456789ABCDEF"
+	// lowerHex = "0123456789abcdef"
 )
 
 func ToLower(b []byte) []byte {
@@ -30,7 +30,7 @@ func ToUpper(b []byte) []byte {
 func AppendQuotedPath(dst, src []byte) []byte {
 	for _, c := range src {
 		if quotedPathShouldEscapeTable[int(c)] != 0 {
-			dst = append(dst, '%', upperhex[c>>4], upperhex[c&0xf])
+			dst = append(dst, '%', upperHex[c>>4], upperHex[c&0xf])
 		} else {
 			dst = append(dst, c)
 		}

@@ -3,14 +3,14 @@ package render
 import (
 	"encoding/json"
 
-	"go.x2ox.com/sorbifolia/http/internal/util"
+	"go.x2ox.com/sorbifolia/http/internal/bufpool"
 )
 
 var jsonContentType = []byte("application/json; charset=utf-8")
 
 func JSON(data any) Render {
 	r := &render{}
-	buf := &util.Buffer{}
+	buf := &bufpool.ReadBuffer{}
 	err := json.NewEncoder(buf).Encode(data)
 	r.length = int64(buf.Len())
 

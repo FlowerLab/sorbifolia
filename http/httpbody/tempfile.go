@@ -79,7 +79,7 @@ func (t *TempFile) Reset() {
 func (t *TempFile) release()         { t.Reset(); _TempFilePool.Put(t) }
 func (t *TempFile) Filename() string { return pyrokinesis.Bytes.ToString(t.filename) }
 
-func (t *TempFile) create() (err error) {
+func (t *TempFile) Init() (err error) {
 	if t.File, err = os.CreateTemp("", tempFilePattern); err != nil {
 		return err
 	}
