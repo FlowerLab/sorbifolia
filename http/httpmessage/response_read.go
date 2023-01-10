@@ -118,6 +118,10 @@ func (r *Response) preprocessRead() (err error) {
 		r.state.SetOperate(_Version)
 
 		r.buf = &bufpool.ReadBuffer{}
+
+		if r.Version.Null() {
+			r.Version.Major, r.Version.Minor = 1, 1
+		}
 		_, _ = r.buf.Write(r.Version.Bytes())
 		_, _ = r.buf.Write(char.Spaces)
 
