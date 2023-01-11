@@ -2,7 +2,7 @@ module go.x2ox.com/sorbifolia/httputils
 
 go 1.19
 
-require github.com/valyala/fasthttp v1.43.0
+require github.com/valyala/fasthttp v1.44.0
 
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
