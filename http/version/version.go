@@ -35,6 +35,9 @@ var versions = [4][10][]byte{
 }
 
 func (v Version) Bytes() []byte {
+	if v.Major > 3 || v.Minor > 9 {
+		return pyrokinesis.String.ToBytes(v.String())
+	}
 	if b := versions[v.Major][v.Minor]; len(b) != 0 {
 		return b
 	}
