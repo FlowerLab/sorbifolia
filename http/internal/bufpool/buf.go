@@ -10,9 +10,7 @@ type Buffer struct {
 }
 
 // Len returns the size of the byte buffer.
-func (b *Buffer) Len() int {
-	return len(b.B)
-}
+func (b *Buffer) Len() int { return len(b.B) }
 
 // ReadFrom implements io.ReaderFrom.
 //
@@ -57,9 +55,7 @@ func (b *Buffer) WriteTo(w io.Writer) (int64, error) {
 // Bytes returns b.B, i.e. all the bytes accumulated in the buffer.
 //
 // The purpose of this function is bytes.Buffer compatibility.
-func (b *Buffer) Bytes() []byte {
-	return b.B
-}
+func (b *Buffer) Bytes() []byte { return b.B }
 
 // Write implements io.Writer - it appends p to Buffer.B
 func (b *Buffer) Write(p []byte) (int, error) {
@@ -94,48 +90,15 @@ func (b *Buffer) SetString(s string) {
 }
 
 // String returns string representation of Buffer.B.
-func (b *Buffer) String() string {
-	return string(b.B)
-}
+func (b *Buffer) String() string { return string(b.B) }
 
 // Reset makes Buffer.B empty.
-func (b *Buffer) Reset() {
-	b.B = b.B[:0]
-}
-
-func (b *Buffer) WriteLimit(p []byte, limit int) int {
-	i := limit - b.Len()
-	switch {
-	case i < 0:
-		panic("should not mix writes")
-	case i == 0:
-		return -1
-	case i > len(p):
-		i = len(p)
-	}
-
-	b.B = append(b.B, p[:i]...)
-	return i
-}
+func (b *Buffer) Reset() { b.B = b.B[:0] }
 
 func (b *Buffer) Index(sep []byte) int   { return bytes.Index(b.B, sep) }
 func (b *Buffer) Discard(start, end int) { b.B = append(b.B[:start], b.B[end:]...) }
 
-type ReadBuffer struct {
-	Buffer
-	P int
-}
-
-func (r *ReadBuffer) Read(p []byte) (n int, err error) {
-	if r.P == r.Len() {
-		return 0, io.EOF
-	}
-	n = copy(p, r.B[r.P:])
-	r.P += n
-	return
-}
-
-func (r *ReadBuffer) Reset() {
-	r.B = r.B[:0]
-	r.P = 0
+func (b *Buffer) Release() {
+	b.Reset()
+	bufPool.Put(b)
 }
