@@ -96,9 +96,40 @@ func (b *Buffer) String() string { return string(b.B) }
 func (b *Buffer) Reset() { b.B = b.B[:0] }
 
 func (b *Buffer) Index(sep []byte) int   { return bytes.Index(b.B, sep) }
+func (b *Buffer) IndexByte(sep byte) int { return bytes.IndexByte(b.B, sep) }
 func (b *Buffer) Discard(start, end int) { b.B = append(b.B[:start], b.B[end:]...) }
+func (b *Buffer) Release()               { b.Reset(); bufPool.Put(b) }
 
-func (b *Buffer) Release() {
-	b.Reset()
-	bufPool.Put(b)
+func (b *Buffer) ReadLimit(r io.Reader, limit int) (int, error) {
+	var (
+		length = b.Len()
+		n      = length
+		p      = b.B
+	)
+
+	if cap(p)-n < limit {
+		buf := make([]byte, n+limit)
+		copy(buf, b.B)
+		b.B = buf
+	} else {
+		p = p[:n+limit]
+	}
+
+	for {
+		nn, err := r.Read(p[n:])
+		n += nn
+		if err != nil {
+			b.B = p[:n]
+			n -= length
+			if err == io.EOF {
+				return n, nil
+			}
+			return n, err
+		}
+		if n == length+limit {
+			b.B = p[:n]
+			n -= length
+			return n, nil
+		}
+	}
 }

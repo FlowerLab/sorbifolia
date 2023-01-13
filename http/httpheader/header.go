@@ -3,6 +3,7 @@ package httpheader
 import (
 	"bytes"
 	"strconv"
+	"sync"
 
 	"go.x2ox.com/sorbifolia/http/internal/char"
 	"go.x2ox.com/sorbifolia/http/kv"
@@ -96,3 +97,8 @@ func AppendHeaders(dst []byte, v kv.KVs) []byte {
 	dst = append(dst, char.CRLF...)
 	return dst
 }
+
+var _headerPool = sync.Pool{New: func() any { return &Header{} }}
+
+func Acquire() *Header  { return _headerPool.Get().(*Header) }
+func Release(h *Header) { h.Reset(); _headerPool.Put(h) }

@@ -15,10 +15,14 @@ const (
 	defaultConcurrency          = 256 * 1024
 
 	defaultMaxRequestMethodSize = 7        // Up to 7 if it has not custom methods
-	defaultMaxRequestURISize    = 4 * 1024 // Up to 7 if it has not custom methods
+	defaultMaxRequestURISize    = 4 * 1024 // 4K
 
 	defaultReadTimeout = 60 * time.Second
 )
+
+func (c *Config) GetMaxFirstLineSize() int {
+	return c.GetMaxRequestMethodSize() + c.GetMaxRequestURISize() + 2 + 8 // 2: space, 8: HTTP/1.1
+}
 
 type Config struct {
 	// Name is the name of the Server/Client, if not set use defaultName
