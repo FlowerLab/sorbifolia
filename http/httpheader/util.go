@@ -12,7 +12,7 @@ import (
 func cleanSuffixSpace(b []byte) []byte {
 	for i := len(b) - 1; i >= 0; i-- {
 		if b[i] != char.Space {
-			return b[:i]
+			return b[:i+1]
 		}
 	}
 	return nil
