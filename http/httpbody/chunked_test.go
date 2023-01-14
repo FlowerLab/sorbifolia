@@ -51,8 +51,8 @@ func TestRead(t *testing.T) {
 }
 
 func TestWrite(t *testing.T) {
-	data := []byte("7\r\n1234567\r\n" +
-		"5\r\n25380\r\n" +
+	data := []byte("7\r\nhello, \r\n" +
+		"6\r\nworld!\r\n" +
 		"0\r\n" +
 		"Expires: Fri, 20 Jan 2023 07:28:00 GMT\r\n" +
 		"\r\n")

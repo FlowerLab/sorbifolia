@@ -18,6 +18,7 @@ type Chunked struct {
 	state  chunkedState
 	once   sync.Once
 	buf    bufpool.Buffer
+	mtx    sync.Mutex
 }
 
 func (c *Chunked) Write(p []byte) (n int, err error) {
@@ -32,9 +33,13 @@ func (c *Chunked) Write(p []byte) (n int, err error) {
 			break
 		}
 
+		c.mtx.Lock()
 		if n, err = c.write(p); err != nil {
+			c.mtx.Unlock()
 			return 0, err
 		}
+		c.mtx.Unlock()
+
 		p = p[n:]
 	}
 
