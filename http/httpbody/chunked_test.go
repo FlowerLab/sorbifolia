@@ -20,9 +20,9 @@ func TestRead(t *testing.T) {
 
 	data := []byte("7\r\nhello, \r\n6\r\nworld!\r\n")
 	header := []byte("Expires: Fri, 20 Jan 2023 07:28:00 GMT\r\n")
-	hex_data := fmt.Sprintf("%x", len(data))
+	hexData := fmt.Sprintf("%x", len(data))
 
-	expect := []byte(hex_data +
+	expect := []byte(hexData +
 		"\r\n" +
 		"7\r\nhello, \r\n6\r\nworld!\r\n" +
 		"0\r\n" +
