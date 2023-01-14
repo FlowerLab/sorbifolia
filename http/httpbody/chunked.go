@@ -128,7 +128,6 @@ func (c *Chunked) Read(p []byte) (n int, err error) {
 		}
 		if ok {
 			_, _ = c.buf.Write(data)
-			_, _ = c.buf.Write(char.CRLF)
 		} else {
 			_, _ = c.buf.Write(char.CRLF)
 			c.finish = true
