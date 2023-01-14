@@ -47,5 +47,7 @@ func TestRead(t *testing.T) {
 	close(chunked.Header)
 
 	wg.Wait()
+
+	_ = chunked.Close()
 	chunked.release()
 }
