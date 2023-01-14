@@ -68,6 +68,45 @@ func (u *URL) SetSchemeBytes(scheme []byte) {
 	u.Scheme = append(u.Scheme, scheme...)
 }
 
+func (u *URL) ParseRequestURI(path []byte) error {
+	if len(path) == 0 {
+		return errors.New("path is empty")
+	}
+	if path[0] == '*' && len(path) != 1 {
+		return errors.New("path *... is not a valid")
+	}
+	// TODO: CONNECT server.example.com:80 HTTP/1.1
+
+	queryIndex := bytes.IndexByte(path, char.QuestionMark)
+	fragmentIndex := bytes.IndexByte(path, char.Hashtag)
+	// Ignore query in fragment part
+	if fragmentIndex >= 0 && queryIndex > fragmentIndex {
+		queryIndex = -1
+	}
+
+	if queryIndex < 0 && fragmentIndex < 0 {
+		u.Path = append(u.Path, path...)
+		return nil
+	}
+
+	if queryIndex >= 0 {
+		// Path is everything up to the start of the query
+		u.Path = append(u.Path, path[:queryIndex]...)
+
+		if fragmentIndex < 0 {
+			u.Query = append(u.Query, path[queryIndex+1:]...)
+		} else {
+			u.Query = append(u.Query, path[queryIndex+1:fragmentIndex]...)
+			u.Fragment = append(u.Fragment, path[fragmentIndex+1:]...)
+		}
+		return nil
+	}
+
+	u.Fragment = append(u.Fragment, path[fragmentIndex+1:]...)
+	u.path = append(u.path, path...)
+	return nil
+}
+
 func (u *URL) Parse(host, path []byte, isTLS bool) error {
 	if len(host) == 0 || bytes.Contains(path, char.ColonSlashSlash) {
 		_, host, path = splitHostURI(host, path)

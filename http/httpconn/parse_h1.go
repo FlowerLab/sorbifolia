@@ -34,11 +34,9 @@ var (
 
 func run2(conn HTTPConn) { _ = conn.Close() }
 func run1(conn HTTPConn, buf *bufpool.Buffer, req *Request) {
-	req.Header = httpheader.Acquire()
-
 	hw := &HeaderWriterWith1{
 		cfg:    nil,
-		Header: req.Header,
+		Header: httpheader.Acquire(),
 		buf:    buf,
 	}
 	n, err := hw.Write(buf.B)
