@@ -15,7 +15,7 @@ func TestBuffer_ReadFrom(t *testing.T) {
 	expectedN := int64(len(expectedS))
 
 	var bb Buffer
-	bb.WriteString(prefix)
+	_, _ = bb.WriteString(prefix)
 
 	rf := (io.ReaderFrom)(&bb)
 	for i := 0; i < 20; i++ {
@@ -45,8 +45,8 @@ func TestBuffer_ReadFrom(t *testing.T) {
 func TestBuffer_WriteTo(t *testing.T) {
 	expectedS := "foobarbaz"
 	var bb Buffer
-	bb.WriteString(expectedS[:3])
-	bb.WriteString(expectedS[3:])
+	_, _ = bb.WriteString(expectedS[:3])
+	_, _ = bb.WriteString(expectedS[3:])
 
 	wt := (io.WriterTo)(&bb)
 	var w bytes.Buffer
@@ -58,7 +58,7 @@ func TestBuffer_WriteTo(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected error: %s", err)
 		}
-		s := string(w.Bytes())
+		s := w.String()
 		if s != expectedS {
 			t.Fatalf("unexpected string written %q. Expecting %q", s, expectedS)
 		}
