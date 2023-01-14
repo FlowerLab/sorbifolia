@@ -35,7 +35,6 @@ func (c *Chunked) Write(p []byte) (n int, err error) {
 		if n, err = c.write(p); err != nil {
 			return 0, err
 		}
-
 		p = p[n:]
 	}
 
