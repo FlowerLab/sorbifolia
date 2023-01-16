@@ -64,15 +64,11 @@ func TestWrite(t *testing.T) {
 	wc.Data = make(chan []byte)
 	wc.Header = make(chan []byte)
 
-	var wg sync.WaitGroup
-	wg.Add(1)
 	go func() {
 		_, err := io.Copy(wc, bytes.NewReader(data))
 		if err != io.EOF {
 			t.Error(err)
 		}
-
-		wg.Done()
 	}()
 
 	var (
@@ -90,6 +86,5 @@ func TestWrite(t *testing.T) {
 		t.Errorf("expected: %v,got: %v", "Expires: Fri, 20 Jan 2023 07:28:00 GMT", buf.String())
 	}
 
-	wg.Wait()
 	wc.release()
 }
