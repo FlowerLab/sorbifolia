@@ -55,68 +55,89 @@ func TestRead(t *testing.T) {
 }
 
 func TestWrite(t *testing.T) {
-	tests := []*Chunked{
+	tests := []TC{
 		{
-			Data:   make(chan []byte),
-			Header: make(chan []byte),
-			m:      ModeReadWrite,
-			finish: false,
-			state:  0,
-			once:   sync.Once{},
-			buf:    bufpool.Buffer{},
+			Chunked: &Chunked{
+				Data:   make(chan []byte),
+				Header: make(chan []byte),
+				m:      ModeReadWrite,
+				finish: false,
+				state:  0,
+				once:   sync.Once{},
+				buf:    bufpool.Buffer{},
+			},
+			Data: nil,
+			Res:  "",
+			Fn: func(chunked *Chunked) {
+				close(chunked.Data)
+				close(chunked.Header)
+			},
 		},
 		{
-			Data:   make(chan []byte),
-			Header: make(chan []byte),
-			m:      ModeWrite,
-			finish: false,
-			state:  chunkedEND,
-			once:   sync.Once{},
-			buf:    bufpool.Buffer{},
+			Chunked: &Chunked{
+				Data:   make(chan []byte),
+				Header: make(chan []byte),
+				m:      ModeWrite,
+				finish: false,
+				state:  chunkedEND,
+				once:   sync.Once{},
+				buf:    bufpool.Buffer{},
+			},
+			Data: nil,
+			Res:  "",
+			Fn: func(chunked *Chunked) {
+				close(chunked.Data)
+				close(chunked.Header)
+			},
 		},
 		{
-			Data:   make(chan []byte),
-			Header: make(chan []byte),
-			m:      ModeWrite,
-			finish: false,
-			once:   sync.Once{},
-			buf:    bufpool.Buffer{},
+			Chunked: &Chunked{
+				Data:   make(chan []byte),
+				Header: make(chan []byte),
+				m:      ModeWrite,
+				finish: false,
+				once:   sync.Once{},
+				buf:    bufpool.Buffer{},
+			},
+			Data: []byte("7\r\nhello, \r\n" +
+				"6\r\nworld!\r\n" +
+				"0\r\n" +
+				"Expires: Fri, 20 Jan 2023 07:28:00 GMT\r\n" +
+				"\r\n"),
+			Res: "Expires: Fri, 20 Jan 2023 07:28:00 GMT",
+			Fn:  nil,
 		},
 		{
-			Data:   make(chan []byte),
-			Header: make(chan []byte),
-			m:      ModeWrite,
-			finish: false,
-			once:   sync.Once{},
-			buf:    bufpool.Buffer{B: []byte("\r")},
+
+			Chunked: &Chunked{
+				Data:   make(chan []byte),
+				Header: make(chan []byte),
+				m:      ModeWrite,
+				finish: false,
+				once:   sync.Once{},
+				buf:    bufpool.Buffer{B: []byte("\r")},
+			},
+			Data: []byte("\nhello, "),
+			Res:  "",
+			Fn: func(chunked *Chunked) {
+				close(chunked.Data)
+				close(chunked.Header)
+			},
 		},
 	}
 
-	var (
-		wg   sync.WaitGroup
-		data = []byte("7\r\nhello, \r\n" +
-			"6\r\nworld!\r\n" +
-			"0\r\n" +
-			"Expires: Fri, 20 Jan 2023 07:28:00 GMT\r\n" +
-			"\r\n")
-	)
-
+	var wg sync.WaitGroup
 	for i, v := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
 			wg.Add(1)
 			go func() {
-				if i == 3 {
-					data = []byte("\nhello, ")
-				}
-
-				_, err := io.Copy(v, bytes.NewReader(data))
-				if err != io.EOF && i != 3 {
+				_, err := io.Copy(v, bytes.NewReader(v.Data))
+				if err != io.EOF && err != nil {
 					t.Error(err)
 				}
 
-				if i != 2 {
-					close(v.Data)
-					close(v.Header)
+				if v.Fn != nil {
+					v.Fn(v.Chunked)
 				}
 				wg.Done()
 			}()
@@ -126,13 +147,23 @@ func TestWrite(t *testing.T) {
 				buf = new(bytes.Buffer)
 			)
 			for ok {
-				_, ok = <-v.Data
+				_, ok = <-v.Chunked.Data
 			}
 			for hv := range v.Header {
 				buf.Write(hv)
 			}
-			t.Log(buf.String())
+
+			if !reflect.DeepEqual(v.Res, buf.String()) {
+				t.Errorf("expected: %v,got: %v", v.Res, buf.String())
+			}
 			wg.Wait()
 		})
 	}
+}
+
+type TC struct {
+	*Chunked
+	Data []byte
+	Res  string
+	Fn   func(c *Chunked)
 }
