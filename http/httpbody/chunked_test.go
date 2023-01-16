@@ -97,8 +97,8 @@ func TestWrite(t *testing.T) {
 		"0\r\n" +
 		"Expires: Fri, 20 Jan 2023 07:28:00 GMT\r\n" +
 		"\r\n")
-	var wg sync.WaitGroup
 
+	var wg sync.WaitGroup
 	for i, v := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
 			wg.Add(1)
