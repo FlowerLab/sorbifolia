@@ -130,8 +130,6 @@ func TestWrite(t *testing.T) {
 				buf.Write(hv)
 			}
 			t.Log(buf.String())
-
-			v.release()
 			wg.Wait()
 		})
 	}
