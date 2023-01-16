@@ -67,28 +67,28 @@ func TestWrite(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-		var (
-			v  []byte
-			ok = true
-		)
-		for ok {
-			v, ok = <-wc.Data
-			t.Log(string(v))
+		_, err := io.Copy(wc, bytes.NewReader(data))
+		if err != io.EOF {
+			t.Error(err)
 		}
-
-		buf := new(bytes.Buffer)
-		for v = range wc.Header {
-			buf.Write(v)
-		}
-		t.Log(buf.String())
 
 		wg.Done()
 	}()
 
-	_, err := io.Copy(wc, bytes.NewReader(data))
-	if err != io.EOF {
-		t.Error(err)
+	var (
+		v  []byte
+		ok = true
+	)
+	for ok {
+		v, ok = <-wc.Data
+		t.Log(string(v))
 	}
+
+	buf := new(bytes.Buffer)
+	for v = range wc.Header {
+		buf.Write(v)
+	}
+	t.Log(buf.String())
 
 	wg.Wait()
 	wc.release()
