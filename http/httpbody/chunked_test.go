@@ -81,7 +81,6 @@ func TestWrite(t *testing.T) {
 	)
 	for ok {
 		v, ok = <-wc.Data
-		t.Log(string(v))
 	}
 
 	buf := new(bytes.Buffer)
