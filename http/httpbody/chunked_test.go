@@ -53,7 +53,8 @@ func TestRead(t *testing.T) {
 }
 
 func TestWrite(t *testing.T) {
-	data := []byte("7\r\n1234567\r\n" +
+	data := []byte("7\r\nhello, \r\n" +
+		"6\r\nworld!\r\n" +
 		"0\r\n" +
 		"Expires: Fri, 20 Jan 2023 07:28:00 GMT\r\n" +
 		"\r\n")
@@ -66,10 +67,13 @@ func TestWrite(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-		v, ok := <-wc.Data
+		var (
+			v  []byte
+			ok = true
+		)
 		for ok {
-			t.Log(string(v))
 			v, ok = <-wc.Data
+			t.Log(string(v))
 		}
 
 		buf := new(bytes.Buffer)

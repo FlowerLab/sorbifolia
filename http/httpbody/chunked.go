@@ -18,6 +18,7 @@ type Chunked struct {
 	state  chunkedState
 	once   sync.Once
 	buf    bufpool.Buffer
+	mtx    sync.Mutex
 }
 
 func (c *Chunked) Write(p []byte) (n int, err error) {
@@ -64,7 +65,9 @@ func (c *Chunked) write(p []byte) (n int, err error) {
 	case -1: // TODO add size limit
 		return buf.Write(p)
 	default:
+		c.mtx.Lock()
 		n, _ = buf.Write(p[:i])
+		c.mtx.Unlock()
 	}
 
 	switch c.state {
