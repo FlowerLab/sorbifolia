@@ -92,13 +92,15 @@ func TestWrite(t *testing.T) {
 		},
 	}
 
-	data := []byte("7\r\nhello, \r\n" +
-		"6\r\nworld!\r\n" +
-		"0\r\n" +
-		"Expires: Fri, 20 Jan 2023 07:28:00 GMT\r\n" +
-		"\r\n")
+	var (
+		wg   sync.WaitGroup
+		data = []byte("7\r\nhello, \r\n" +
+			"6\r\nworld!\r\n" +
+			"0\r\n" +
+			"Expires: Fri, 20 Jan 2023 07:28:00 GMT\r\n" +
+			"\r\n")
+	)
 
-	var wg sync.WaitGroup
 	for i, v := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
 			wg.Add(1)
