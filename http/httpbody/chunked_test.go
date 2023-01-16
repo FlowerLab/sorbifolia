@@ -114,7 +114,7 @@ func TestWrite(t *testing.T) {
 					t.Error(err)
 				}
 
-				if i == 0 || i == 1 || i == 3 {
+				if i != 2 {
 					close(v.Data)
 					close(v.Header)
 				}
