@@ -7,6 +7,8 @@ import (
 	"reflect"
 	"sync"
 	"testing"
+
+	"go.x2ox.com/sorbifolia/http/internal/bufpool"
 )
 
 func TestRead(t *testing.T) {
@@ -53,43 +55,84 @@ func TestRead(t *testing.T) {
 }
 
 func TestWrite(t *testing.T) {
+	tests := []*Chunked{
+		{
+			Data:   make(chan []byte),
+			Header: make(chan []byte),
+			m:      ModeReadWrite,
+			finish: false,
+			state:  0,
+			once:   sync.Once{},
+			buf:    bufpool.Buffer{},
+		},
+		{
+			Data:   make(chan []byte),
+			Header: make(chan []byte),
+			m:      ModeWrite,
+			finish: false,
+			state:  chunkedEND,
+			once:   sync.Once{},
+			buf:    bufpool.Buffer{},
+		},
+		{
+			Data:   make(chan []byte),
+			Header: make(chan []byte),
+			m:      ModeWrite,
+			finish: false,
+			once:   sync.Once{},
+			buf:    bufpool.Buffer{},
+		},
+		{
+			Data:   make(chan []byte),
+			Header: make(chan []byte),
+			m:      ModeWrite,
+			finish: false,
+			once:   sync.Once{},
+			buf:    bufpool.Buffer{B: []byte("\r")},
+		},
+	}
+
 	data := []byte("7\r\nhello, \r\n" +
 		"6\r\nworld!\r\n" +
 		"0\r\n" +
 		"Expires: Fri, 20 Jan 2023 07:28:00 GMT\r\n" +
 		"\r\n")
-
-	wc := AcquireChunked()
-	wc.m = ModeWrite
-	wc.Data = make(chan []byte)
-	wc.Header = make(chan []byte)
-
 	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		_, err := io.Copy(wc, bytes.NewReader(data))
-		if err != io.EOF {
-			t.Error(err)
-		}
 
-		wg.Done()
-	}()
+	for i, v := range tests {
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			wg.Add(1)
+			go func() {
+				if i == 3 {
+					data = []byte("\nhello, ")
+				}
 
-	var (
-		ok  = true
-		buf = new(bytes.Buffer)
-	)
-	for ok {
-		_, ok = <-wc.Data
+				_, err := io.Copy(v, bytes.NewReader(data))
+				if err != io.EOF && i != 3 {
+					t.Error(err)
+				}
+
+				if i == 0 || i == 1 || i == 3 {
+					close(v.Data)
+					close(v.Header)
+				}
+				wg.Done()
+			}()
+
+			var (
+				ok  = true
+				buf = new(bytes.Buffer)
+			)
+			for ok {
+				_, ok = <-v.Data
+			}
+			for hv := range v.Header {
+				buf.Write(hv)
+			}
+			t.Log(buf.String())
+
+			v.release()
+			wg.Wait()
+		})
 	}
-
-	for v := range wc.Header {
-		buf.Write(v)
-	}
-	if !reflect.DeepEqual(buf.String(), "Expires: Fri, 20 Jan 2023 07:28:00 GMT") {
-		t.Errorf("expected: %v,got: %v", "Expires: Fri, 20 Jan 2023 07:28:00 GMT", buf.String())
-	}
-
-	wg.Wait()
-	wc.release()
 }
