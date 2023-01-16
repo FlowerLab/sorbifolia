@@ -76,18 +76,19 @@ func TestWrite(t *testing.T) {
 	}()
 
 	var (
-		v  []byte
-		ok = true
+		ok  = true
+		buf = new(bytes.Buffer)
 	)
 	for ok {
-		v, ok = <-wc.Data
+		_, ok = <-wc.Data
 	}
 
-	buf := new(bytes.Buffer)
-	for v = range wc.Header {
+	for v := range wc.Header {
 		buf.Write(v)
 	}
-	t.Log(buf.String())
+	if !reflect.DeepEqual(buf.String(), "Expires: Fri, 20 Jan 2023 07:28:00 GMT") {
+		t.Errorf("expected: %v,got: %v", "Expires: Fri, 20 Jan 2023 07:28:00 GMT", buf.String())
+	}
 
 	wg.Wait()
 	wc.release()
