@@ -35,7 +35,7 @@ func (t *TempFile) Write(p []byte) (n int, err error) {
 	switch t.mode { // 0:rw, 1:w, 2:r, 3:c
 	case ModeReadWrite:
 		t.mode = ModeWrite
-		if t.File, err = os.Open(t.Filename()); err != nil {
+		if t.File, err = os.OpenFile(t.Filename(), os.O_WRONLY, 0777); err != nil {
 			return
 		}
 	case ModeWrite:
