@@ -11,18 +11,17 @@ import (
 
 func TestTempFileRead(t *testing.T) {
 	var (
-		err  error
 		f    *os.File
 		data = []byte("hello,123")
 	)
 
 	tf := AcquireTempFile()
 	tf.mode = ModeRead
-	if err = tf.Init(); err != nil {
+	if err := tf.Init(); err != nil {
 		t.Error(err)
 	}
 
-	f, err = os.OpenFile(tf.Filename(), os.O_RDWR, 0777)
+	f, err := os.OpenFile(tf.Filename(), os.O_RDWR, 0777)
 	if err != nil {
 		t.Error(err)
 	}
@@ -46,12 +45,12 @@ func TestTempFileRead(t *testing.T) {
 func TestTempFileErrorRead(t *testing.T) {
 	var (
 		f        *os.File
-		err      error
 		filename = "text.txt"
 		data     = []byte("w123456asd")
 	)
 
-	if f, err = os.Create(filename); err != nil {
+	f, err := os.Create(filename)
+	if err != nil {
 		t.Error(err)
 	}
 	if _, err = f.Write(data); err != nil {
@@ -114,13 +113,13 @@ func TestTempFileErrorRead(t *testing.T) {
 func TestTempFileWrite(t *testing.T) {
 	var (
 		f        *os.File
-		err      error
 		filename = "text1.txt"
 		data     = []byte("w123456asd")
 		p        []byte
 	)
 
-	if f, err = os.Create(filename); err != nil {
+	f, err := os.Create(filename)
+	if err != nil {
 		t.Error(err)
 	}
 	f.Close()
