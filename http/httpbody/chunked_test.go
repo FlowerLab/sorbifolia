@@ -66,12 +66,17 @@ func TestWrite(t *testing.T) {
 				once:   sync.Once{},
 				buf:    bufpool.Buffer{},
 			},
-			Data: nil,
-			Res:  "",
+			Data: []byte("7\r\nhello, \r\n" +
+				"6\r\nworld!\r\n" +
+				"0\r\n" +
+				"Expires: Fri, 20 Jan 2023 07:28:00 GMT\r\n" +
+				"\r\n"),
+			Res: "",
 			Fn: func(chunked *Chunked) {
 				close(chunked.Data)
 				close(chunked.Header)
 			},
+			Err: io.EOF,
 		},
 		{
 			Chunked: &Chunked{
@@ -83,12 +88,17 @@ func TestWrite(t *testing.T) {
 				once:   sync.Once{},
 				buf:    bufpool.Buffer{},
 			},
-			Data: nil,
-			Res:  "",
+			Data: []byte("7\r\nhello, \r\n" +
+				"6\r\nworld!\r\n" +
+				"0\r\n" +
+				"Expires: Fri, 20 Jan 2023 07:28:00 GMT\r\n" +
+				"\r\n"),
+			Res: "",
 			Fn: func(chunked *Chunked) {
 				close(chunked.Data)
 				close(chunked.Header)
 			},
+			Err: io.EOF,
 		},
 		{
 			Chunked: &Chunked{
@@ -106,6 +116,7 @@ func TestWrite(t *testing.T) {
 				"\r\n"),
 			Res: "Expires: Fri, 20 Jan 2023 07:28:00 GMT",
 			Fn:  nil,
+			Err: io.EOF,
 		},
 		{
 
@@ -123,6 +134,7 @@ func TestWrite(t *testing.T) {
 				close(chunked.Data)
 				close(chunked.Header)
 			},
+			Err: nil,
 		},
 	}
 
@@ -131,11 +143,10 @@ func TestWrite(t *testing.T) {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
 			wg.Add(1)
 			go func() {
-				_, err := io.Copy(v, bytes.NewReader(v.Data))
-				if err != io.EOF && err != nil {
-					t.Error(err)
+				_, err := io.Copy(v.Chunked, bytes.NewReader(v.Data))
+				if !reflect.DeepEqual(err, v.Err) {
+					t.Errorf("expected: %v,got: %v", v.Err, err)
 				}
-
 				if v.Fn != nil {
 					v.Fn(v.Chunked)
 				}
@@ -166,4 +177,5 @@ type TC struct {
 	Data []byte
 	Res  string
 	Fn   func(c *Chunked)
+	Err  error
 }
