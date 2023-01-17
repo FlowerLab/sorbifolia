@@ -25,10 +25,10 @@ func TestTempFileRead(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = f.Write(data)
+	_, _ = f.Write(data)
 	_ = f.Close()
 
-	tf.File, err = os.Open(tf.Filename())
+	tf.File, _ = os.Open(tf.Filename())
 	buf := new(bytes.Buffer)
 	if _, err = io.Copy(buf, tf); err != nil {
 		t.Error(err)
