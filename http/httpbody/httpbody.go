@@ -35,7 +35,7 @@ func AcquireChunked() *Chunked {
 }
 
 func AcquireTempFile() *TempFile {
-	if v := _ChunkedPool.Get(); v != nil {
+	if v := _TempFilePool.Get(); v != nil {
 		return v.(*TempFile)
 	}
 	return &TempFile{}

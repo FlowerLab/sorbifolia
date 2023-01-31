@@ -8,7 +8,7 @@ import (
 )
 
 type Memory struct {
-	bufpool.Buffer
+	buf  bufpool.Buffer
 	p    int
 	mode rwcMode
 }
@@ -26,10 +26,10 @@ func (m *Memory) Read(p []byte) (n int, err error) {
 		panic("BUG: Memory should not exist in this state")
 	}
 
-	if m.Len() == m.p {
+	if m.buf.Len() == m.p {
 		return 0, io.EOF
 	}
-	n = copy(p, m.Buffer.B[m.p:])
+	n = copy(p, m.buf.B[m.p:])
 	m.p += n
 	return
 }
@@ -45,7 +45,7 @@ func (m *Memory) Write(p []byte) (n int, err error) {
 		panic("BUG: Memory should not exist in this state")
 	}
 
-	return m.Buffer.Write(p)
+	return m.buf.Write(p)
 }
 
 func (m *Memory) Close() error {
@@ -62,7 +62,7 @@ func (m *Memory) Close() error {
 }
 
 func (m *Memory) Reset() {
-	m.Buffer.Reset()
+	m.buf.Reset()
 	m.p = 0
 	m.mode = ModeReadWrite
 }
