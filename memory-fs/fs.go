@@ -1,10 +1,12 @@
 package mfs
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -13,7 +15,7 @@ type mfs struct {
 }
 
 func (m mfs) Open(name string) (fs.File, error) {
-	if len(name) == 0 {
+	if !fs.ValidPath(name) {
 		return nil, fs.ErrInvalid
 	}
 
@@ -171,6 +173,141 @@ func (m mfs) Copy(name, to string) error {
 	return err
 }
 
-func (m mfs) Move(name, to string) error { panic("not implemented") }
-func (m mfs) MkdirAll(name string) error { panic("not implemented") }
-func (m mfs) Mkdir(name string) error    { panic("not implemented") }
+func (m mfs) Move(name, to string) error {
+	f, err := m.Open(to)
+	if err != nil {
+		return err
+	}
+
+	if tf, ok := f.(*openFile); ok {
+		var of fs.File
+		of, err = m.Open(name)
+		if err != nil {
+			return err
+		}
+		if t, ok := of.(*openFile); ok {
+			t.name = tf.name
+		}
+		if t, ok := of.(*openDir); ok {
+			t.name = tf.name
+		}
+	} else {
+		var (
+			td  = f.(*openDir)
+			idx = strings.LastIndexByte(name, '/')
+			d   *dir
+			tmp = name
+		)
+
+		switch idx {
+		case -1:
+			d = m.root
+		case 0:
+			d = m.root
+			name = name[1:]
+		default:
+			name = name[idx+1:]
+			var i int
+			if tmp[0] == '/' {
+				i = 1
+			}
+
+			var node openFS
+			node, err = m.root.find(tmp[i:idx], i)
+			if err != nil {
+				return err
+			}
+
+			if !node.IsDir() {
+				return fmt.Errorf("%s is not a directory", tmp[:idx])
+			}
+			d = node.(*dir)
+		}
+
+		d.Lock()
+		td.Lock()
+
+		md := d.node[name]
+		td.node[name] = md
+		err = d.deleteNode(name)
+
+		td.Unlock()
+		d.Lock()
+
+		return err
+	}
+
+	return nil
+}
+
+func (m mfs) MkdirAll(name string) error {
+	if !fs.ValidPath(name) {
+		return errors.New("invalid path")
+	}
+	if name == "." {
+		return nil
+	}
+
+	currentDir := m.root
+	paths := strings.Split(name, "/")
+	for _, path := range paths {
+		currentDir.RLock()
+		tf, ok := currentDir.node[path]
+		currentDir.RUnlock()
+
+		if !ok {
+			childDir := &dir{
+				RWMutex: sync.RWMutex{},
+				name:    path,
+				modTime: time.Now(),
+				node:    make(map[string]openFS),
+			}
+
+			currentDir.Lock()
+			currentDir.node[path] = childDir
+			currentDir.Unlock()
+
+			currentDir = childDir
+		} else {
+			if !tf.IsDir() {
+				return fmt.Errorf("%s is not directory", path)
+			}
+			currentDir = tf.(*openDir).dir
+		}
+	}
+
+	return nil
+}
+
+func (m mfs) Mkdir(name string) error {
+	if len(name) == 0 {
+		return fs.ErrInvalid
+	}
+
+	var dirname string
+	paths := strings.Split(name, "/")
+	if len(paths) == 1 {
+		dirname = paths[0]
+	} else if len(paths) == 2 && paths[0] == "." {
+		dirname = paths[1]
+	} else {
+		return errors.New("the format of name is error")
+	}
+
+	m.root.Lock()
+	defer m.root.Unlock()
+
+	if _, ok := m.root.node[dirname]; !ok {
+		childDir := &dir{
+			RWMutex: sync.RWMutex{},
+			name:    paths[0],
+			modTime: time.Now(),
+			node:    make(map[string]openFS),
+		}
+		m.root.node[paths[0]] = childDir
+	} else {
+		return fs.ErrExist
+	}
+
+	return nil
+}

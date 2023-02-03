@@ -129,7 +129,7 @@ func (d *dir) writeFile(name string, data []byte, perm os.FileMode) (err error) 
 func (d *dir) deleteNode(name string) (err error) {
 	d.Lock()
 	if _, ok := d.node[name]; !ok {
-		err = fs.ErrExist
+		err = fs.ErrNotExist
 	} else {
 		delete(d.node, name)
 	}
