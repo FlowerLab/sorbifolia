@@ -21,6 +21,10 @@ func TestString_ToBytes(t *testing.T) {
 	if !bytes.Equal(String.ToBytes(s), []byte("hello")) {
 		t.Error("fail")
 	}
+
+	if String.ToBytes("") != nil {
+		t.Error("fail")
+	}
 }
 
 func BenchmarkString_Copy(b *testing.B) {
