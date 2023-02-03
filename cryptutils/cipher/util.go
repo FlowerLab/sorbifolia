@@ -1,8 +1,7 @@
 package cipher
 
 import (
-	_ "crypto/cipher"
-	_ "unsafe"
+	"crypto/subtle"
 )
 
 func maxUvarint(n int) uint64 {
@@ -27,8 +26,7 @@ func sliceForAppend(in []byte, n int) (head, tail []byte) {
 	return
 }
 
-//go:linkname xorBytes crypto/cipher.xorBytes
-func xorBytes(dst, a, b []byte) int
+func xorBytes(dst, a, b []byte) int { return subtle.XORBytes(dst, a, b) }
 
 // gfnDouble computes 2 * input in the field of 2^n elements.
 // The irreducible polynomial in the finite field for n=128 is
