@@ -5,7 +5,10 @@ import (
 )
 
 func (_Bytes) ToString(b []byte) string {
-	return *(*string)(unsafe.Pointer(&b))
+	if len(b) == 0 {
+		return ""
+	}
+	return unsafe.String(unsafe.SliceData(b), len(b))
 }
 
 func (_Bytes) ToInt(b []byte) int     { return toNumber[int](b) }

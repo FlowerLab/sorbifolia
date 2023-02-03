@@ -1,3 +1,3 @@
 module go.x2ox.com/sorbifolia/pyrokinesis
 
-go 1.18
+go 1.20

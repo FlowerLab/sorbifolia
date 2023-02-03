@@ -8,7 +8,12 @@ import (
 func TestBytes_ToString(t *testing.T) {
 	t.Parallel()
 
-	Bytes.ToString([]byte("hello"))
+	if Bytes.ToString([]byte("hello")) != "hello" {
+		t.Error("expected")
+	}
+	if Bytes.ToString(nil) != "" {
+		t.Error("expected")
+	}
 }
 
 func Test_Bytes_ToNumber(t *testing.T) {
