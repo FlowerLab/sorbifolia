@@ -10,8 +10,8 @@ use (
 	gorm-pure-sqlite
 	httprouter
 	httputils
-	jwt
 	jsonutils
+	jwt
 	password
 	pool
 	pyrokinesis
