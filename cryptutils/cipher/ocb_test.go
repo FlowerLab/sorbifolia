@@ -9,7 +9,6 @@ import (
 	"encoding/hex"
 	mathrand "math/rand"
 	"testing"
-	"time"
 )
 
 const (
@@ -328,7 +327,6 @@ func TestOcbEncryptDecryptGoTestVectors(t *testing.T) {
 func TestOcbEncryptDecryptVectorsWithPreviousDataRandomizeSlow(t *testing.T) {
 	t.Parallel()
 
-	mathrand.Seed(time.Now().UnixNano())
 	allowedKeyLengths := []int{16, 24, 32}
 	for _, keyLength := range allowedKeyLengths {
 		pt := make([]byte, mathrand.Intn(ocbMaxLength))
