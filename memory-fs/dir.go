@@ -88,6 +88,7 @@ func (d *dir) find(name string, idx int) (openFS, error) {
 		return d, nil
 	}
 
+	i += idx
 	node, err := d.findNode(name[idx:i])
 	if err != nil {
 		return nil, err
@@ -95,7 +96,7 @@ func (d *dir) find(name string, idx int) (openFS, error) {
 	if !node.IsDir() {
 		return nil, fs.ErrNotExist
 	}
-	return node.(*dir).find(name, idx+i)
+	return node.(*dir).find(name, i+1)
 }
 
 func (d *dir) findNode(name string) (openFS, error) {
