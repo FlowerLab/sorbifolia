@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func TestDir(t *testing.T) {
+func TestReadDir(t *testing.T) {
 	tests := []struct {
 		openDir
 		res []string
