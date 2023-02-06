@@ -174,6 +174,7 @@ func (m mfs) Move(name, to string) error {
 		return err
 	}
 
+	source := name
 	name = to
 	var (
 		i = strings.LastIndexByte(name, '/')
@@ -234,13 +235,14 @@ func (m mfs) Move(name, to string) error {
 		nd.node[nf.name] = nf
 	} else {
 		od := f.(*openDir).dir
-		// todo add lock
+		od.RLock()
 		for k, v := range od.node {
 			nd.node[k] = v
-			_ = od.deleteNode(k)
 		}
+		od.RUnlock()
 	}
-	return nil
+
+	return m.Remove(source)
 }
 
 func (m mfs) MkdirAll(name string) error {

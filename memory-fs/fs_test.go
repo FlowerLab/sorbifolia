@@ -462,7 +462,6 @@ func TestFsCopy(t *testing.T) {
 			[]string{"b/c"},
 			0,
 		},
-
 		{
 			&mfs{&dir{
 				RWMutex: sync.RWMutex{},
@@ -584,6 +583,102 @@ func TestFsCopy(t *testing.T) {
 			[]string{"b/c/d/z", "b/c/d/x", "b/c/d/y"},
 			0,
 		},
+		{
+			&mfs{&dir{
+				RWMutex: sync.RWMutex{},
+				name:    "/",
+				node: map[string]openFS{
+					"a": &file{
+						name: "a",
+						perm: 0,
+						data: []byte("dsa"),
+					},
+					"b": &dir{
+						RWMutex: sync.RWMutex{},
+						name:    "b",
+						node:    make(map[string]openFS),
+					},
+				},
+			}},
+			"a/d",
+			"b/c",
+			fs.ErrNotExist,
+			[]string{"b/c"},
+			0,
+		},
+		{
+			&mfs{&dir{
+				RWMutex: sync.RWMutex{},
+				name:    "/",
+				node: map[string]openFS{
+					"a": &dir{
+						RWMutex: sync.RWMutex{},
+						name:    "a",
+						node:    make(map[string]openFS),
+					},
+					"b": &dir{
+						RWMutex: sync.RWMutex{},
+						name:    "b",
+						node:    make(map[string]openFS),
+					},
+				},
+			}},
+			"a",
+			"/c",
+			nil,
+			[]string{"c"},
+			0,
+		},
+		{
+			&mfs{&dir{
+				RWMutex: sync.RWMutex{},
+				name:    "/",
+				node: map[string]openFS{
+					"a": &file{
+						name: "a",
+						perm: 0,
+						data: []byte("dsa"),
+					},
+					"b": &dir{
+						RWMutex: sync.RWMutex{},
+						name:    "b",
+						node:    make(map[string]openFS),
+					},
+				},
+			}},
+			"b",
+			"a/c",
+			&fs.PathError{
+				Op:   "delete",
+				Path: "a/c",
+				Err:  fmt.Errorf("%s isn't a directory", "a"),
+			},
+			[]string{"a/c"},
+			0,
+		},
+		{
+			&mfs{&dir{
+				RWMutex: sync.RWMutex{},
+				name:    "/",
+				node: map[string]openFS{
+					"a": &dir{
+						RWMutex: sync.RWMutex{},
+						name:    "a",
+						node:    make(map[string]openFS),
+					},
+					"b": &dir{
+						RWMutex: sync.RWMutex{},
+						name:    "b",
+						node:    make(map[string]openFS),
+					},
+				},
+			}},
+			"a",
+			"d/c",
+			fs.ErrNotExist,
+			[]string{"d/c"},
+			0,
+		},
 	}
 
 	for i, v := range tests {
@@ -592,9 +687,11 @@ func TestFsCopy(t *testing.T) {
 			if !reflect.DeepEqual(v.Err, err) {
 				t.Errorf("expect: %v,get: %v", v.Err, err)
 			}
-			for _, p := range v.res {
-				if _, err = v.root.find(p, v.idx); err != nil {
-					t.Error(err)
+			if err == nil {
+				for _, p := range v.res {
+					if _, err = v.root.find(p, v.idx); err != nil {
+						t.Error(err)
+					}
 				}
 			}
 		})
@@ -607,6 +704,7 @@ func TestFsMove(t *testing.T) {
 		src string
 		to  string
 		Err error
+		gs  string
 	}{
 		{&mfs{&dir{
 			RWMutex: sync.RWMutex{},
@@ -634,6 +732,7 @@ func TestFsMove(t *testing.T) {
 			"a/b",
 			"c/d",
 			nil,
+			"c/d/b",
 		},
 		{&mfs{&dir{
 			RWMutex: sync.RWMutex{},
@@ -677,6 +776,156 @@ func TestFsMove(t *testing.T) {
 			"a/b",
 			"c/d",
 			nil,
+			"c/d/x",
+		},
+		{&mfs{&dir{
+			RWMutex: sync.RWMutex{},
+			name:    "/",
+			perm:    0,
+			modTime: time.Time{},
+			node: map[string]openFS{
+				"a": &dir{
+					RWMutex: sync.RWMutex{},
+					name:    "a",
+					node: map[string]openFS{
+						"b": &file{
+							name: "b",
+							data: nil,
+						},
+					},
+				},
+				"c": &dir{
+					RWMutex: sync.RWMutex{},
+					name:    "c",
+					node:    make(map[string]openFS),
+				},
+			},
+		}},
+			"a/x",
+			"c/d",
+			fs.ErrNotExist,
+			"",
+		},
+		{&mfs{&dir{
+			RWMutex: sync.RWMutex{},
+			name:    "/",
+			perm:    0,
+			modTime: time.Time{},
+			node: map[string]openFS{
+				"a": &dir{
+					RWMutex: sync.RWMutex{},
+					name:    "a",
+					node: map[string]openFS{
+						"b": &file{
+							name: "b",
+							data: nil,
+						},
+					},
+				},
+				"c": &dir{
+					RWMutex: sync.RWMutex{},
+					name:    "c",
+					node:    make(map[string]openFS),
+				},
+			},
+		}},
+			"a/b",
+			"d",
+			nil,
+			"d/b",
+		},
+		{&mfs{&dir{
+			RWMutex: sync.RWMutex{},
+			name:    "/",
+			perm:    0,
+			modTime: time.Time{},
+			node: map[string]openFS{
+				"a": &dir{
+					RWMutex: sync.RWMutex{},
+					name:    "a",
+					node: map[string]openFS{
+						"b": &file{
+							name: "b",
+							data: nil,
+						},
+					},
+				},
+				"c": &dir{
+					RWMutex: sync.RWMutex{},
+					name:    "c",
+					node:    make(map[string]openFS),
+				},
+			},
+		}},
+			"a/b",
+			"/d",
+			nil,
+			"d/b",
+		},
+		{&mfs{&dir{
+			RWMutex: sync.RWMutex{},
+			name:    "/",
+			perm:    0,
+			modTime: time.Time{},
+			node: map[string]openFS{
+				"a": &dir{
+					RWMutex: sync.RWMutex{},
+					name:    "a",
+					node: map[string]openFS{
+						"b": &file{
+							name: "b",
+							data: nil,
+						},
+					},
+				},
+				"c": &dir{
+					RWMutex: sync.RWMutex{},
+					name:    "c",
+					node:    make(map[string]openFS),
+				},
+			},
+		}},
+			"a/b",
+			"/c/x/y",
+			fs.ErrNotExist,
+			"",
+		},
+		{&mfs{&dir{
+			RWMutex: sync.RWMutex{},
+			name:    "/",
+			perm:    0,
+			modTime: time.Time{},
+			node: map[string]openFS{
+				"a": &dir{
+					RWMutex: sync.RWMutex{},
+					name:    "a",
+					node: map[string]openFS{
+						"b": &file{
+							name: "b",
+							data: nil,
+						},
+					},
+				},
+				"c": &dir{
+					RWMutex: sync.RWMutex{},
+					name:    "c",
+					node: map[string]openFS{
+						"x": &file{
+							name: "x",
+							data: nil,
+						},
+					},
+				},
+			},
+		}},
+			"a/b",
+			"/c/x/y",
+			&fs.PathError{
+				Op:   "delete",
+				Path: "/c/x/y",
+				Err:  fmt.Errorf("%s isn't a directory", "/c/x"),
+			},
+			"",
 		},
 	}
 
@@ -685,6 +934,11 @@ func TestFsMove(t *testing.T) {
 			err := v.Move(v.src, v.to)
 			if !reflect.DeepEqual(v.Err, err) {
 				t.Errorf("expect: %v,get: %v", v.Err, err)
+			}
+			if err == nil {
+				if _, err = v.root.find(v.gs, 0); err != nil {
+					t.Error(err)
+				}
 			}
 		})
 	}
