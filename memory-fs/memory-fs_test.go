@@ -15,6 +15,9 @@ func TestPersistence(t *testing.T) {
 		t.Error(err)
 	}
 
+	if err = os.Mkdir("D:\\pic", 0600); err != nil {
+		t.Error(err)
+	}
 	err = Persistence(fs, "D:\\pic")
 	if err != nil {
 		t.Error(err)
@@ -22,6 +25,9 @@ func TestPersistence(t *testing.T) {
 }
 
 func TestFork(t *testing.T) {
+	if err := os.MkdirAll("D:/pic/a/b/c", 0600); err != nil {
+		t.Error(err)
+	}
 	fs, err := Fork("D:/pic/a/b/c")
 	if err != nil {
 		t.Error(err)
