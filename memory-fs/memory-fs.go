@@ -87,7 +87,7 @@ func Persistence(m MemoryFS, name string) error {
 			for _, ofs := range v {
 				var cpath = fmt.Sprintf("%s/%s", k, ofs.Name())
 				if !ofs.IsDir() {
-					mf := ofs.(*openFile)
+					mf := ofs.(*file)
 
 					var cf *os.File
 					cf, err = os.Create(cpath)
@@ -95,10 +95,16 @@ func Persistence(m MemoryFS, name string) error {
 						return err
 					}
 					_, _ = cf.Write(mf.data)
-					cf.Close()
+					_ = cf.Close()
 					continue
 				}
-				md := ofs.(*openDir)
+				md := ofs.(*dir)
+				if md.name != "/" {
+					if err = os.Mkdir(cpath, md.perm); err != nil {
+
+					}
+				}
+
 				for _, mdn := range md.node {
 					rec[cpath] = append(rec[cpath], mdn)
 				}
