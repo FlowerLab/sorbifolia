@@ -927,6 +927,40 @@ func TestFsMove(t *testing.T) {
 			},
 			"",
 		},
+		//
+		{&mfs{&dir{
+			RWMutex: sync.RWMutex{},
+			name:    "/",
+			perm:    0,
+			modTime: time.Time{},
+			node: map[string]openFS{
+				"a": &dir{
+					RWMutex: sync.RWMutex{},
+					name:    "a",
+					node: map[string]openFS{
+						"b": &file{
+							name: "b",
+							data: nil,
+						},
+					},
+				},
+				"c": &dir{
+					RWMutex: sync.RWMutex{},
+					name:    "c",
+					node: map[string]openFS{
+						"b": &file{
+							name: "b",
+							data: nil,
+						},
+					},
+				},
+			},
+		}},
+			"a/b",
+			"/c/b",
+			fs.ErrExist,
+			"",
+		},
 	}
 
 	for i, v := range tests {

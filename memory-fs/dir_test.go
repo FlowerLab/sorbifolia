@@ -280,3 +280,50 @@ func TestDeleteNode(t *testing.T) {
 		})
 	}
 }
+
+func TestAttribute(t *testing.T) {
+	ct := time.Now()
+	test := []struct {
+		*dir
+		size int64
+		m    fs.FileMode
+		tp   fs.FileMode
+		ct   time.Time
+		sys  any
+	}{
+		{
+			&dir{
+				RWMutex: sync.RWMutex{},
+				name:    "/",
+				perm:    0,
+				modTime: ct,
+				node:    nil,
+			},
+			0,
+			0,
+			0,
+			ct,
+			nil,
+		},
+	}
+
+	for i, v := range test {
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			if !reflect.DeepEqual(v.Size(), v.size) {
+				t.Errorf("expect: %v,get: %v", v.Size(), v.size)
+			}
+			if !reflect.DeepEqual(v.Mode(), v.m) {
+				t.Errorf("expect: %v,get: %v", v.Mode(), v.m)
+			}
+			if !reflect.DeepEqual(v.Type(), v.tp) {
+				t.Errorf("expect: %v,get: %v", v.Type(), v.tp)
+			}
+			if !reflect.DeepEqual(v.ModTime(), v.modTime) {
+				t.Errorf("expect: %v,get: %v", v.ModTime(), v.modTime)
+			}
+			if !reflect.DeepEqual(v.Sys(), v.sys) {
+				t.Errorf("expect: %v,get: %v", v.Size(), v.size)
+			}
+		})
+	}
+}

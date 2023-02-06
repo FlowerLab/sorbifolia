@@ -1,7 +1,7 @@
 package mfs
 
 import (
-	"bytes"
+	"fmt"
 	"os"
 	"reflect"
 	"testing"
@@ -9,57 +9,82 @@ import (
 )
 
 func TestPersistence(t *testing.T) {
+	var (
+		home      = os.Getenv("HOME")
+		targetDir = home + "/pic"
+	)
+
+	if !exists(targetDir) {
+		if err := os.Mkdir(targetDir, 0777); err != nil {
+			t.Error(err)
+		}
+	}
+
 	fs := New()
 	err := fs.(*mfs).MkdirAll("a/b/c")
 	if err != nil {
 		t.Error(err)
 	}
 
-	if err = os.Mkdir("D:\\pic", 0600); err != nil {
-		t.Error(err)
+	mf := fs.(*mfs)
+	mf.root.node["test.txt"] = &file{
+		name:    "test.txt",
+		perm:    os.ModePerm,
+		modTime: time.Now(),
+		data:    []byte("1253test"),
 	}
-	err = Persistence(fs, "D:\\pic")
+
+	err = Persistence(fs, targetDir)
 	if err != nil {
 		t.Error(err)
 	}
 }
 
 func TestFork(t *testing.T) {
-	if err := os.MkdirAll("D:/pic/a/b/c", 0600); err != nil {
-		t.Error(err)
+	test := []struct {
+		targetDir string
+		m         *mfs
+		mf        *dir
+		Err       error
+	}{
+		{
+			"/pic",
+			&mfs{},
+			&dir{},
+			nil,
+		},
 	}
-	fs, err := Fork("D:/pic/a/b/c")
+
+	for i, v := range test {
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			if v.targetDir[0] == '/' {
+				v.targetDir = v.targetDir[1:]
+			}
+
+			if !exists(v.targetDir) {
+				if err := os.Mkdir(v.targetDir, 0777); err != nil {
+					t.Error(err)
+				}
+			}
+
+			fs, err := Fork(v.targetDir)
+			if !reflect.DeepEqual(v.Err, err) {
+				t.Errorf("expect: %v,get: %v", v.Err, err)
+			}
+			v.mf = fs.(*mfs).root
+
+			_, ok := v.mf.node["pic"]
+			if !ok {
+				t.Error("fail to fork")
+			}
+		})
+	}
+}
+
+func exists(path string) bool {
+	_, err := os.Stat(path)
 	if err != nil {
-		t.Error(err)
+		return os.IsExist(err)
 	}
-
-	mf := fs.(*mfs)
-	d, ok := mf.root.node["pic"]
-	if !ok {
-		t.Error("fail to fork")
-	}
-
-	f := &file{
-		name:    "test.txt",
-		perm:    0,
-		modTime: time.Now(),
-		data:    []byte("123456dd"),
-	}
-	d.(*dir).node["test.txt"] = f
-	if err = Persistence(fs, "D:"); err != nil {
-		t.Error(err)
-	}
-
-	tt, err := os.Open("D:/pic/test.txt")
-	if err != nil {
-		t.Error(err)
-	}
-	var buf bytes.Buffer
-	if _, err = buf.ReadFrom(tt); err != nil {
-		t.Error(err)
-	}
-
-	if !reflect.DeepEqual(buf.Bytes(), f.data) {
-		t.Errorf("expect: %v,get: %v", buf.Bytes(), f.data)
-	}
+	return true
 }

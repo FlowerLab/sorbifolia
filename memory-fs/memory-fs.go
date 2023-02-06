@@ -42,6 +42,9 @@ func Fork(name string) (MemoryFS, error) {
 	if err != nil {
 		return nil, err
 	}
+	if name[0] == '/' {
+		name = name[1:]
+	}
 
 	paths := strings.Split(name, "/")
 	root := &dir{
@@ -52,7 +55,7 @@ func Fork(name string) (MemoryFS, error) {
 	}
 
 	curr := root
-	for i := 1; i < len(paths); i++ {
+	for i := 0; i < len(paths); i++ {
 		nd := &dir{
 			RWMutex: sync.RWMutex{},
 			name:    paths[i],
@@ -85,7 +88,15 @@ func Persistence(m MemoryFS, name string) error {
 		rec = make(map[string][]openFS)
 		for k, v := range tmp {
 			for _, ofs := range v {
-				var cpath = fmt.Sprintf("%s/%s", k, ofs.Name())
+				var cpath string
+				if ofs.Name() != "/" {
+					if k == "/" {
+						cpath = fmt.Sprintf("/%s", ofs.Name())
+					} else {
+						cpath = fmt.Sprintf("%s/%s", k, ofs.Name())
+					}
+				}
+
 				if !ofs.IsDir() {
 					mf := ofs.(*file)
 
@@ -100,11 +111,12 @@ func Persistence(m MemoryFS, name string) error {
 				}
 				md := ofs.(*dir)
 				if md.name != "/" {
-					if err = os.Mkdir(cpath, md.perm); err != nil {
-
-					}
+					_ = os.Mkdir(cpath, md.perm)
 				}
 
+				if len(cpath) == 0 {
+					cpath = k
+				}
 				for _, mdn := range md.node {
 					rec[cpath] = append(rec[cpath], mdn)
 				}
