@@ -5,7 +5,6 @@ import (
 	"io/fs"
 	"os"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -210,7 +209,6 @@ func (m mfs) Move(name, to string) error {
 	}
 
 	nd := &dir{
-		RWMutex: sync.RWMutex{},
 		name:    name,
 		perm:    d.perm,
 		modTime: time.Now(),
@@ -219,6 +217,7 @@ func (m mfs) Move(name, to string) error {
 
 	d.Lock()
 	if _, ok := d.node[name]; ok {
+		d.Unlock()
 		return fs.ErrExist
 	} else {
 		d.node[name] = nd
@@ -262,7 +261,6 @@ func (m mfs) MkdirAll(name string) error {
 
 		if !ok {
 			childDir := &dir{
-				RWMutex: sync.RWMutex{},
 				name:    path,
 				modTime: time.Now(),
 				node:    make(map[string]openFS),
@@ -273,12 +271,13 @@ func (m mfs) MkdirAll(name string) error {
 			currentDir.Unlock()
 
 			currentDir = childDir
-		} else {
-			if !tf.IsDir() {
-				return fmt.Errorf("%s is not directory", path)
-			}
-			currentDir = tf.(*dir)
+			continue
 		}
+
+		if !tf.IsDir() {
+			return fmt.Errorf("%s is not directory", path)
+		}
+		currentDir = tf.(*dir)
 	}
 
 	return nil
@@ -302,17 +301,14 @@ func (m mfs) Mkdir(name string) error {
 	m.root.Lock()
 	defer m.root.Unlock()
 
-	if _, ok := m.root.node[dirname]; !ok {
-		childDir := &dir{
-			RWMutex: sync.RWMutex{},
-			name:    paths[0],
-			modTime: time.Now(),
-			node:    make(map[string]openFS),
-		}
-		m.root.node[paths[0]] = childDir
-	} else {
+	if _, ok := m.root.node[dirname]; ok {
 		return fs.ErrExist
 	}
 
+	m.root.node[dirname] = &dir{
+		name:    dirname,
+		modTime: time.Now(),
+		node:    make(map[string]openFS),
+	}
 	return nil
 }

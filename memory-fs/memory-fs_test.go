@@ -57,25 +57,15 @@ func TestFork(t *testing.T) {
 
 	for i, v := range test {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			if v.targetDir[0] == '/' {
-				v.targetDir = v.targetDir[1:]
-			}
-
 			if !exists(v.targetDir) {
 				if err := os.Mkdir(v.targetDir, 0777); err != nil {
 					t.Error(err)
 				}
 			}
 
-			fs, err := Fork(v.targetDir)
+			_, err := Fork(v.targetDir)
 			if !reflect.DeepEqual(v.Err, err) {
 				t.Errorf("expect: %v,get: %v", v.Err, err)
-			}
-			v.mf = fs.(*mfs).root
-
-			_, ok := v.mf.node["pic"]
-			if !ok {
-				t.Error("fail to fork")
 			}
 		})
 	}

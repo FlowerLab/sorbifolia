@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
-	"strings"
-	"sync"
 	"time"
 )
 
@@ -29,7 +27,6 @@ type openFS interface {
 func New() MemoryFS {
 	return &mfs{
 		root: &dir{
-			RWMutex: sync.RWMutex{},
 			name:    "/",
 			modTime: time.Now(),
 			node:    make(map[string]openFS),
@@ -38,33 +35,49 @@ func New() MemoryFS {
 }
 
 func Fork(name string) (MemoryFS, error) {
-	_, err := os.Stat(name)
+	return fork("/", name)
+}
+
+func fork(memDirname, name string) (MemoryFS, error) {
+	files, err := os.ReadDir(name)
 	if err != nil {
 		return nil, err
 	}
-	if name[0] == '/' {
-		name = name[1:]
+
+	if name[len(name)-1] != '/' {
+		name += "/"
 	}
 
-	paths := strings.Split(name, "/")
 	root := &dir{
-		RWMutex: sync.RWMutex{},
-		name:    "/",
+		name:    memDirname,
 		modTime: time.Now(),
 		node:    make(map[string]openFS),
 	}
 
-	curr := root
-	for i := 0; i < len(paths); i++ {
-		nd := &dir{
-			RWMutex: sync.RWMutex{},
-			name:    paths[i],
-			perm:    curr.perm,
-			modTime: time.Now(),
-			node:    make(map[string]openFS),
+	for _, f := range files {
+		tf := fmt.Sprintf("%s%s", name, f.Name())
+
+		if !f.IsDir() {
+			var content []byte
+			content, err = os.ReadFile(tf)
+			if err != nil {
+				return nil, err
+			}
+
+			root.node[f.Name()] = &file{
+				name:    f.Name(),
+				modTime: time.Now(),
+				data:    content,
+			}
+			continue
 		}
-		curr.node[paths[i]] = nd
-		curr = nd
+
+		var cdir MemoryFS
+		cdir, err = fork(f.Name(), tf)
+		if err != nil {
+			return nil, err
+		}
+		root.node[f.Name()] = cdir.(*mfs).root
 	}
 
 	return &mfs{root}, nil
