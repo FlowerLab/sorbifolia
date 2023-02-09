@@ -92,51 +92,36 @@ func Persistence(m MemoryFS, name string) error {
 		return fmt.Errorf("%s is not a directory", name)
 	}
 
+	return persistence(m, name)
+}
+
+func persistence(m MemoryFS, diskName string) error {
 	d := m.(*mfs).root
-	rec := make(map[string][]openFS)
-	rec[name] = append(rec[name], openFS(d))
-	// BFS
-	for len(rec) > 0 {
-		tmp := rec
-		rec = make(map[string][]openFS)
-		for k, v := range tmp {
-			for _, ofs := range v {
-				var cpath string
-				if ofs.Name() != "/" {
-					if k == "/" {
-						cpath = fmt.Sprintf("/%s", ofs.Name())
-					} else {
-						cpath = fmt.Sprintf("%s/%s", k, ofs.Name())
-					}
-				}
-
-				if !ofs.IsDir() {
-					mf := ofs.(*file)
-
-					var cf *os.File
-					cf, err = os.Create(cpath)
-					if err != nil {
-						return err
-					}
-					_, _ = cf.Write(mf.data)
-					_ = cf.Close()
-					continue
-				}
-				md := ofs.(*dir)
-				if md.name != "/" {
-					_ = os.Mkdir(cpath, md.perm)
-				}
-
-				if len(cpath) == 0 {
-					cpath = k
-				}
-				for _, mdn := range md.node {
-					rec[cpath] = append(rec[cpath], mdn)
-				}
-			}
-		}
+	if diskName[len(diskName)-1] != '/' {
+		diskName += "/"
 	}
 
+	for _, f := range d.node {
+		cpath := fmt.Sprintf("%s%s", diskName, f.Name())
+		if !f.IsDir() {
+			mf := f.(*file)
+			var cf *os.File
+			cf, err := os.Create(cpath)
+			if err != nil {
+				return err
+			}
+			_, _ = cf.Write(mf.data)
+			_ = cf.Close()
+			continue
+		}
+
+		if err := os.Mkdir(cpath, os.ModePerm); err != nil {
+			return err
+		}
+		if err := persistence(&mfs{f.(*dir)}, cpath); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
