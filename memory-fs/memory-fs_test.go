@@ -57,6 +57,10 @@ func TestFork(t *testing.T) {
 
 	for i, v := range test {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			if v.targetDir[0] == '/' {
+				v.targetDir = v.targetDir[1:]
+			}
+
 			if !exists(v.targetDir) {
 				if err := os.Mkdir(v.targetDir, 0777); err != nil {
 					t.Error(err)
@@ -67,6 +71,8 @@ func TestFork(t *testing.T) {
 			if !reflect.DeepEqual(v.Err, err) {
 				t.Errorf("expect: %v,get: %v", v.Err, err)
 			}
+
+			_ = os.RemoveAll(v.targetDir)
 		})
 	}
 }
