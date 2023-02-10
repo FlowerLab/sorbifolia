@@ -88,6 +88,7 @@ func (d *dir) find(name string, idx int) (openFS, error) {
 		return d, nil
 	}
 
+	i += idx
 	node, err := d.findNode(name[idx:i])
 	if err != nil {
 		return nil, err
@@ -95,7 +96,7 @@ func (d *dir) find(name string, idx int) (openFS, error) {
 	if !node.IsDir() {
 		return nil, fs.ErrNotExist
 	}
-	return node.(*dir).find(name, idx+i)
+	return node.(*dir).find(name, i+1)
 }
 
 func (d *dir) findNode(name string) (openFS, error) {
@@ -129,7 +130,7 @@ func (d *dir) writeFile(name string, data []byte, perm os.FileMode) (err error) 
 func (d *dir) deleteNode(name string) (err error) {
 	d.Lock()
 	if _, ok := d.node[name]; !ok {
-		err = fs.ErrExist
+		err = fs.ErrNotExist
 	} else {
 		delete(d.node, name)
 	}
