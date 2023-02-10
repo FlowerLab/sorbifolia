@@ -59,8 +59,7 @@ func fork(memDirname, name string) (MemoryFS, error) {
 
 		if !f.IsDir() {
 			var content []byte
-			content, err = os.ReadFile(tf)
-			if err != nil {
+			if content, err = os.ReadFile(tf); err != nil {
 				return nil, err
 			}
 
