@@ -36,14 +36,23 @@ func TestPersistence(t *testing.T) {
 	tests := []struct {
 		td string
 		MemoryFS
-		paths []string
-		Err   error
+		paths  []string
+		Err    error
+		create bool
 	}{
+		{
+			"/pic/a.txt",
+			fs,
+			nil,
+			fmt.Errorf("%s is not a directory", "/pic/a.txt"),
+			true,
+		},
 		{
 			"/pic/a",
 			fs,
 			nil,
 			&os.PathError{},
+			false,
 		},
 		{
 			targetDir,
@@ -55,13 +64,20 @@ func TestPersistence(t *testing.T) {
 				targetDir + "/test.txt",
 			},
 			nil,
+			false,
 		},
 	}
 
 	for i, v := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			err = Persistence(v.MemoryFS, v.td)
-			if err != nil && v.Err == nil {
+			if v.create {
+				var f *os.File
+				if f, err = os.Create(v.td); err != nil {
+					t.Error(err)
+				}
+				f.Close()
+			}
+			if err = Persistence(v.MemoryFS, v.td); err != nil && v.Err == nil {
 				t.Error(err)
 			}
 			if err == nil {
