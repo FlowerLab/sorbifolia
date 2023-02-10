@@ -72,8 +72,7 @@ func fork(memDirname, name string) (MemoryFS, error) {
 		}
 
 		var cdir MemoryFS
-		cdir, err = fork(f.Name(), tf)
-		if err != nil {
+		if cdir, err = fork(f.Name(), tf); err != nil {
 			return nil, err
 		}
 		root.node[f.Name()] = cdir.(*mfs).root
@@ -85,9 +84,13 @@ func fork(memDirname, name string) (MemoryFS, error) {
 func Persistence(m MemoryFS, name string) error {
 	f, err := os.Stat(name)
 	if err != nil {
-		return err
+		if !os.IsExist(err) {
+			if err := os.MkdirAll(name, 0777); err != nil {
+				return err
+			}
+		}
 	}
-	if !f.IsDir() {
+	if err == nil && !f.IsDir() {
 		return fmt.Errorf("%s is not a directory", name)
 	}
 
@@ -110,11 +113,17 @@ func persistence(m MemoryFS, diskName string) error {
 				return err
 			}
 			_, _ = cf.Write(mf.data)
-			_ = cf.Close()
+			if err = cf.Close(); err != nil {
+				return err
+			}
 			continue
 		}
-		_ = os.Mkdir(cpath, os.ModePerm)
 
+		if !exists(cpath) {
+			if err := os.Mkdir(cpath, os.ModePerm); err != nil {
+				return err
+			}
+		}
 		if err := persistence(&mfs{f.(*dir)}, cpath); err != nil {
 			return err
 		}
@@ -123,3 +132,11 @@ func persistence(m MemoryFS, diskName string) error {
 }
 
 var errIsDirectory = errors.New("is a directory")
+
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	if err != nil {
+		return os.IsExist(err)
+	}
+	return true
+}

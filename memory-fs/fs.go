@@ -194,8 +194,7 @@ func (m mfs) Move(name, to string) error {
 			idx = 1
 		}
 		var node openFS
-		node, err = m.root.find(to[idx:i], 0)
-		if err != nil {
+		if node, err = m.root.find(to[idx:i], 0); err != nil {
 			return err
 		}
 		if !node.IsDir() {
@@ -219,9 +218,8 @@ func (m mfs) Move(name, to string) error {
 	if _, ok := d.node[name]; ok {
 		d.Unlock()
 		return fs.ErrExist
-	} else {
-		d.node[name] = nd
 	}
+	d.node[name] = nd
 	d.Unlock()
 
 	if of, ok := f.(*openFile); ok {
