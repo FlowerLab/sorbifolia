@@ -64,7 +64,7 @@ func TestFork(t *testing.T) {
 	}{
 		{
 			"pic/a/b/c",
-			"/pic/ttt.txt",
+			"pic/ttt.txt",
 			"/pic",
 			&mfs{},
 			&dir{},
