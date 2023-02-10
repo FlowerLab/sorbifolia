@@ -48,7 +48,7 @@ func TestPersistence(t *testing.T) {
 
 	for _, p := range paths {
 		if !exists(p) {
-			t.Error("fail to fork")
+			t.Error("fail to persistence")
 		}
 	}
 }
