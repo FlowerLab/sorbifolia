@@ -38,6 +38,19 @@ func TestPersistence(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+
+	var paths = []string{
+		targetDir + "/a",
+		targetDir + "/a/b",
+		targetDir + "/a/b/c",
+		targetDir + "/test.txt",
+	}
+
+	for _, p := range paths {
+		if !exists(p) {
+			t.Error("fail to fork")
+		}
+	}
 }
 
 func TestFork(t *testing.T) {
