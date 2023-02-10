@@ -85,7 +85,7 @@ func Persistence(m MemoryFS, name string) error {
 	f, err := os.Stat(name)
 	if err != nil {
 		if !os.IsExist(err) {
-			if err := os.MkdirAll(name, 0777); err != nil {
+			if err := os.MkdirAll(name, 0750); err != nil {
 				return err
 			}
 		}
