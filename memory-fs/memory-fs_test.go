@@ -55,12 +55,16 @@ func TestPersistence(t *testing.T) {
 
 func TestFork(t *testing.T) {
 	test := []struct {
+		dp        string
+		df        string
 		targetDir string
 		m         *mfs
 		mf        *dir
 		Err       error
 	}{
 		{
+			"pic/a/b/c",
+			"/pic/ttt.txt",
 			"/pic",
 			&mfs{},
 			&dir{},
@@ -74,8 +78,13 @@ func TestFork(t *testing.T) {
 				v.targetDir = v.targetDir[1:]
 			}
 
-			if !exists(v.targetDir) {
-				if err := os.Mkdir(v.targetDir, 0777); err != nil {
+			if !exists(v.dp) {
+				if err := os.MkdirAll(v.targetDir, 0777); err != nil {
+					t.Error(err)
+				}
+			}
+			if !exists(v.df) {
+				if _, err := os.Create(v.df); err != nil {
 					t.Error(err)
 				}
 			}
@@ -86,6 +95,7 @@ func TestFork(t *testing.T) {
 			}
 
 			_ = os.RemoveAll(v.targetDir)
+			_ = os.RemoveAll(v.df)
 		})
 	}
 }
