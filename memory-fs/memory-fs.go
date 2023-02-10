@@ -112,7 +112,9 @@ func persistence(m MemoryFS, diskName string) error {
 			if err != nil {
 				return err
 			}
-			_, _ = cf.Write(mf.data)
+			if _, err = cf.Write(mf.data); err != nil {
+				return err
+			}
 			if err = cf.Close(); err != nil {
 				return err
 			}
