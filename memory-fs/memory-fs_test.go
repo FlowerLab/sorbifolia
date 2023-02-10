@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"syscall"
 	"testing"
 	"time"
 )
@@ -34,22 +35,46 @@ func TestPersistence(t *testing.T) {
 		data:    []byte("1253test"),
 	}
 
-	err = Persistence(fs, targetDir)
-	if err != nil {
-		t.Error(err)
+	tests := []struct {
+		td string
+		MemoryFS
+		paths []string
+		Err   error
+	}{
+		{
+			"/pic/a",
+			fs,
+			nil,
+			&os.PathError{Op: "CreateFile", Path: "/pic/a", Err: syscall.Errno(syscall.ERROR_FILE_NOT_FOUND)},
+		},
+		{
+			targetDir,
+			fs,
+			[]string{
+				targetDir + "/a",
+				targetDir + "/a/b",
+				targetDir + "/a/b/c",
+				targetDir + "/test.txt",
+			},
+			nil,
+		},
 	}
 
-	var paths = []string{
-		targetDir + "/a",
-		targetDir + "/a/b",
-		targetDir + "/a/b/c",
-		targetDir + "/test.txt",
-	}
-
-	for _, p := range paths {
-		if !exists(p) {
-			t.Error("fail to persistence")
-		}
+	for i, v := range tests {
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			err = Persistence(v.MemoryFS, v.td)
+			if !reflect.DeepEqual(v.Err, err) {
+				t.Errorf("expect: %v,get: %v", v.Err, err)
+			}
+			if err == nil {
+				for _, p := range v.paths {
+					if !exists(p) {
+						t.Error("fail to persistence")
+					}
+				}
+				_ = os.RemoveAll(v.td)
+			}
+		})
 	}
 }
 
@@ -58,6 +83,7 @@ func TestFork(t *testing.T) {
 		dp        string
 		df        string
 		targetDir string
+		rmf       string
 		m         *mfs
 		mf        *dir
 		Err       error
@@ -66,9 +92,19 @@ func TestFork(t *testing.T) {
 			"pic/a/b/c",
 			"pic/ttt.txt",
 			"/pic",
+			"pic",
 			&mfs{},
 			&dir{},
 			nil,
+		},
+		{
+			"pic/a/b/c",
+			"pic/ttt.txt",
+			"/a/v",
+			"pic",
+			&mfs{},
+			&dir{},
+			&os.PathError{Op: "open", Path: "a/v", Err: syscall.ENOTDIR},
 		},
 	}
 
@@ -79,14 +115,18 @@ func TestFork(t *testing.T) {
 			}
 
 			if !exists(v.dp) {
-				if err := os.MkdirAll(v.targetDir, 0777); err != nil {
+				if err := os.MkdirAll(v.dp, 0777); err != nil {
 					t.Error(err)
 				}
 			}
+
 			if !exists(v.df) {
-				if _, err := os.Create(v.df); err != nil {
+				var f *os.File
+				f, err := os.Create(v.df)
+				if err != nil {
 					t.Error(err)
 				}
+				f.Close()
 			}
 
 			_, err := Fork(v.targetDir)
@@ -94,8 +134,7 @@ func TestFork(t *testing.T) {
 				t.Errorf("expect: %v,get: %v", v.Err, err)
 			}
 
-			_ = os.RemoveAll(v.targetDir)
-			_ = os.RemoveAll(v.df)
+			_ = os.RemoveAll(v.rmf)
 		})
 	}
 }
