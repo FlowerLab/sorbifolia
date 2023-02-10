@@ -114,10 +114,8 @@ func persistence(m MemoryFS, diskName string) error {
 			_ = cf.Close()
 			continue
 		}
+		_ = os.Mkdir(cpath, os.ModePerm)
 
-		if err := os.Mkdir(cpath, os.ModePerm); err != nil {
-			return err
-		}
 		if err := persistence(&mfs{f.(*dir)}, cpath); err != nil {
 			return err
 		}
