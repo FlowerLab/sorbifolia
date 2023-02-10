@@ -41,7 +41,7 @@ func TestPersistence(t *testing.T) {
 		create bool
 	}{
 		{
-			"/pic/a.txt",
+			targetDir + "/a.txt",
 			fs,
 			nil,
 			fmt.Errorf("%s is not a directory", "/pic/a.txt"),
