@@ -1070,7 +1070,6 @@ func TestFsMkdir(t *testing.T) {
 		name string
 	}{
 		{&mfs{&dir{
-			RWMutex: sync.RWMutex{},
 			name:    "/",
 			perm:    0,
 			modTime: time.Time{},
@@ -1080,27 +1079,6 @@ func TestFsMkdir(t *testing.T) {
 			"abc",
 		},
 		{&mfs{&dir{
-			RWMutex: sync.RWMutex{},
-			name:    "/",
-			perm:    0,
-			modTime: time.Time{},
-			node:    make(map[string]openFS),
-		}},
-			nil,
-			"./abc",
-		},
-		{&mfs{&dir{
-			RWMutex: sync.RWMutex{},
-			name:    "/",
-			perm:    0,
-			modTime: time.Time{},
-			node:    make(map[string]openFS),
-		}},
-			fs.ErrInvalid,
-			"./a/bc",
-		},
-		{&mfs{&dir{
-			RWMutex: sync.RWMutex{},
 			name:    "/",
 			perm:    0,
 			modTime: time.Time{},
@@ -1110,26 +1088,89 @@ func TestFsMkdir(t *testing.T) {
 			"",
 		},
 		{&mfs{&dir{
-			RWMutex: sync.RWMutex{},
+			name:    "/",
+			perm:    0,
+			modTime: time.Time{},
+			node:    make(map[string]openFS),
+		}},
+			nil,
+			"/abc",
+		},
+		{&mfs{&dir{
 			name:    "/",
 			perm:    0,
 			modTime: time.Time{},
 			node: map[string]openFS{
-				"abc": &dir{
-					RWMutex: sync.RWMutex{},
-					name:    "abc",
+				"a": &dir{
+					name:    "a",
+					perm:    0,
+					modTime: time.Now(),
+					node:    make(map[string]openFS),
+				},
+			},
+		}},
+			nil,
+			"/a/b",
+		},
+		{&mfs{&dir{
+			name:    "/",
+			perm:    0,
+			modTime: time.Time{},
+			node: map[string]openFS{
+				"a": &dir{
+					name:    "a",
+					perm:    0,
+					modTime: time.Now(),
+					node:    make(map[string]openFS),
+				},
+			},
+		}},
+			fs.ErrNotExist,
+			"/a/b/c",
+		},
+		{&mfs{&dir{
+			name:    "/",
+			perm:    0,
+			modTime: time.Time{},
+			node: map[string]openFS{
+				"a": &file{
+					name: "a",
+					data: nil,
+				},
+			},
+		}},
+			&fs.PathError{
+				Op:   "delete",
+				Path: "a",
+				Err:  fmt.Errorf("%s isn't a directory", "a"),
+			},
+			"/a/b",
+		},
+		{&mfs{&dir{
+			name:    "/",
+			perm:    0,
+			modTime: time.Time{},
+			node: map[string]openFS{
+				"a": &dir{
+					name:    "a",
+					perm:    0,
+					modTime: time.Now(),
+					node: map[string]openFS{
+						"b": &dir{
+							name: "b",
+						},
+					},
 				},
 			},
 		}},
 			fs.ErrExist,
-			"abc",
+			"/a/b",
 		},
 	}
 
 	for i, v := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			err := v.Mkdir(v.name)
-			if !reflect.DeepEqual(v.Err, err) {
+			if err := v.Mkdir(v.name); !reflect.DeepEqual(v.Err, err) {
 				t.Errorf("expect: %v,get: %v", v.Err, err)
 			}
 		})

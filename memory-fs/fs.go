@@ -282,29 +282,51 @@ func (m mfs) MkdirAll(name string) error {
 }
 
 func (m mfs) Mkdir(name string) error {
-	if len(name) == 0 {
+	if len(name) == 0 || name[len(name)-1] == '/' {
 		return fs.ErrInvalid
 	}
 
-	var dirname string
-	paths := strings.Split(name, "/")
-	if len(paths) == 1 {
-		dirname = paths[0]
-	} else if len(paths) == 2 && paths[0] == "." {
-		dirname = paths[1]
-	} else {
-		return fs.ErrInvalid
+	var (
+		dirname string
+		d       = m.root
+		idx     = strings.LastIndexByte(name, '/')
+	)
+
+	switch idx {
+	case 0:
+		dirname = name[1:]
+	case -1:
+		dirname = name
+	default:
+		dirname = name[idx+1:]
+
+		var i int
+		if name[0] == '/' {
+			i = 1
+		}
+		node, err := m.root.find(name[i:idx], 0)
+		if err != nil {
+			return err
+		}
+		if !node.IsDir() {
+			return &fs.PathError{
+				Op:   "delete",
+				Path: name[i:idx],
+				Err:  fmt.Errorf("%s isn't a directory", name[i:idx]),
+			}
+		}
+		d = node.(*dir)
 	}
 
-	m.root.Lock()
-	defer m.root.Unlock()
+	d.Lock()
+	defer d.Unlock()
 
-	if _, ok := m.root.node[dirname]; ok {
+	if _, ok := d.node[dirname]; ok {
 		return fs.ErrExist
 	}
-
-	m.root.node[dirname] = &dir{
+	d.node[dirname] = &dir{
 		name:    dirname,
+		perm:    d.perm,
 		modTime: time.Now(),
 		node:    make(map[string]openFS),
 	}
