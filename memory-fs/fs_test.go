@@ -284,8 +284,8 @@ func TestFsWriteFile(t *testing.T) {
 			0,
 			&fs.PathError{
 				Op:   "write",
-				Path: "/a/c/b.txt",
-				Err:  fmt.Errorf("%s isn't a directory", "/a/c"),
+				Path: "a/c",
+				Err:  fmt.Errorf("%s isn't a directory", "a/c"),
 			},
 			1,
 		},
@@ -413,9 +413,9 @@ func TestFsRemove(t *testing.T) {
 			}},
 			"/a/d/b",
 			&fs.PathError{
-				Op:   "delete",
-				Path: "/a/d/b",
-				Err:  fmt.Errorf("%s isn't a directory", "/a/d"),
+				Op:   "remove",
+				Path: "a/d",
+				Err:  fmt.Errorf("%s isn't a directory", "a/d"),
 			},
 		},
 	}
@@ -649,8 +649,8 @@ func TestFsCopy(t *testing.T) {
 			"b",
 			"a/c",
 			&fs.PathError{
-				Op:   "delete",
-				Path: "a/c",
+				Op:   "copy",
+				Path: "a",
 				Err:  fmt.Errorf("%s isn't a directory", "a"),
 			},
 			[]string{"a/c"},
@@ -921,9 +921,9 @@ func TestFsMove(t *testing.T) {
 			"a/b",
 			"/c/x/y",
 			&fs.PathError{
-				Op:   "delete",
-				Path: "/c/x/y",
-				Err:  fmt.Errorf("%s isn't a directory", "/c/x"),
+				Op:   "move",
+				Path: "c/x",
+				Err:  fmt.Errorf("%s isn't a directory", "c/x"),
 			},
 			"",
 		},
@@ -1070,7 +1070,6 @@ func TestFsMkdir(t *testing.T) {
 		name string
 	}{
 		{&mfs{&dir{
-			RWMutex: sync.RWMutex{},
 			name:    "/",
 			perm:    0,
 			modTime: time.Time{},
@@ -1080,27 +1079,6 @@ func TestFsMkdir(t *testing.T) {
 			"abc",
 		},
 		{&mfs{&dir{
-			RWMutex: sync.RWMutex{},
-			name:    "/",
-			perm:    0,
-			modTime: time.Time{},
-			node:    make(map[string]openFS),
-		}},
-			nil,
-			"./abc",
-		},
-		{&mfs{&dir{
-			RWMutex: sync.RWMutex{},
-			name:    "/",
-			perm:    0,
-			modTime: time.Time{},
-			node:    make(map[string]openFS),
-		}},
-			fs.ErrInvalid,
-			"./a/bc",
-		},
-		{&mfs{&dir{
-			RWMutex: sync.RWMutex{},
 			name:    "/",
 			perm:    0,
 			modTime: time.Time{},
@@ -1110,26 +1088,89 @@ func TestFsMkdir(t *testing.T) {
 			"",
 		},
 		{&mfs{&dir{
-			RWMutex: sync.RWMutex{},
+			name:    "/",
+			perm:    0,
+			modTime: time.Time{},
+			node:    make(map[string]openFS),
+		}},
+			nil,
+			"/abc",
+		},
+		{&mfs{&dir{
 			name:    "/",
 			perm:    0,
 			modTime: time.Time{},
 			node: map[string]openFS{
-				"abc": &dir{
-					RWMutex: sync.RWMutex{},
-					name:    "abc",
+				"a": &dir{
+					name:    "a",
+					perm:    0,
+					modTime: time.Now(),
+					node:    make(map[string]openFS),
+				},
+			},
+		}},
+			nil,
+			"/a/b",
+		},
+		{&mfs{&dir{
+			name:    "/",
+			perm:    0,
+			modTime: time.Time{},
+			node: map[string]openFS{
+				"a": &dir{
+					name:    "a",
+					perm:    0,
+					modTime: time.Now(),
+					node:    make(map[string]openFS),
+				},
+			},
+		}},
+			fs.ErrNotExist,
+			"/a/b/c",
+		},
+		{&mfs{&dir{
+			name:    "/",
+			perm:    0,
+			modTime: time.Time{},
+			node: map[string]openFS{
+				"a": &file{
+					name: "a",
+					data: nil,
+				},
+			},
+		}},
+			&fs.PathError{
+				Op:   "mkdir",
+				Path: "a",
+				Err:  fmt.Errorf("%s isn't a directory", "a"),
+			},
+			"/a/b",
+		},
+		{&mfs{&dir{
+			name:    "/",
+			perm:    0,
+			modTime: time.Time{},
+			node: map[string]openFS{
+				"a": &dir{
+					name:    "a",
+					perm:    0,
+					modTime: time.Now(),
+					node: map[string]openFS{
+						"b": &dir{
+							name: "b",
+						},
+					},
 				},
 			},
 		}},
 			fs.ErrExist,
-			"abc",
+			"/a/b",
 		},
 	}
 
 	for i, v := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			err := v.Mkdir(v.name)
-			if !reflect.DeepEqual(v.Err, err) {
+			if err := v.Mkdir(v.name); !reflect.DeepEqual(v.Err, err) {
 				t.Errorf("expect: %v,get: %v", v.Err, err)
 			}
 		})

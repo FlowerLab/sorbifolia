@@ -25,77 +25,19 @@ func (m mfs) Open(name string) (fs.File, error) {
 }
 
 func (m mfs) WriteFile(path string, data []byte, perm os.FileMode) error {
-	var (
-		name = path
-		i    = strings.LastIndexByte(name, '/')
-		d    *dir
-	)
-
-	switch i {
-	case -1:
-		d = m.root
-	case 0:
-		name = name[1:]
-		d = m.root
-	default:
-		name = name[i+1:]
-
-		var idx int
-		if path[0] == '/' {
-			idx = 1
-		}
-		node, err := m.root.find(path[idx:i], 0)
-		if err != nil {
-			return err
-		}
-		if !node.IsDir() {
-			return &fs.PathError{
-				Op:   "write",
-				Path: path,
-				Err:  fmt.Errorf("%s isn't a directory", path[:i]),
-			}
-		}
-		d = node.(*dir)
+	filename, currDir, err := getNode(path, "write", m)
+	if err != nil {
+		return err
 	}
-
-	return d.writeFile(name, data, perm)
+	return currDir.writeFile(filename, data, perm)
 }
 
 func (m mfs) Remove(path string) error {
-	var (
-		name = path
-		i    = strings.LastIndexByte(name, '/')
-		d    *dir
-	)
-
-	switch i {
-	case -1:
-		d = m.root
-	case 0:
-		name = name[1:]
-		d = m.root
-	default:
-		name = name[i+1:]
-
-		var idx int
-		if path[0] == '/' {
-			idx = 1
-		}
-		node, err := m.root.find(path[idx:i], 0)
-		if err != nil {
-			return err
-		}
-		if !node.IsDir() {
-			return &fs.PathError{
-				Op:   "delete",
-				Path: path,
-				Err:  fmt.Errorf("%s isn't a directory", path[:i]),
-			}
-		}
-		d = node.(*dir)
+	filename, currDir, err := getNode(path, "remove", m)
+	if err != nil {
+		return err
 	}
-
-	return d.deleteNode(name)
+	return currDir.deleteNode(filename)
 }
 
 func (m mfs) Copy(name, to string) error {
@@ -109,38 +51,9 @@ func (m mfs) Copy(name, to string) error {
 	}
 
 	od := f.(*openDir).dir
-	name = to
-	var (
-		i = strings.LastIndexByte(name, '/')
-		d *dir
-	)
-
-	switch i {
-	case -1:
-		d = m.root
-	case 0:
-		name = name[1:]
-		d = m.root
-	default:
-		name = name[i+1:]
-
-		var idx int
-		if to[0] == '/' {
-			idx = 1
-		}
-		var node openFS
-		node, err = m.root.find(to[idx:i], 0)
-		if err != nil {
-			return err
-		}
-		if !node.IsDir() {
-			return &fs.PathError{
-				Op:   "delete",
-				Path: to,
-				Err:  fmt.Errorf("%s isn't a directory", to[:i]),
-			}
-		}
-		d = node.(*dir)
+	name, currDir, err := getNode(to, "copy", m)
+	if err != nil {
+		return err
 	}
 
 	nd := &dir{
@@ -156,15 +69,14 @@ func (m mfs) Copy(name, to string) error {
 	}
 	od.RUnlock()
 
-	d.Lock()
-	if _, ok := d.node[name]; ok {
-		err = fs.ErrExist
-	} else {
-		d.node[name] = nd
-	}
-	d.Unlock()
+	currDir.Lock()
+	defer currDir.Unlock()
 
-	return err
+	if _, ok := currDir.node[name]; ok {
+		return fs.ErrExist
+	}
+	currDir.node[name] = nd
+	return nil
 }
 
 func (m mfs) Move(name, to string) error {
@@ -174,53 +86,25 @@ func (m mfs) Move(name, to string) error {
 	}
 
 	source := name
-	name = to
-	var (
-		i = strings.LastIndexByte(name, '/')
-		d *dir
-	)
-
-	switch i {
-	case -1:
-		d = m.root
-	case 0:
-		name = name[1:]
-		d = m.root
-	default:
-		name = name[i+1:]
-
-		var idx int
-		if to[0] == '/' {
-			idx = 1
-		}
-		var node openFS
-		if node, err = m.root.find(to[idx:i], 0); err != nil {
-			return err
-		}
-		if !node.IsDir() {
-			return &fs.PathError{
-				Op:   "delete",
-				Path: to,
-				Err:  fmt.Errorf("%s isn't a directory", to[:i]),
-			}
-		}
-		d = node.(*dir)
+	name, currDir, err := getNode(to, "move", m)
+	if err != nil {
+		return err
 	}
 
 	nd := &dir{
 		name:    name,
-		perm:    d.perm,
+		perm:    currDir.perm,
 		modTime: time.Now(),
 		node:    make(map[string]openFS),
 	}
 
-	d.Lock()
-	if _, ok := d.node[name]; ok {
-		d.Unlock()
+	currDir.Lock()
+	if _, ok := currDir.node[name]; ok {
+		currDir.Unlock()
 		return fs.ErrExist
 	}
-	d.node[name] = nd
-	d.Unlock()
+	currDir.node[name] = nd
+	currDir.Unlock()
 
 	if of, ok := f.(*openFile); ok {
 		nf := &file{
@@ -282,31 +166,62 @@ func (m mfs) MkdirAll(name string) error {
 }
 
 func (m mfs) Mkdir(name string) error {
-	if len(name) == 0 {
+	if len(name) == 0 || name[len(name)-1] == '/' {
 		return fs.ErrInvalid
 	}
 
-	var dirname string
-	paths := strings.Split(name, "/")
-	if len(paths) == 1 {
-		dirname = paths[0]
-	} else if len(paths) == 2 && paths[0] == "." {
-		dirname = paths[1]
-	} else {
-		return fs.ErrInvalid
+	dirname, currDir, err := getNode(name, "mkdir", m)
+	if err != nil {
+		return err
 	}
 
-	m.root.Lock()
-	defer m.root.Unlock()
+	currDir.Lock()
+	defer currDir.Unlock()
 
-	if _, ok := m.root.node[dirname]; ok {
+	if _, ok := currDir.node[dirname]; ok {
 		return fs.ErrExist
 	}
-
-	m.root.node[dirname] = &dir{
+	currDir.node[dirname] = &dir{
 		name:    dirname,
+		perm:    currDir.perm,
 		modTime: time.Now(),
 		node:    make(map[string]openFS),
 	}
 	return nil
+}
+
+func getNode(name, op string, m mfs) (string, *dir, error) {
+	var (
+		dirname string
+		currDir = m.root
+		idx     = strings.LastIndexByte(name, '/')
+	)
+
+	switch idx {
+	case 0:
+		dirname = name[1:]
+	case -1:
+		dirname = name
+	default:
+		dirname = name[idx+1:]
+
+		var i int
+		if name[0] == '/' {
+			i = 1
+		}
+		node, err := m.root.find(name[i:idx], 0)
+		if err != nil {
+			return "", nil, err
+		}
+		if !node.IsDir() {
+			return "", nil, &fs.PathError{
+				Op:   op,
+				Path: name[i:idx],
+				Err:  fmt.Errorf("%s isn't a directory", name[i:idx]),
+			}
+		}
+		currDir = node.(*dir)
+	}
+
+	return dirname, currDir, nil
 }
