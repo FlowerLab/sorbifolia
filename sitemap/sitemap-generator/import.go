@@ -16,10 +16,10 @@ func importURL(u string) *sitemap.Sitemap {
 	if err != nil {
 		log.Panicln(err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
-	sm, err := sitemap.Parse(resp.Body)
-	if err != nil {
+	var sm *sitemap.Sitemap
+	if sm, err = sitemap.Parse(resp.Body); err != nil {
 		log.Panicln(err)
 	}
 
