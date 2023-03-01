@@ -3,7 +3,7 @@ module go.x2ox.com/sorbifolia/gomod
 go 1.19
 
 require (
-	github.com/go-git/go-git/v5 v5.5.2
+	github.com/go-git/go-git/v5 v5.6.0
 	go.x2ox.com/sorbifolia/random v0.0.0-20220908024204-f7f3f4ee5338
 	golang.org/x/mod v0.8.0
 )
@@ -20,7 +20,7 @@ require (
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
-	github.com/pjbgf/sha1cd v0.2.3 // indirect
+	github.com/pjbgf/sha1cd v0.3.0 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/skeema/knownhosts v1.1.0 // indirect
 	github.com/stretchr/testify v1.8.0 // indirect
