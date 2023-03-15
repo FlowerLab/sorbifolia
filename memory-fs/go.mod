@@ -1,3 +1,3 @@
-module go.x2ox.com/sorbifolia/memory-fs
+module go.x2ox.com/sorbifolia/mfs
 
 go 1.19
