@@ -38,10 +38,10 @@ func RegisterKey(hash string) ([]byte, error) {
 	return bts, err
 }
 
-func GetKey(id string) (string, error) {
+func GetKey(id string) ([]byte, error) {
 	req, err := http.NewRequest(http.MethodPost, getKeyServerURL(id), nil)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	req.Header.Set("Authorization", fmt.Sprintf("Sbfa %s", os.Getenv("KEY_SERVER_KEY")))
@@ -50,14 +50,11 @@ func GetKey(id string) (string, error) {
 
 	var resp *http.Response
 	if resp, err = http.DefaultClient.Do(req); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	var bts []byte
 	bts, err = io.ReadAll(resp.Body)
 	_ = resp.Body.Close()
-	if err != nil {
-		return "", err
-	}
-	return string(bts), nil
+	return bts, err
 }

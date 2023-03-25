@@ -3,15 +3,13 @@ package main
 import (
 	"bufio"
 	"crypto/aes"
-	"crypto/cipher"
-	"encoding/hex"
 	"io"
 	"os"
 
 	"go.x2ox.com/sorbifolia/cryptutils"
 )
 
-func encrypt(key, src, dst string) error {
+func encrypt(key []byte, src, dst string) error {
 	cs, err := parseCry(key)
 	if err != nil {
 		return err
@@ -63,7 +61,7 @@ func encrypt(key, src, dst string) error {
 	return df.Close()
 }
 
-func decrypt(key, src, dst string) error {
+func decrypt(key []byte, src, dst string) error {
 	cs, err := parseCry(key)
 	if err != nil {
 		return err
@@ -115,16 +113,11 @@ func decrypt(key, src, dst string) error {
 	return df.Close()
 }
 
-func parseCry(key string) (cryptutils.CryptStream, error) {
-	data, err := hex.DecodeString(key[:16])
+func parseCry(key []byte) (cryptutils.CryptStream, error) {
+	cb, err := aes.NewCipher(key[:16])
 	if err != nil {
 		return nil, err
 	}
 
-	var cb cipher.Block
-	if cb, err = aes.NewCipher(data[:16]); err != nil {
-		return nil, err
-	}
-
-	return cryptutils.CTR(cb, data[16:]), nil
+	return cryptutils.CTR(cb, key[16:]), nil
 }

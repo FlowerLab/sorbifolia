@@ -30,7 +30,7 @@ func main() {
 			log.Fatalln(err)
 		}
 
-		var key string
+		var key []byte
 		if key, err = GetKey(string(bts)); err != nil {
 			log.Fatalln(err)
 		}
@@ -61,7 +61,7 @@ func main() {
 			log.Fatalln(err)
 		}
 
-		var key string
+		var key []byte
 		if key, err = GetKey(string(m)); err != nil {
 			log.Fatalln(err)
 		}
