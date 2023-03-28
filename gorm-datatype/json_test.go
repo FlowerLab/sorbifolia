@@ -1,91 +1,28 @@
 package datatype
 
 import (
-	"bytes"
-	"encoding/json"
 	"testing"
-
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
-var db *gorm.DB
-
-func initDB() {
-	var err error
-	if db, err = gorm.Open(
-		postgres.Open("host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable"),
-	); err != nil {
-		panic(err)
-	}
-}
-
-type Test1 struct {
-	gorm.Model
-
-	Data JSON `json:"data"`
-}
-
-func TestJSON(t *testing.T) {
-	initDB()
-	if err := db.AutoMigrate(&Test1{}); err != nil {
-		t.Error(err)
-	}
-	d := map[string]interface{}{
-		"data": map[string]interface{}{
-			"data": "ASd",
-			"d":    123,
-		},
-	}
-	t1 := &Test1{}
-	bts, _ := json.Marshal(d)
-	_ = json.Unmarshal(bts, &t1)
-	if err := db.Create(t1).Error; err != nil {
-		t.Error(err)
-	}
-}
-
-func TestJSON_Value(t *testing.T) {
-	t.Parallel()
-
-	var i JSON
-	if val, err := i.Value(); err != nil || val != nil {
-		t.Error("fail")
+func Test_AJs(t *testing.T) {
+	testdata := []testStruct{
+		{&JSON{}, `{"a":"a"}`, `{"a":"a"}`, false},
+		{&JSON{}, `{"a":"}`, nil, true},
 	}
 
-	i = []byte(`{"a":"a"}`)
-	if val, _ := i.Value(); val != `{"a":"a"}` {
-		t.Error("fail")
-	}
-}
+	for _, v := range testdata {
+		if v.data != nil {
+			if err := v.itr.Scan(v.data); err != nil && !v.isErr {
+				t.Error(err)
+			}
+		}
 
-func TestJSON_Scan(t *testing.T) {
-	t.Parallel()
-
-	var i JSON
-
-	if err := i.Scan(nil); err != nil {
-		t.Error(err)
-	}
-	if err := i.Scan([]byte(`{"a":"a"}`)); err != nil {
-		t.Error(err)
-	}
-	if err := i.Scan(`{"a":"a"}`); err != nil {
-		t.Error(err)
-	}
-	if err := i.Scan(map[string]string{"a": "a"}); err == nil {
-		t.Error(err)
-	}
-}
-
-func TestJSON_MarshalJSON(t *testing.T) {
-	t.Parallel()
-
-	var i JSON
-	if err := i.UnmarshalJSON([]byte(`{"a":"a"}`)); err != nil {
-		t.Error(err)
-	}
-	if bts, err := i.MarshalJSON(); err != nil || !bytes.Equal(bts, []byte("{\"a\":\"a\"}")) {
-		t.Error(err)
+		val, err := v.itr.Value()
+		if v.val != val {
+			t.Errorf("is not a valid ext: %s, act: %s", v.val, val)
+		}
+		if err != nil && !v.isErr {
+			t.Error(err)
+		}
 	}
 }

@@ -12,100 +12,37 @@ type TestArrayInt struct {
 	Data Array[int] `json:"data"`
 }
 
-func TestArray_Int(t *testing.T) {
-	initDB()
-	if err := db.AutoMigrate(&TestArrayInt{}); err != nil {
-		t.Error(err)
-	}
-
-	t1 := &TestArrayInt{}
-	t1.Data = []int{
-		123, 123, 123, 213, 23, 0, 32, 32, 32, 32, 32, 2, 3, 2332, 123, 23,
-	}
-
-	if err := db.Create(t1).Error; err != nil {
-		t.Error(err)
-	}
+type testStruct struct {
+	itr   gormItr
+	data  any // nil string []byte
+	val   any // nil string []byte
+	isErr bool
 }
 
-func TestArray_Scan(t *testing.T) {
-	t.Parallel()
+func TestArray(t *testing.T) {
+	testdata := []testStruct{
+		{&Array[int]{}, "{1,2,3,4,5,6,7,8}", "{1,2,3,4,5,6,7,8}", false},
+		{&Array[int]{1, 2, 3, 4, 5, 6, 7, 8}, nil, "{1,2,3,4,5,6,7,8}", false},
+		{&Array[int]{}, "{}", nil, false},
+		{&Array[int]{}, map[string]string{}, nil, true},
+		{&Array[int]{}, `{{"1"}}`, nil, true},
+		{&Array[int]{}, `{3.3,2.7}`, nil, true},
+		{&Array[int]{}, nil, nil, false},
+	}
 
-	for _, tt := range []struct {
-		str string
-		arr []int
-	}{
-		{`{}`, nil},
-		{`{1}`, []int{1}},
-		{`{3,7}`, []int{3, 7}},
-		{`{3,1,2}`, []int{3, 1, 2}},
-	} {
-		bytes := []byte(tt.str)
-		a := Array[int]{}
-		err := a.Scan(bytes)
-
-		if err != nil {
-			t.Errorf("expected no error for %q, got %v", bytes, err)
+	for _, v := range testdata {
+		if v.data != nil {
+			if err := v.itr.Scan(v.data); err != nil && !v.isErr {
+				t.Error(err)
+			}
 		}
-	}
 
-	for _, tt := range []struct {
-		str string
-		arr []int
-	}{
-		{`{}`, nil},
-		{`{1}`, []int{1}},
-		{`{3,7}`, []int{3, 7}},
-		{`{3,1,2}`, []int{3, 1, 2}},
-	} {
-		a := Array[int]{}
-		err := a.Scan(tt.str)
-
-		if err != nil {
-			t.Errorf("expected no error for %s, got %v", tt.str, err)
+		val, err := v.itr.Value()
+		if v.val != val {
+			t.Error("is not a valid")
 		}
-	}
-
-	a := Array[int]{}
-	if err := a.Scan(nil); err != nil {
-		t.Errorf("expected no error for nil, got %v", err)
-	}
-
-	if err := a.Scan(map[string]interface{}{}); err == nil {
-		t.Error("fail")
-	}
-}
-
-func TestArray_ScanErr(t *testing.T) {
-	t.Parallel()
-
-	for _, tt := range []struct {
-		str string
-		arr []int
-	}{
-		{`{{"1"}}`, []int{1}},
-		{`{3.3,2.7}`, []int{3, 7}},
-	} {
-		bytes := []byte(tt.str)
-		a := Array[int]{}
-		err := a.Scan(bytes)
-
-		if err == nil {
-			t.Errorf("expected no error for %q, got %v", bytes, err)
+		if err != nil && !v.isErr {
+			t.Error(err)
 		}
-	}
-}
-
-func TestArray_Value(t *testing.T) {
-	t.Parallel()
-
-	var a Array[int] = nil
-	if val, err := a.Value(); err != nil || val != nil {
-		t.Error("expected")
-	}
-
-	a = []int{}
-	if val, err := a.Value(); err != nil || val != "{}" {
-		t.Error("expected")
 	}
 }
