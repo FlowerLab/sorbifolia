@@ -10,19 +10,11 @@ import (
 
 type ArrayString []string
 
-// GormDataType gorm common data type
-func (ArrayString) GormDataType() string { return "ArrayString" }
-
-// GormDBDataType gorm db data type
-func (ArrayString) GormDBDataType(db *gorm.DB, _ *schema.Field) string {
-	switch db.Dialector.Name() {
-	case "postgres":
-		return "text[]"
-	}
-	return ""
+func (*ArrayString) GormDataType() string { return "ArrayString" }
+func (*ArrayString) GormDBDataType(db *gorm.DB, _ *schema.Field) string {
+	return isPostgres(db, "text[]")
 }
 
-// Scan implements the sql.Scanner interface.
 func (a *ArrayString) Scan(src any) error {
 	switch src := src.(type) {
 	case []byte:
@@ -57,19 +49,19 @@ func (a *ArrayString) scanBytes(src []byte) error {
 }
 
 // Value implements the driver.Valuer interface.
-func (a ArrayString) Value() (driver.Value, error) {
-	if a == nil {
+func (a *ArrayString) Value() (driver.Value, error) {
+	if a == nil || len(*a) == 0 {
 		return nil, nil
 	}
 
-	if n := len(a); n > 0 {
+	if n := len(*a); n > 0 {
 		b := make([]byte, 1, 1+3*n) // {} and 2*N + N-1 bytes of delimiters
 		b[0] = '{'
 
-		b = appendArrayQuotedBytes(b, []byte(a[0]))
+		b = appendArrayQuotedBytes(b, []byte((*a)[0]))
 		for i := 1; i < n; i++ {
 			b = append(b, ',')
-			b = appendArrayQuotedBytes(b, []byte(a[i]))
+			b = appendArrayQuotedBytes(b, []byte((*a)[i]))
 		}
 
 		return string(append(b, '}')), nil

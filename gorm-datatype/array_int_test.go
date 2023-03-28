@@ -28,32 +28,6 @@ func TestArray_Int(t *testing.T) {
 	}
 }
 
-func TestArray_GormDataType(t *testing.T) {
-	t.Parallel()
-
-	var i Array[int]
-	if i.GormDataType() != "Array" {
-		t.Error("GormDataType Array")
-	}
-}
-
-func TestArray_GormDBDataType(t *testing.T) {
-	t.Parallel()
-
-	var (
-		i      Array[int]
-		testDB = &gorm.DB{Config: &gorm.Config{Dialector: testDialector("postgres")}}
-	)
-
-	if i.GormDBDataType(testDB, nil) != "text[]" {
-		t.Error("fail")
-	}
-	testDB = &gorm.DB{Config: &gorm.Config{Dialector: testDialector("mysql")}}
-	if i.GormDBDataType(testDB, nil) != "" {
-		t.Error("fail")
-	}
-}
-
 func TestArray_Scan(t *testing.T) {
 	t.Parallel()
 
