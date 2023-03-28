@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func Test_AJs(t *testing.T) {
+func TestJSON(t *testing.T) {
 	testdata := []testStruct{
 		{&JSON{}, `{"a":"a"}`, `{"a":"a"}`, false},
 		{&JSON{}, `{"a":"}`, nil, true},

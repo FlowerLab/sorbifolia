@@ -17,6 +17,7 @@ func TestGormDataType(t *testing.T) {
 		{&ArrayString{}, "ArrayString"},
 		{&JSON{}, "json"},
 		{&INetAddr{}, "INetAddr"},
+		{&INetPrefix{}, "INetPrefix"},
 	}
 	for _, v := range testdata {
 		testGormDataType(t, v.i, v.res)
@@ -32,6 +33,7 @@ func TestGormDBDataType(t *testing.T) {
 		{&ArrayString{}, "text[]"},
 		{&JSON{}, "JSONB"},
 		{&INetAddr{}, "inet"},
+		{&INetPrefix{}, "inet"},
 	}
 	for _, v := range testdata {
 		testGormDBDataType(t, v.i, v.res)
