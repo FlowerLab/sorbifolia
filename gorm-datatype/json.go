@@ -12,6 +12,11 @@ import (
 // JSON defined JSON data type, need to implements driver.Valuer, sql.Scanner interface
 type JSON json.RawMessage
 
+func (*JSON) GormDataType() string { return "json" }
+func (*JSON) GormDBDataType(db *gorm.DB, _ *schema.Field) string {
+	return isPostgres(db, "JSONB")
+}
+
 // Value return json value, implement driver.Valuer interface
 func (j JSON) Value() (driver.Value, error) {
 	if len(j) == 0 {
@@ -22,7 +27,7 @@ func (j JSON) Value() (driver.Value, error) {
 }
 
 // Scan scan value into Jsonb, implements sql.Scanner interface
-func (j *JSON) Scan(value interface{}) error {
+func (j *JSON) Scan(value any) error {
 	if value == nil {
 		*j = JSON("null")
 		return nil
@@ -54,18 +59,4 @@ func (j *JSON) UnmarshalJSON(b []byte) error {
 	err := result.UnmarshalJSON(b)
 	*j = JSON(result)
 	return err
-}
-
-// GormDataType gorm common data type
-func (JSON) GormDataType() string {
-	return "json"
-}
-
-// GormDBDataType gorm db data type
-func (JSON) GormDBDataType(db *gorm.DB, _ *schema.Field) string {
-	switch db.Dialector.Name() {
-	case "postgres":
-		return "JSONB"
-	}
-	return ""
 }

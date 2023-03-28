@@ -11,19 +11,11 @@ import (
 
 type Array[T strong.Type] []T
 
-// GormDataType gorm common data type
-func (Array[T]) GormDataType() string { return "Array" }
-
-// GormDBDataType gorm db data type
-func (Array[T]) GormDBDataType(db *gorm.DB, _ *schema.Field) string {
-	switch db.Dialector.Name() {
-	case "postgres":
-		return "text[]"
-	}
-	return ""
+func (*Array[T]) GormDataType() string { return "Array" }
+func (*Array[T]) GormDBDataType(db *gorm.DB, _ *schema.Field) string {
+	return isPostgres(db, "text[]")
 }
 
-// Scan implements the sql.Scanner interface.
 func (a *Array[T]) Scan(src any) error {
 	switch src := src.(type) {
 	case []byte:
@@ -57,20 +49,19 @@ func (a *Array[T]) scanBytes(src []byte) error {
 	return nil
 }
 
-// Value implements the driver.Valuer interface.
-func (a Array[T]) Value() (driver.Value, error) {
-	if a == nil {
+func (a *Array[T]) Value() (driver.Value, error) {
+	if a == nil || len(*a) == 0 {
 		return nil, nil
 	}
 
-	if n := len(a); n > 0 {
+	if n := len(*a); n > 0 {
 		b := make([]byte, 1, 1+2*n) // {} and N + N-1 bytes of delimiters
 		b[0] = '{'
 
-		b = strong.Append(b, a[0])
+		b = strong.Append(b, (*a)[0])
 		for i := 1; i < n; i++ {
 			b = append(b, ',')
-			b = strong.Append(b, a[i])
+			b = strong.Append(b, (*a)[i])
 		}
 
 		return string(append(b, '}')), nil
