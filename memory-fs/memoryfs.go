@@ -1,7 +1,6 @@
 package mfs
 
 import (
-	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -25,13 +24,11 @@ type openFS interface {
 }
 
 func New() MemoryFS {
-	return &mfs{
-		root: &dir{
-			name:    "/",
-			modTime: time.Now(),
-			node:    make(map[string]openFS),
-		},
-	}
+	return &mfs{root: &dir{
+		name:    "/",
+		modTime: time.Now(),
+		node:    make(map[string]openFS),
+	}}
 }
 
 func Fork(name string) (MemoryFS, error) {
@@ -132,8 +129,6 @@ func persistence(m MemoryFS, diskName string) error {
 	}
 	return nil
 }
-
-var errIsDirectory = errors.New("is a directory")
 
 func exists(path string) bool {
 	_, err := os.Stat(path)

@@ -50,9 +50,12 @@ func (m mfs) Copy(name, to string) error {
 		return m.WriteFile(to, of.data, of.perm)
 	}
 
-	od := f.(*openDir).dir
-	name, currDir, err := getNode(to, "copy", m)
-	if err != nil {
+	var (
+		od      = f.(*openDir).dir
+		currDir *dir
+	)
+
+	if name, currDir, err = getNode(to, "copy", m); err != nil {
 		return err
 	}
 
@@ -85,9 +88,12 @@ func (m mfs) Move(name, to string) error {
 		return err
 	}
 
-	source := name
-	name, currDir, err := getNode(to, "move", m)
-	if err != nil {
+	var (
+		source  = name
+		currDir *dir
+	)
+
+	if name, currDir, err = getNode(to, "move", m); err != nil {
 		return err
 	}
 
@@ -107,13 +113,12 @@ func (m mfs) Move(name, to string) error {
 	currDir.Unlock()
 
 	if of, ok := f.(*openFile); ok {
-		nf := &file{
+		nd.node[of.name] = &file{
 			name:    of.name,
 			perm:    of.perm,
 			modTime: time.Now(),
 			data:    of.data,
 		}
-		nd.node[nf.name] = nf
 	} else {
 		od := f.(*openDir).dir
 		od.RLock()

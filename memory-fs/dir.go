@@ -1,6 +1,7 @@
 package mfs
 
 import (
+	"errors"
 	"io"
 	"io/fs"
 	"os"
@@ -24,19 +25,20 @@ type openDir struct {
 	entry []string
 }
 
-func (d *dir) FS() fs.File                  { return &openDir{dir: d} }
-func (d *dir) Name() string                 { return d.name }
-func (d *dir) Size() int64                  { return 0 }
-func (d *dir) Mode() fs.FileMode            { return d.perm }
-func (d *dir) Type() fs.FileMode            { return d.perm }
-func (d *dir) ModTime() time.Time           { return d.modTime }
-func (d *dir) IsDir() bool                  { return true }
-func (d *dir) Sys() any                     { return nil }
-func (d *dir) Stat() (fs.FileInfo, error)   { return d, nil }
-func (d *dir) Info() (fs.FileInfo, error)   { return d, nil }
-func (d *dir) Read([]byte) (int, error)     { return 0, d.e("read", errIsDirectory) }
-func (d *dir) Close() error                 { return nil }
-func (d *dir) e(op string, err error) error { return &fs.PathError{Op: op, Path: d.name, Err: err} }
+func (d *dir) FS() fs.File                { return &openDir{dir: d} }
+func (d *dir) Name() string               { return d.name }
+func (d *dir) Size() int64                { return 0 }
+func (d *dir) Mode() fs.FileMode          { return d.perm }
+func (d *dir) Type() fs.FileMode          { return d.perm }
+func (d *dir) ModTime() time.Time         { return d.modTime }
+func (d *dir) IsDir() bool                { return true }
+func (d *dir) Sys() any                   { return nil }
+func (d *dir) Stat() (fs.FileInfo, error) { return d, nil }
+func (d *dir) Info() (fs.FileInfo, error) { return d, nil }
+func (d *dir) Close() error               { return nil }
+func (d *dir) Read([]byte) (int, error) {
+	return 0, &fs.PathError{Op: "read", Path: d.name, Err: errors.New("is a directory")}
+}
 func (d *openDir) ReadDir(count int) ([]fs.DirEntry, error) {
 	if d.n == 0 {
 		d.RLock()
@@ -118,7 +120,7 @@ func (d *dir) writeFile(name string, data []byte, perm os.FileMode) (err error) 
 		d.node[name] = &file{
 			name:    name,
 			perm:    perm,
-			modTime: time.Time{},
+			modTime: time.Now(),
 			data:    data,
 		}
 	}
