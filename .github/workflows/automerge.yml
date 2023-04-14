@@ -1,8 +1,5 @@
 name: automerge
 on:
-  pull_request:
-    types:
-      - labeled
   pull_request_review:
     types:
       - submitted
@@ -26,3 +23,4 @@ jobs:
           MERGE_REMOVE_LABELS: "dependencies"
           MERGE_METHOD: "squash"
           MERGE_DELETE_BRANCH: "true"
+          MERGE_FILTER_AUTHOR: "dependabot"
