@@ -11,6 +11,7 @@ use (
 	httprouter
 	httputils
 	jsonutils
+	jwt
 	password
 	pool
 	pyrokinesis
