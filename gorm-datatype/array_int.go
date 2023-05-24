@@ -49,19 +49,19 @@ func (a *Array[T]) scanBytes(src []byte) error {
 	return nil
 }
 
-func (a *Array[T]) Value() (driver.Value, error) {
-	if a == nil || len(*a) == 0 {
+func (a Array[T]) Value() (driver.Value, error) {
+	if len(a) == 0 {
 		return nil, nil
 	}
 
-	if n := len(*a); n > 0 {
+	if n := len(a); n > 0 {
 		b := make([]byte, 1, 1+2*n) // {} and N + N-1 bytes of delimiters
 		b[0] = '{'
 
-		b = strong.Append(b, (*a)[0])
+		b = strong.Append(b, (a)[0])
 		for i := 1; i < n; i++ {
 			b = append(b, ',')
-			b = strong.Append(b, (*a)[i])
+			b = strong.Append(b, (a)[i])
 		}
 
 		return string(append(b, '}')), nil

@@ -78,11 +78,8 @@ func (a *INetPrefix) Scan(value any) error {
 }
 
 // Value implements the driver.Valuer interface.
-func (a *INetPrefix) Value() (driver.Value, error) {
-	if a == nil {
-		return "", errors.New("invalid ip prefix")
-	}
-	np := netip.Prefix(*a)
+func (a INetPrefix) Value() (driver.Value, error) {
+	np := netip.Prefix(a)
 	if np.IsValid() {
 		return np.String(), nil
 	}
