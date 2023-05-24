@@ -49,19 +49,19 @@ func (a *ArrayString) scanBytes(src []byte) error {
 }
 
 // Value implements the driver.Valuer interface.
-func (a *ArrayString) Value() (driver.Value, error) {
-	if a == nil || len(*a) == 0 {
+func (a ArrayString) Value() (driver.Value, error) {
+	if len(a) == 0 {
 		return nil, nil
 	}
 
-	if n := len(*a); n > 0 {
+	if n := len(a); n > 0 {
 		b := make([]byte, 1, 1+3*n) // {} and 2*N + N-1 bytes of delimiters
 		b[0] = '{'
 
-		b = appendArrayQuotedBytes(b, []byte((*a)[0]))
+		b = appendArrayQuotedBytes(b, []byte((a)[0]))
 		for i := 1; i < n; i++ {
 			b = append(b, ',')
-			b = appendArrayQuotedBytes(b, []byte((*a)[i]))
+			b = appendArrayQuotedBytes(b, []byte((a)[i]))
 		}
 
 		return string(append(b, '}')), nil
