@@ -3,7 +3,7 @@ module go.x2ox.com/sorbifolia/gomod
 go 1.19
 
 require (
-	github.com/go-git/go-git/v5 v5.7.0
+	github.com/go-git/go-git/v5 v5.8.0
 	go.x2ox.com/sorbifolia/random v0.0.0-20220908024204-f7f3f4ee5338
 	golang.org/x/mod v0.12.0
 )
