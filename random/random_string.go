@@ -1,5 +1,9 @@
 package random
 
+import (
+	"go.x2ox.com/sorbifolia/pyrokinesis"
+)
+
 var defaultRandString = newRandString()
 
 type randString struct {
@@ -14,24 +18,25 @@ func newRandString() *randString {
 	}
 }
 
-func (r randString) RandString(rn []int) string {
+func (r *randString) RandString(rn []int) string {
 	arr := make([]byte, len(rn))
 	for i := range arr {
 		arr[i] = r.randBytes[rn[i]]
 	}
-	return string(arr)
+	return pyrokinesis.Bytes.ToString(arr)
 }
 
-func (r randString) SetRandBytes(data []byte) *randString {
+func (r *randString) SetRandBytes(data []byte) *randString {
 	if len(data) > 256 {
 		panic("data too long")
 	}
 	if hasRepeat(data) {
 		panic("not repeatable")
 	}
-	r.randBytesLen = len(data)
-	r.randBytes = data
-	return &r
+	return &randString{
+		randBytesLen: len(data),
+		randBytes:    data,
+	}
 }
 
 func hasRepeat[T comparable](arr []T) bool {
