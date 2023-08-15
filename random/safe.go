@@ -10,7 +10,7 @@ import (
 type safeRand struct{ *randString }
 
 func Safe() Random {
-	return &safeRand{newRandString()}
+	return &safeRand{defaultRandString}
 }
 
 func (r safeRand) RandString(length int) string {
