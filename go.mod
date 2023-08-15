@@ -1,3 +1,3 @@
 module go.x2ox.com/sorbifolia
 
-go 1.20
+go 1.21
