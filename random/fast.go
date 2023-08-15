@@ -9,7 +9,7 @@ import (
 type fastRand struct{ *randString }
 
 func Fast() Random {
-	return &fastRand{newRandString()}
+	return &fastRand{defaultRandString}
 }
 
 func (r fastRand) RandString(length int) string {

@@ -1,5 +1,7 @@
 package random
 
+var defaultRandString = newRandString()
+
 type randString struct {
 	randBytes    []byte
 	randBytesLen int

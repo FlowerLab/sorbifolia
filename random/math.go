@@ -7,7 +7,7 @@ import (
 type mathRand struct{ *randString }
 
 func Math() Random {
-	return &mathRand{newRandString()}
+	return &mathRand{defaultRandString}
 }
 
 func (r mathRand) RandString(length int) string {
