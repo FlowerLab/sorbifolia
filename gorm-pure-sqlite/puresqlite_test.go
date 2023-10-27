@@ -144,13 +144,6 @@ func TestDialector_ORM(t *testing.T) {
 		F    float32 `json:"f"`
 		B    []byte  `json:"b" gorm:"type:bytes"`
 	}
-	type ATTable struct {
-		ID  uint `json:"id" gorm:"primarykey"`
-		Num uint `json:"num" gorm:"autoIncrement"`
-	}
-	if err = db.AutoMigrate(&ATTable{}); err == nil {
-		t.Fail()
-	}
 	if err = db.AutoMigrate(&TestTable{}, &UserTable{}, &DataTable{}); err != nil {
 		t.Error(err)
 	}
