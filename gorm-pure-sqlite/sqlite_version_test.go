@@ -13,7 +13,7 @@ func TestSQLiteVersion(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if db.QueryRow("SELECT sqlite_version()").Scan(&version) != nil {
+	if err = db.QueryRow("SELECT sqlite_version()").Scan(&version); err != nil {
 		t.Fatal(err)
 	}
 
