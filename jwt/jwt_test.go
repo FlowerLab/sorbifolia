@@ -3,7 +3,7 @@ package jwt
 import (
 	"testing"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type Info struct {
@@ -15,7 +15,7 @@ func TestJWT(t *testing.T) {
 
 	gen := Generator{}
 	rpk, _ := gen.Ed25519()
-	j := New(EdDSA, rpk, rpk.Public(), Claims[Info]{})
+	j := New(jwt.SigningMethodEdDSA, rpk, rpk.Public(), Claims[Info]{})
 
 	ts, err := j.Generate(Claims[Info]{
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -58,7 +58,7 @@ func TestJWT_MustGenerate(t *testing.T) {
 
 	gen := Generator{}
 	rpk, _ := gen.Ed25519()
-	j := New(EdDSA, rpk, rpk.Public(), Claims[TestData]{})
+	j := New(jwt.SigningMethodEdDSA, rpk, rpk.Public(), Claims[TestData]{})
 
 	defer func() { _ = recover() }()
 	j.MustGenerate(Claims[TestData]{
@@ -78,7 +78,7 @@ func TestJWT_Parse(t *testing.T) {
 
 	gen := Generator{}
 	rpk, _ := gen.Ed25519()
-	j := New(EdDSA, rpk, rpk.Public(), Claims[any]{})
+	j := New(jwt.SigningMethodEdDSA, rpk, rpk.Public(), Claims[any]{})
 
 	if _, err := j.Parse("1.2.3"); err == nil {
 		t.Error(err)
@@ -90,7 +90,7 @@ func TestJWT_ParseToken(t *testing.T) {
 
 	gen := Generator{}
 	rpk, _ := gen.Ed25519()
-	j := New(EdDSA, rpk, rpk.Public(), Claims[any]{})
+	j := New(jwt.SigningMethodEdDSA, rpk, rpk.Public(), Claims[any]{})
 
 	if _, err := j.ParseToken(nil); err == nil {
 		t.Error("failed to parse")
