@@ -13,5 +13,5 @@ go.uber.org/zap v1.26.0/go.mod h1:dtElttAiwGvoJ/vj4IwHBS/gXsEu/pZ50mUIRWuG0so=
 go.x2ox.com/sorbifolia/coarsetime v0.0.0-20220901085912-d53b708be0cc h1:Z7A+8Ah6tBDJlhoTL1HMipciXajVqjg6WTesMD1DvmA=
 go.x2ox.com/sorbifolia/coarsetime v0.0.0-20220901085912-d53b708be0cc/go.mod h1:shzBelJDQTC4I7PPQnB75Aks9EPc+/Pnk4CxdY60QVU=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
-gorm.io/gorm v1.25.4 h1:iyNd8fNAe8W9dvtlgeRI5zSVZPsq3OpcTu37cYcpCmw=
-gorm.io/gorm v1.25.4/go.mod h1:L4uxeKpfBml98NYqVqwAdmV1a2nBtAec/cf3fpucW/k=
+gorm.io/gorm v1.25.5 h1:zR9lOiiYf09VNh5Q1gphfyia1JpiClIWG9hQaxB/mls=
+gorm.io/gorm v1.25.5/go.mod h1:hbnx/Oo0ChWMn1BIhpy1oYozzpM15i4YPuHDmfYtwg8=
