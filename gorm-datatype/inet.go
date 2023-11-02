@@ -46,11 +46,8 @@ func (a *INetAddr) Scan(value any) error {
 }
 
 // Value implements the driver.Valuer interface.
-func (a *INetAddr) Value() (driver.Value, error) {
-	if a == nil {
-		return nil, errors.New("invalid ip address")
-	}
-	na := netip.Addr(*a)
+func (a INetAddr) Value() (driver.Value, error) {
+	na := netip.Addr(a)
 	if na.IsValid() {
 		return na.String(), nil
 	}
