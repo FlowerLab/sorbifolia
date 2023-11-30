@@ -6,13 +6,22 @@ import (
 
 func truncate(d time.Duration) time.Time { return coarseTime.Load().(*time.Time).Truncate(d) }
 
-func TruncateHour() time.Time   { return truncate(time.Hour) }
+func TruncateHour() time.Time {
+	t := Now()
+	y, m, d := t.Date()
+	return time.Date(y, m, d, t.Hour(), 0, 0, 0, t.Location())
+}
 func TruncateMinute() time.Time { return truncate(time.Minute) }
 func TruncateSecond() time.Time { return truncate(time.Second) }
-func TruncateDay() time.Time    { return truncate(time.Hour * 24) }
+func TruncateDay() time.Time {
+	t := Now()
+	y, m, d := t.Date()
+	return time.Date(y, m, d, 0, 0, 0, 0, t.Location())
+}
+
 func TruncateWeekday() time.Time {
 	t := TruncateDay()
-	return t.AddDate(0, 0, int(t.Weekday()))
+	return t.AddDate(0, 0, -int(t.Weekday()))
 }
 
 func TruncateMonth() time.Time {
