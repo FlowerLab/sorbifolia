@@ -21,7 +21,7 @@ func TruncateDay() time.Time {
 
 func TruncateWeekday() time.Time {
 	t := TruncateDay()
-	return t.AddDate(0, 0, int(t.Weekday()))
+	return t.AddDate(0, 0, -int(t.Weekday()))
 }
 
 func TruncateMonth() time.Time {
