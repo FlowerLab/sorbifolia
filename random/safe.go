@@ -52,10 +52,9 @@ func (r safeRand) Int16n(n int16) int16 { return remainder(n, r.Int16()) }
 func (r safeRand) Int8n(n int8) int8    { return remainder(n, r.Int8()) }
 
 func (r safeRand) read(num int) []byte {
-
 	arr := make([]byte, num)
 	_, _ = cr.Read(arr)
 	return arr
 }
 
-var _intSize = int(unsafe.Sizeof(int(0)))
+const _intSize = int(unsafe.Sizeof(int(0)))

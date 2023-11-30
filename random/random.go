@@ -1,7 +1,7 @@
 package random
 
 const (
-	randBytes    = "123456789aAbBcCdDeEfFgGhHiUjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ"
+	randBytes    = "0123456789aAbBcCdDeEfFgGhHiUjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ"
 	randBytesLen = len(randBytes)
 )
 
