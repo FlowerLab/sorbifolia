@@ -18,4 +18,5 @@ type Consecutive interface {
 
 	FirstIP() netip.Addr
 	LastIP() netip.Addr
+	String() string
 }
