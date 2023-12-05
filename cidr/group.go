@@ -3,41 +3,10 @@ package cidr
 import (
 	"math/big"
 	"net/netip"
-	"strings"
 )
 
 type Group struct {
 	arr []Consecutive
-}
-
-func ParseGroup(s []string) (Group, error) {
-	arr := make([]Consecutive, 0, len(s))
-	for _, v := range s {
-		switch {
-		case strings.ContainsRune(v, '-'):
-			val, err := ParseRange(v)
-			if err != nil {
-				return Group{}, err
-			}
-			arr = append(arr, val)
-
-		case strings.ContainsRune(v, '/'):
-			val, err := ParsePrefix(v)
-			if err != nil {
-				return Group{}, err
-			}
-			arr = append(arr, val)
-
-		default:
-			val, err := ParseSingle(v)
-			if err != nil {
-				return Group{}, err
-			}
-			arr = append(arr, val)
-		}
-	}
-
-	return Group{arr}, nil
 }
 
 func (x Group) ContainsIP(ip netip.Addr) bool {

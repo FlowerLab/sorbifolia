@@ -3,7 +3,6 @@ package cidr
 import (
 	"math/big"
 	"net/netip"
-	"strings"
 )
 
 type Prefix struct {
@@ -11,13 +10,6 @@ type Prefix struct {
 }
 
 func NewPrefix(p netip.Prefix) Prefix { return Prefix{p: p} }
-func ParsePrefix(s string) (Prefix, error) {
-	p, err := netip.ParsePrefix(strings.ReplaceAll(s, " ", ""))
-	if err != nil {
-		return Prefix{}, err
-	}
-	return NewPrefix(p), nil
-}
 
 func (x Prefix) ContainsIP(ip netip.Addr) bool { return x.p.Contains(ip) }
 

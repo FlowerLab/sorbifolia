@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/big"
 	"net/netip"
-	"strings"
 )
 
 type Range struct {
@@ -12,25 +11,6 @@ type Range struct {
 }
 
 func NewRange(start, end netip.Addr) Range { return Range{s: start, e: end} }
-func ParseRange(s string) (Range, error) {
-	b, a, ok := strings.Cut(strings.ReplaceAll(s, " ", ""), "-")
-	if !ok {
-		return Range{}, fmt.Errorf("cidr: parse range incorrect syntax, %s", s)
-	}
-
-	var (
-		start, end netip.Addr
-		err        error
-	)
-	if start, err = netip.ParseAddr(b); err != nil {
-		return Range{}, err
-	}
-	if end, err = netip.ParseAddr(a); err != nil {
-		return Range{}, err
-	}
-
-	return NewRange(start, end), nil
-}
 
 func (x Range) ContainsIP(ip netip.Addr) bool {
 	return ip.Compare(x.s) >= 0 && ip.Compare(x.e) <= 0

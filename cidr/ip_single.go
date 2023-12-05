@@ -3,7 +3,6 @@ package cidr
 import (
 	"math/big"
 	"net/netip"
-	"strings"
 )
 
 type Single struct {
@@ -11,13 +10,6 @@ type Single struct {
 }
 
 func NewSingle(addr netip.Addr) Single { return Single{p: addr} }
-func ParseSingle(s string) (Single, error) {
-	addr, err := netip.ParseAddr(strings.ReplaceAll(s, " ", ""))
-	if err != nil {
-		return Single{}, err
-	}
-	return NewSingle(addr), nil
-}
 
 func (x Single) ContainsIP(ip netip.Addr) bool { return x.p.Compare(ip) == 0 }
 
