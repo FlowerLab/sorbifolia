@@ -7,7 +7,7 @@ import (
 )
 
 type Exclude struct {
-	e []Consecutive
+	e Group
 	i CIDR
 }
 
@@ -21,7 +21,7 @@ func (e *Exclude) AddCIDR(cidr Consecutive) error {
 	if !e.Contains(cidr) {
 		return ErrNotInAddressRange
 	}
-	for _, v := range e.e {
+	for _, v := range e.e.arr {
 		var (
 			cs = v.ContainsIP(cidr.FirstIP()) // v.start < cidr.start < v.end
 			ce = v.ContainsIP(cidr.LastIP())  // v.start < cidr.end < v.end
@@ -33,7 +33,7 @@ func (e *Exclude) AddCIDR(cidr Consecutive) error {
 			return ErrHasBeenPartiallyExcluded
 		}
 	}
-	e.e = append(e.e, cidr)
+	e.e.arr = append(e.e.arr, cidr)
 	return nil
 }
 
@@ -41,19 +41,19 @@ func (e *Exclude) DelAddress(addr netip.Addr) error {
 	if !e.ContainsIP(addr) {
 		return ErrNotInAddressRange
 	}
-	for i, v := range e.e {
+	for i, v := range e.e.arr {
 		if !v.ContainsIP(addr) {
 			continue
 		}
 
 		switch v.(type) {
 		case Single:
-			e.e = append(e.e[:i], e.e[i+1:]...)
+			e.e.arr = append(e.e.arr[:i], e.e.arr[i+1:]...)
 			return nil
 
 		case Range, Prefix:
-			e.e[i] = Range{s: v.FirstIP(), e: addr.Prev()}
-			e.e = append(e.e, Range{s: addr.Next(), e: v.LastIP()})
+			e.e.arr[i] = Range{s: v.FirstIP(), e: addr.Prev()}
+			e.e.arr = append(e.e.arr, Range{s: addr.Next(), e: v.LastIP()})
 			return nil
 		}
 	}
@@ -65,25 +65,17 @@ func (e *Exclude) AddAddress(addr netip.Addr) error {
 	if !e.ContainsIP(addr) {
 		return ErrNotInAddressRange
 	}
-	for _, v := range e.e {
+	for _, v := range e.e.arr {
 		if v.ContainsIP(addr) {
 			return ErrHasBeenExcluded
 		}
 	}
-	e.e = append(e.e, Single{p: addr})
+	e.e.arr = append(e.e.arr, Single{p: addr})
 	return nil
 }
 
 func (e *Exclude) ContainsIP(addr netip.Addr) bool {
-	if !e.i.ContainsIP(addr) {
-		return false
-	}
-	for _, v := range e.e {
-		if v.ContainsIP(addr) {
-			return false
-		}
-	}
-	return true
+	return e.i.ContainsIP(addr) && !e.e.ContainsIP(addr)
 }
 
 func (e *Exclude) NextIP(addr netip.Addr) netip.Addr {
@@ -92,29 +84,26 @@ func (e *Exclude) NextIP(addr netip.Addr) netip.Addr {
 			return addr
 		}
 
-		for _, v := range e.e {
-			if v.ContainsIP(addr) {
-				continue
+		var has bool
+		for _, v := range e.e.arr {
+			if has = v.ContainsIP(addr); has {
+				break
 			}
 		}
-		return addr
+		if !has {
+			return addr
+		}
 	}
 }
 
-func (e *Exclude) Length() *big.Int {
-	bi := e.i.Length()
-	for i := range e.e {
-		bi.Sub(bi, e.e[i].Length())
-	}
-	return bi
-}
+func (e *Exclude) Length() *big.Int { return big.NewInt(0).Sub(e.i.Length(), e.e.Length()) }
 
 func (e *Exclude) Contains(cidr CIDR) bool {
 	if !e.i.Contains(cidr) {
 		return false
 	}
 
-	for _, v := range e.e {
+	for _, v := range e.e.arr {
 		if cidr.Contains(v) {
 			return false
 		}
