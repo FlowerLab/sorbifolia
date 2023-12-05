@@ -49,10 +49,16 @@ func (x Prefix) NextIP(ip netip.Addr) netip.Addr {
 	return netip.IPv6Unspecified()
 }
 
-func (x Prefix) Contains(b CIDR) bool {
-	if val, ok := b.(Consecutive); ok {
-		return x.FirstIP().Compare(val.FirstIP()) <= 0 && x.LastIP().Compare(val.LastIP()) >= 0
+func (x Prefix) Contains(c CIDR) ContainsStatus {
+	if val, ok := c.(Consecutive); ok {
+		xs := x.FirstIP().Compare(val.FirstIP()) <= 0
+		xe := x.LastIP().Compare(val.LastIP()) >= 0
+		if xs && xe { // x.start < c.start < c.end < x.end
+			return Contains
+		}
+		if xs || xe { // x.start < c.start < x.end < c.end || c.start < x.start < c.end < x.end
+			return ContainsPartially
+		}
 	}
-
-	return false
+	return ContainsNot
 }

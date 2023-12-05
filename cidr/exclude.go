@@ -17,14 +17,16 @@ var (
 	ErrHasBeenPartiallyExcluded = errors.New("cidr: has been partially excluded")
 )
 
-func (e *Exclude) AddCIDR(cidr Consecutive) error {
-	if !e.Contains(cidr) {
+func (e *Exclude) AddCIDR(c Consecutive) error {
+	switch e.i.Contains(c) {
+	case ContainsPartially, ContainsNot:
 		return ErrNotInAddressRange
 	}
+
 	for _, v := range e.e.arr {
 		var (
-			cs = v.ContainsIP(cidr.FirstIP()) // v.start < cidr.start < v.end
-			ce = v.ContainsIP(cidr.LastIP())  // v.start < cidr.end < v.end
+			cs = v.ContainsIP(c.FirstIP()) // v.start < cidr.start < v.end
+			ce = v.ContainsIP(c.LastIP())  // v.start < cidr.end < v.end
 		)
 		if cs && ce { // v.start < cidr.start < cidr.end < v.end
 			return ErrHasBeenExcluded
@@ -33,7 +35,7 @@ func (e *Exclude) AddCIDR(cidr Consecutive) error {
 			return ErrHasBeenPartiallyExcluded
 		}
 	}
-	e.e.arr = append(e.e.arr, cidr)
+	e.e.arr = append(e.e.arr, c)
 	return nil
 }
 
@@ -98,15 +100,26 @@ func (e *Exclude) NextIP(addr netip.Addr) netip.Addr {
 
 func (e *Exclude) Length() *big.Int { return big.NewInt(0).Sub(e.i.Length(), e.e.Length()) }
 
-func (e *Exclude) Contains(cidr CIDR) bool {
-	if !e.i.Contains(cidr) {
-		return false
+func (e *Exclude) Contains(c CIDR) ContainsStatus {
+	switch e.i.Contains(c) {
+	case ContainsPartially:
+		return ContainsPartially
+	case ContainsNot:
+		return ContainsNot
+	case Contains:
+		for _, v := range e.e.arr {
+			switch v.Contains(c) {
+			case ContainsPartially:
+				return ContainsPartially
+			case ContainsNot:
+				continue
+			case Contains:
+				return ContainsNot
+			}
+		}
+
+		return Contains
 	}
 
-	for _, v := range e.e.arr {
-		if cidr.Contains(v) {
-			return false
-		}
-	}
-	return true
+	return ContainsNot
 }

@@ -93,11 +93,16 @@ func (x Group) Strings() []string {
 	return arr
 }
 
-func (x Group) Contains(cidr CIDR) bool {
+func (x Group) Contains(cidr CIDR) ContainsStatus {
 	for _, v := range x.arr {
-		if v.Contains(cidr) {
-			return false
+		switch v.Contains(cidr) {
+		case ContainsPartially: // TODO: dealing with splits
+			return ContainsPartially
+		case ContainsNot:
+			continue
+		case Contains:
+			return Contains
 		}
 	}
-	return true
+	return ContainsNot
 }

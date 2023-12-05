@@ -60,9 +60,16 @@ func (x Range) NextIP(ip netip.Addr) netip.Addr {
 func (x Range) FirstIP() netip.Addr { return x.s }
 func (x Range) LastIP() netip.Addr  { return x.e }
 func (x Range) String() string      { return fmt.Sprintf("%s-%s", x.s.String(), x.e.String()) }
-func (x Range) Contains(b CIDR) bool {
-	if val, ok := b.(Consecutive); ok {
-		return x.FirstIP().Compare(val.FirstIP()) <= 0 && x.LastIP().Compare(val.LastIP()) >= 0
+func (x Range) Contains(c CIDR) ContainsStatus {
+	if val, ok := c.(Consecutive); ok {
+		xs := x.FirstIP().Compare(val.FirstIP()) <= 0
+		xe := x.LastIP().Compare(val.LastIP()) >= 0
+		if xs && xe { // x.start < c.start < c.end < x.end
+			return Contains
+		}
+		if xs || xe { // x.start < c.start < x.end < c.end || c.start < x.start < c.end < x.end
+			return ContainsPartially
+		}
 	}
-	return false
+	return ContainsNot
 }

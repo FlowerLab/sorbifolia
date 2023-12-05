@@ -37,10 +37,14 @@ func (x Single) FirstIP() netip.Addr { return x.p }
 func (x Single) LastIP() netip.Addr  { return x.p }
 func (x Single) String() string      { return x.p.String() }
 
-func (x Single) Contains(b CIDR) bool {
+func (x Single) Contains(b CIDR) ContainsStatus {
 	s, ok := b.(Single)
-	if !ok {
-		return false
+	switch {
+	case !ok:
+		return ContainsNot
+	case s.p.Compare(x.p) == 0:
+		return Contains
 	}
-	return s.p.Compare(x.p) == 0
+
+	return ContainsNot
 }

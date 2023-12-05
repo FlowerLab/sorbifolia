@@ -10,7 +10,7 @@ type CIDR interface {
 	NextIP(netip.Addr) netip.Addr
 	Length() *big.Int
 
-	Contains(CIDR) bool
+	Contains(CIDR) ContainsStatus
 }
 
 type Consecutive interface {
@@ -20,3 +20,11 @@ type Consecutive interface {
 	LastIP() netip.Addr
 	String() string
 }
+
+type ContainsStatus uint8
+
+const (
+	Contains ContainsStatus = iota
+	ContainsPartially
+	ContainsNot
+)
