@@ -10,20 +10,20 @@ type Range struct {
 	s, e netip.Addr
 }
 
-func NewRange(start, end netip.Addr) Range { return Range{s: start, e: end} }
+func NewRange(start, end netip.Addr) *Range { return &Range{s: start, e: end} }
 
-func (x Range) ContainsIP(ip netip.Addr) bool {
+func (x *Range) ContainsIP(ip netip.Addr) bool {
 	return ip.Compare(x.s) >= 0 && ip.Compare(x.e) <= 0
 }
 
-func (x Range) Length() *big.Int {
+func (x *Range) Length() *big.Int {
 	return big.NewInt(0).Sub(
 		big.NewInt(0).SetBytes(x.s.AsSlice()),
 		big.NewInt(0).SetBytes(x.e.AsSlice()),
 	)
 }
 
-func (x Range) NextIP(ip netip.Addr) netip.Addr {
+func (x *Range) NextIP(ip netip.Addr) netip.Addr {
 	if !ip.IsValid() {
 		return x.s
 	}
@@ -37,10 +37,10 @@ func (x Range) NextIP(ip netip.Addr) netip.Addr {
 	return netip.IPv6Unspecified()
 }
 
-func (x Range) FirstIP() netip.Addr { return x.s }
-func (x Range) LastIP() netip.Addr  { return x.e }
-func (x Range) String() string      { return fmt.Sprintf("%s-%s", x.s.String(), x.e.String()) }
-func (x Range) Contains(c CIDR) ContainsStatus {
+func (x *Range) FirstIP() netip.Addr { return x.s }
+func (x *Range) LastIP() netip.Addr  { return x.e }
+func (x *Range) String() string      { return fmt.Sprintf("%s-%s", x.s.String(), x.e.String()) }
+func (x *Range) Contains(c CIDR) ContainsStatus {
 	if val, ok := c.(Consecutive); ok {
 		xs := x.FirstIP().Compare(val.FirstIP()) <= 0
 		xe := x.LastIP().Compare(val.LastIP()) >= 0

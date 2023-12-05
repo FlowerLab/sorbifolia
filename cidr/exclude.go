@@ -49,13 +49,13 @@ func (e *Exclude) DelAddress(addr netip.Addr) error {
 		}
 
 		switch v.(type) {
-		case Single:
+		case *Single:
 			e.e.arr = append(e.e.arr[:i], e.e.arr[i+1:]...)
 			return nil
 
-		case Range, Prefix:
-			e.e.arr[i] = Range{s: v.FirstIP(), e: addr.Prev()}
-			e.e.arr = append(e.e.arr, Range{s: addr.Next(), e: v.LastIP()})
+		case *Range, *Prefix:
+			e.e.arr[i] = &Range{s: v.FirstIP(), e: addr.Prev()}
+			e.e.arr = append(e.e.arr, &Range{s: addr.Next(), e: v.LastIP()})
 			return nil
 		}
 	}
@@ -72,7 +72,7 @@ func (e *Exclude) AddAddress(addr netip.Addr) error {
 			return ErrHasBeenExcluded
 		}
 	}
-	e.e.arr = append(e.e.arr, Single{p: addr})
+	e.e.arr = append(e.e.arr, &Single{p: addr})
 	return nil
 }
 

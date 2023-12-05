@@ -9,7 +9,7 @@ type Prefix struct {
 	p netip.Prefix
 }
 
-func NewPrefix(p netip.Prefix) Prefix { return Prefix{p: p} }
+func NewPrefix(p netip.Prefix) *Prefix { return &Prefix{p: p} }
 
 func (x Prefix) ContainsIP(ip netip.Addr) bool { return x.p.Contains(ip) }
 

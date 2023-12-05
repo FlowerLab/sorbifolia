@@ -28,3 +28,15 @@ const (
 	ContainsPartially
 	ContainsNot
 )
+
+var (
+	_ CIDR = (*Exclude)(nil)
+	_ CIDR = (*Group)(nil)
+	_ CIDR = (*Prefix)(nil)
+	_ CIDR = (*Range)(nil)
+	_ CIDR = (*Single)(nil)
+
+	_ Consecutive = (*Prefix)(nil)
+	_ Consecutive = (*Range)(nil)
+	_ Consecutive = (*Single)(nil)
+)

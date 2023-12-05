@@ -9,7 +9,7 @@ type Group struct {
 	arr []Consecutive
 }
 
-func (x Group) ContainsIP(ip netip.Addr) bool {
+func (x *Group) ContainsIP(ip netip.Addr) bool {
 	for i := range x.arr {
 		if x.arr[i].ContainsIP(ip) {
 			return true
@@ -18,7 +18,7 @@ func (x Group) ContainsIP(ip netip.Addr) bool {
 	return false
 }
 
-func (x Group) Length() *big.Int {
+func (x *Group) Length() *big.Int {
 	bi := big.NewInt(0)
 	for i := range x.arr {
 		bi.Add(bi, x.arr[i].Length())
@@ -26,7 +26,7 @@ func (x Group) Length() *big.Int {
 	return bi
 }
 
-func (x Group) NextIP(ip netip.Addr) netip.Addr {
+func (x *Group) NextIP(ip netip.Addr) netip.Addr {
 	if len(x.arr) == 0 {
 		return netip.Addr{}
 	}
@@ -54,7 +54,7 @@ func (x Group) NextIP(ip netip.Addr) netip.Addr {
 	return netip.IPv6Unspecified()
 }
 
-func (x Group) Strings() []string {
+func (x *Group) Strings() []string {
 	arr := make([]string, 0, len(x.arr))
 	for _, v := range x.arr {
 		arr = append(arr, v.String())
@@ -62,7 +62,7 @@ func (x Group) Strings() []string {
 	return arr
 }
 
-func (x Group) Contains(cidr CIDR) ContainsStatus {
+func (x *Group) Contains(cidr CIDR) ContainsStatus {
 	for _, v := range x.arr {
 		switch v.Contains(cidr) {
 		case ContainsPartially: // TODO: dealing with splits
