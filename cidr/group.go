@@ -45,6 +45,7 @@ func (x Group) NextIP(ip netip.Addr) netip.Addr {
 		if len(x.arr)-1 != i { // traversal not finished
 			return x.arr[i+1].FirstIP()
 		}
+		break
 	}
 
 	if x.arr[0].FirstIP().Is4() {

@@ -21,7 +21,7 @@ func (x Range) Length() *big.Int {
 }
 
 func (x Range) NextIP(ip netip.Addr) netip.Addr {
-	if !ip.IsValid() { // 第一次调用
+	if !ip.IsValid() {
 		return x.s
 	}
 	if ip = ip.Next(); x.ContainsIP(ip) {
