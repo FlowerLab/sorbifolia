@@ -1,7 +1,6 @@
 package cidr
 
 import (
-	"errors"
 	"math/big"
 	"net/netip"
 )
@@ -10,12 +9,6 @@ type Exclude struct {
 	e Group
 	i CIDR
 }
-
-var (
-	ErrNotInAddressRange        = errors.New("cidr: not in address range")
-	ErrHasBeenExcluded          = errors.New("cidr: has been excluded")
-	ErrHasBeenPartiallyExcluded = errors.New("cidr: has been partially excluded")
-)
 
 func (e *Exclude) AddCIDR(c Consecutive) error {
 	switch e.i.Contains(c) {
