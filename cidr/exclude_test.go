@@ -121,6 +121,12 @@ var testExcludeContains = []struct {
 		contains: must(ParseSingle, "1.0.0.13"),
 		status:   ContainsNot,
 	},
+	{
+		include:  must(ParseRange, "1.0.0.1-1.0.0.10"),
+		exclude:  Group{},
+		contains: &Group{arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
+		status:   ContainsNot,
+	},
 }
 
 type unknownContainsStatus struct {
