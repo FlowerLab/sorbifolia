@@ -27,6 +27,12 @@ var testExcludeContains = []struct {
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
 		exclude:  Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		contains: must(ParseRange, "1.0.0.0-1.0.1.100"),
+		status:   ContainsPartially,
+	},
+	{
+		include:  must(ParsePrefix, "1.0.0.0/24"),
+		exclude:  Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
 		contains: must(ParsePrefix, "1.0.0.0/26"),
 		status:   ContainsNot,
 	},
