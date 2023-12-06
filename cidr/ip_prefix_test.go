@@ -66,7 +66,7 @@ var testPrefixNextIP = []struct {
 }{
 	{
 		val:  &Prefix{p: netip.PrefixFrom(netip.AddrFrom4([4]byte{10}), 24)},
-		ip:   netip.IPv4Unspecified(),
+		ip:   invalidIP,
 		next: netip.AddrFrom4([4]byte{10, 0, 0, 0}),
 	},
 	{
@@ -77,13 +77,13 @@ var testPrefixNextIP = []struct {
 	{
 		val:  &Prefix{p: netip.PrefixFrom(netip.AddrFrom4([4]byte{10}), 24)},
 		ip:   netip.AddrFrom4([4]byte{10, 0, 0, 255}),
-		next: netip.IPv4Unspecified(),
+		next: invalidIP,
 	},
 
 	{
 		val:  &Prefix{p: netip.PrefixFrom(netip.AddrFrom16([16]byte{0: 1, 15: 5}), 128)},
 		ip:   netip.AddrFrom16([16]byte{0: 1, 15: 5}),
-		next: netip.IPv6Unspecified(),
+		next: invalidIP,
 	},
 }
 

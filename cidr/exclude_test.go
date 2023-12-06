@@ -170,7 +170,7 @@ var testExcludeNextIP = []struct {
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
 		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
-		ip:      netip.IPv4Unspecified(),
+		ip:      invalidIP,
 		next:    netip.AddrFrom4([4]byte{1, 0, 0, 0}),
 	},
 	{
@@ -189,7 +189,7 @@ var testExcludeNextIP = []struct {
 		include: must(ParsePrefix, "1.0.0.0/24"),
 		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 255}),
-		next:    netip.IPv4Unspecified(),
+		next:    invalidIP,
 	},
 }
 

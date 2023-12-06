@@ -58,19 +58,19 @@ var testSingleNextIP = []struct {
 }{
 	{
 		val:  &Single{p: netip.AddrFrom4([4]byte{10, 0, 0, 0})},
-		ip:   netip.IPv4Unspecified(),
+		ip:   invalidIP,
 		next: netip.AddrFrom4([4]byte{10, 0, 0, 0}),
 	},
 	{
 		val:  &Single{p: netip.AddrFrom4([4]byte{10, 0, 0, 0})},
 		ip:   netip.AddrFrom4([4]byte{10, 0, 0, 0}),
-		next: netip.IPv4Unspecified(),
+		next: invalidIP,
 	},
 
 	{
 		val:  &Single{p: netip.AddrFrom16([16]byte{0: 1, 15: 5})},
 		ip:   netip.AddrFrom16([16]byte{0: 1, 15: 5}),
-		next: netip.IPv6Unspecified(),
+		next: invalidIP,
 	},
 }
 
