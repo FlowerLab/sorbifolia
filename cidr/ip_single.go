@@ -33,12 +33,12 @@ func (x *Single) Contains(b CIDR) ContainsStatus {
 	s, ok := b.(*Single)
 	switch {
 	case !ok:
+		if b.ContainsIP(x.p) {
+			return ContainsPartially
+		}
 		return ContainsNot
 	case s.p.Compare(x.p) == 0:
 		return Contains
-	}
-	if b.ContainsIP(x.p) {
-		return ContainsPartially
 	}
 
 	return ContainsNot

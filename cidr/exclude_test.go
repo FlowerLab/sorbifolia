@@ -36,6 +36,56 @@ var testExcludeContains = []struct {
 		contains: must(ParsePrefix, "1.0.0.233/32"),
 		status:   Contains,
 	},
+	{
+		include:  must(ParsePrefix, "1.0.0.0/24"),
+		exclude:  Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		contains: &Group{}, // unhandled behavior
+		status:   ContainsNot,
+	},
+
+	{
+		include:  must(ParsePrefix, "1.0.0.0/24"),
+		exclude:  Group{arr: []Consecutive{must(ParsePrefix, "1.0.0.0/30")}},
+		contains: must(ParsePrefix, "1.0.0.0/25"),
+		status:   ContainsPartially,
+	},
+	{
+		include:  must(ParsePrefix, "1.0.0.0/24"),
+		exclude:  Group{arr: []Consecutive{must(ParsePrefix, "1.0.0.0/30")}},
+		contains: must(ParsePrefix, "1.0.0.0/31"),
+		status:   ContainsNot,
+	},
+	{
+		include:  must(ParsePrefix, "1.0.0.0/24"),
+		exclude:  Group{arr: []Consecutive{must(ParsePrefix, "1.0.0.0/30")}},
+		contains: must(ParsePrefix, "1.0.0.233/32"),
+		status:   Contains,
+	},
+	{
+		include:  must(ParsePrefix, "1.0.0.0/24"),
+		exclude:  Group{arr: []Consecutive{must(ParsePrefix, "1.0.0.0/30")}},
+		contains: &Group{}, // unhandled behavior
+		status:   ContainsNot,
+	},
+
+	{
+		include:  must(ParsePrefix, "1.0.0.0/24"),
+		exclude:  Group{arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
+		contains: must(ParsePrefix, "1.0.0.0/25"),
+		status:   ContainsPartially,
+	},
+	{
+		include:  must(ParsePrefix, "1.0.0.0/24"),
+		exclude:  Group{arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
+		contains: must(ParsePrefix, "1.0.0.6/31"),
+		status:   Contains,
+	},
+	{
+		include:  must(ParsePrefix, "1.0.0.0/24"),
+		exclude:  Group{arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
+		contains: must(ParsePrefix, "1.0.0.233/32"),
+		status:   Contains,
+	},
 }
 
 func TestExclude_Contains(t *testing.T) {
