@@ -42,6 +42,12 @@ var testExcludeContains = []struct {
 		contains: &Group{}, // unhandled behavior
 		status:   ContainsNot,
 	},
+	{
+		include:  must(ParsePrefix, "1.0.0.0/24"),
+		exclude:  Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		contains: &Group{arr: []Consecutive{must(ParseRange, "1.0.0.111-1.0.0.112")}},
+		status:   ContainsNot, // unhandled behavior
+	},
 
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
@@ -91,6 +97,12 @@ var testExcludeContains = []struct {
 		exclude:  Group{arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
 		contains: must(ParseSingle, "1.0.0.1"),
 		status:   ContainsNot,
+	},
+	{
+		include:  must(ParsePrefix, "1.0.0.0/24"),
+		exclude:  Group{arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
+		contains: must(ParseSingle, "1.0.0.13"),
+		status:   Contains,
 	},
 }
 
