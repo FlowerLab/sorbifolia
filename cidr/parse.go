@@ -1,7 +1,6 @@
 package cidr
 
 import (
-	"fmt"
 	"net/netip"
 	"strings"
 )
@@ -32,12 +31,8 @@ func ParseConsecutive(s string) (Consecutive, error) {
 }
 
 func ParseRange(s string) (*Range, error) {
-	b, a, ok := strings.Cut(s, "-")
-	if !ok {
-		return nil, fmt.Errorf("cidr: parse range incorrect syntax, %s", s)
-	}
-
 	var (
+		b, a, _    = strings.Cut(s, "-")
 		start, end netip.Addr
 		err        error
 	)
