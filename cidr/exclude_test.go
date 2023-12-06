@@ -113,7 +113,22 @@ var testExcludeContains = []struct {
 		contains: must(ParseSingle, "1.0.0.13"),
 		status:   Contains,
 	},
+
+	{
+		include:  unknownContainsStatus{},
+		exclude:  Group{arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
+		contains: must(ParseSingle, "1.0.0.13"),
+		status:   ContainsNot,
+	},
 }
+
+type unknownContainsStatus struct {
+}
+
+func (unknownContainsStatus) ContainsIP(_ netip.Addr) bool   { panic("implement me") }
+func (unknownContainsStatus) NextIP(_ netip.Addr) netip.Addr { panic("implement me") }
+func (unknownContainsStatus) Length() *big.Int               { panic("implement me") }
+func (unknownContainsStatus) Contains(_ CIDR) ContainsStatus { return 255 }
 
 func TestExclude_Contains(t *testing.T) {
 	for _, val := range testExcludeContains {
@@ -204,6 +219,40 @@ func TestExclude_String(t *testing.T) {
 
 		if strings.Join(dst, "|") != strings.Join(val.dst, "|") {
 			t.Errorf("expected value is %s, but got %s", val.dst, dst)
+		}
+	}
+}
+
+var testExcludeContainsIP = []struct {
+	include  CIDR
+	exclude  Group
+	ip       netip.Addr
+	contains bool
+}{
+	{
+		include:  must(ParsePrefix, "1.0.0.0/24"),
+		exclude:  Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		ip:       netip.AddrFrom4([4]byte{1, 0, 0, 1}),
+		contains: false,
+	},
+	{
+		include:  must(ParsePrefix, "1.0.0.0/24"),
+		exclude:  Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		ip:       netip.AddrFrom4([4]byte{1, 0, 0, 101}),
+		contains: true,
+	},
+	{
+		include:  must(ParseSingle, "1.0.0.2"),
+		ip:       netip.AddrFrom4([4]byte{1, 0, 0, 2}),
+		contains: true,
+	},
+}
+
+func TestExclude_ContainsIP(t *testing.T) {
+	for _, val := range testExcludeContainsIP {
+		e := &Exclude{e: val.exclude, i: val.include}
+		if contains := e.ContainsIP(val.ip); contains != val.contains {
+			t.Errorf("expected value is %t, but got %t", val.contains, contains)
 		}
 	}
 }
