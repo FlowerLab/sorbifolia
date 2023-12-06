@@ -29,7 +29,7 @@ func (x Prefix) LastIP() netip.Addr {
 }
 
 func (x Prefix) NextIP(ip netip.Addr) netip.Addr {
-	if !ip.IsValid() {
+	if !ip.IsValid() || ip.IsUnspecified() {
 		return x.p.Addr()
 	}
 	if ip = ip.Next(); x.ContainsIP(ip) {

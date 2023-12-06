@@ -17,14 +17,17 @@ func (x *Range) ContainsIP(ip netip.Addr) bool {
 }
 
 func (x *Range) Length() *big.Int {
-	return big.NewInt(0).Sub(
-		big.NewInt(0).SetBytes(x.s.AsSlice()),
-		big.NewInt(0).SetBytes(x.e.AsSlice()),
+	return big.NewInt(0).Add(
+		big.NewInt(1),
+		big.NewInt(0).Sub(
+			big.NewInt(0).SetBytes(x.e.AsSlice()),
+			big.NewInt(0).SetBytes(x.s.AsSlice()),
+		),
 	)
 }
 
 func (x *Range) NextIP(ip netip.Addr) netip.Addr {
-	if !ip.IsValid() {
+	if !ip.IsValid() || ip.IsUnspecified() {
 		return x.s
 	}
 	if ip = ip.Next(); x.ContainsIP(ip) {

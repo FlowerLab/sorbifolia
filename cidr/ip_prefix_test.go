@@ -1,7 +1,6 @@
 package cidr
 
 import (
-	"fmt"
 	"math/big"
 	"net/netip"
 	"testing"
@@ -35,8 +34,81 @@ func TestPrefix_Length(t *testing.T) {
 	}
 }
 
-func TestPrefix_FirstIP(t *testing.T) {
-	for _, val := range testPrefixLength {
-		fmt.Println(val.val.FirstIP(), val.val.LastIP())
+var testPrefixFirstLastIP = []struct {
+	val   *Prefix
+	first netip.Addr
+	last  netip.Addr
+}{
+	{
+		val:   &Prefix{p: netip.PrefixFrom(netip.AddrFrom4([4]byte{10}), 24)},
+		first: netip.AddrFrom4([4]byte{10, 0, 0, 0}),
+		last:  netip.AddrFrom4([4]byte{10, 0, 0, 255}),
+	},
+}
+
+func TestPrefix_IP(t *testing.T) {
+	for _, val := range testPrefixFirstLastIP {
+		if b := val.val.FirstIP(); b.Compare(val.first) != 0 {
+			t.Errorf("expected value is %s, but got %s", val.first.String(), b.String())
+		}
+
+		if b := val.val.LastIP(); b.Compare(val.last) != 0 {
+			t.Errorf("expected value is %s, but got %s", val.last.String(), b.String())
+		}
+
+	}
+}
+
+var testPrefixNextIP = []struct {
+	val  *Prefix
+	ip   netip.Addr
+	next netip.Addr
+}{
+	{
+		val:  &Prefix{p: netip.PrefixFrom(netip.AddrFrom4([4]byte{10}), 24)},
+		ip:   netip.IPv4Unspecified(),
+		next: netip.AddrFrom4([4]byte{10, 0, 0, 0}),
+	},
+	{
+		val:  &Prefix{p: netip.PrefixFrom(netip.AddrFrom4([4]byte{10}), 24)},
+		ip:   netip.AddrFrom4([4]byte{10, 0, 0, 0}),
+		next: netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+	},
+	{
+		val:  &Prefix{p: netip.PrefixFrom(netip.AddrFrom4([4]byte{10}), 24)},
+		ip:   netip.AddrFrom4([4]byte{10, 0, 0, 255}),
+		next: netip.IPv4Unspecified(),
+	},
+
+	{
+		val:  &Prefix{p: netip.PrefixFrom(netip.AddrFrom16([16]byte{0: 1, 15: 5}), 128)},
+		ip:   netip.AddrFrom16([16]byte{0: 1, 15: 5}),
+		next: netip.IPv6Unspecified(),
+	},
+}
+
+func TestPrefix_NextIP(t *testing.T) {
+	for _, val := range testPrefixNextIP {
+		if b := val.val.NextIP(val.ip); b.Compare(val.next) != 0 {
+			t.Errorf("expected value is %s, but got %s", val.next.String(), b.String())
+		}
+	}
+}
+
+var testPrefixString = []struct {
+	src string
+	dst string
+}{
+	{src: "1.0.0.0/32", dst: "1.0.0.0/32"},
+	{src: "1.0.0.0/24", dst: "1.0.0.0/24"},
+	{src: "0.0.0.0/0", dst: "0.0.0.0/0"},
+}
+
+func TestPrefix_String(t *testing.T) {
+	for _, val := range testPrefixString {
+		p, _ := ParsePrefix(val.src)
+		if dst := p.String(); dst != val.dst {
+			t.Errorf("expected value is %s, but got %s", val.dst, dst)
+		}
 	}
 }

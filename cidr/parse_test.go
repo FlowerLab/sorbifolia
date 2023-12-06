@@ -19,6 +19,7 @@ var testParseGroup = []struct {
 	{[]string{"1.1.1.257"}, true},
 	{[]string{"1.1.1.0/33"}, true},
 	{[]string{"1.1.1.1-1.1.1.257"}, true},
+	{[]string{"1.1.1.x-1.1.1.23"}, true},
 }
 
 func TestParseGroup(t *testing.T) {

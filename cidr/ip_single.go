@@ -16,7 +16,7 @@ func (x *Single) ContainsIP(ip netip.Addr) bool { return x.p.Compare(ip) == 0 }
 func (x *Single) Length() *big.Int { return big.NewInt(1) }
 
 func (x *Single) NextIP(ip netip.Addr) netip.Addr {
-	if !ip.IsValid() && x.p.Compare(ip) != 0 {
+	if (!ip.IsValid() || ip.IsUnspecified()) && x.p.Compare(ip) != 0 {
 		return x.p
 	}
 	if x.p.Is4() {
