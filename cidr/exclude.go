@@ -116,3 +116,5 @@ func (e *Exclude) Contains(c CIDR) ContainsStatus {
 
 	return ContainsNot
 }
+
+func (e *Exclude) Strings() []string { return e.e.Strings() }

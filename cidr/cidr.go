@@ -21,6 +21,12 @@ type Consecutive interface {
 	String() string
 }
 
+type Fragment interface {
+	CIDR
+
+	Strings() []string
+}
+
 type ContainsStatus uint8
 
 const (
@@ -39,4 +45,7 @@ var (
 	_ Consecutive = (*Prefix)(nil)
 	_ Consecutive = (*Range)(nil)
 	_ Consecutive = (*Single)(nil)
+
+	_ Fragment = (*Exclude)(nil)
+	_ Fragment = (*Group)(nil)
 )
