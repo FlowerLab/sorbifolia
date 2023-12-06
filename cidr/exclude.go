@@ -47,8 +47,23 @@ func (e *Exclude) DelAddress(addr netip.Addr) error {
 			return nil
 
 		case *Range, *Prefix:
-			e.e.arr[i] = &Range{s: v.FirstIP(), e: addr.Prev()}
-			e.e.arr = append(e.e.arr, &Range{s: addr.Next(), e: v.LastIP()})
+			vfi, vli, vl := v.FirstIP(), v.LastIP(), v.Length()
+
+			switch {
+			case vl.Cmp(big.NewInt(1)) == 0: // only one ip
+				e.e.arr = append(e.e.arr[:i], e.e.arr[i+1:]...)
+
+			case vfi.Compare(addr) == 0: // delete first ip
+				e.e.arr[i] = &Range{s: vfi.Next(), e: vli}
+
+			case vli.Compare(addr) == 0: // delete last ip
+				e.e.arr[i] = &Range{s: vfi, e: vli.Prev()}
+
+			default:
+				e.e.arr[i] = &Range{s: v.FirstIP(), e: addr.Prev()}
+				e.e.arr = append(e.e.arr, &Range{s: addr.Next(), e: v.LastIP()})
+			}
+
 			return nil
 		}
 	}

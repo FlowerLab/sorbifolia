@@ -349,8 +349,45 @@ var testExcludeDelAddress = []struct {
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
 		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.30-1.0.0.40"), must(ParseRange, "1.0.0.50-1.0.0.60")}},
-		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 55}),
-		dst:     []string{"1.0.0.30-1.0.0.40", "1.0.0.50-1.0.0.54", "1.0.0.56-1.0.0.60"},
+		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 90}),
+		dst:     []string{"1.0.0.30-1.0.0.40", "1.0.0.50-1.0.0.60"},
+	},
+	{
+		include: must(ParsePrefix, "1.0.0.0/24"),
+		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.30-1.0.0.30"), must(ParseRange, "1.0.0.50-1.0.0.60")}},
+		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 30}),
+		dst:     []string{"1.0.0.50-1.0.0.60"},
+	},
+	{
+		include: must(ParsePrefix, "1.0.0.0/24"),
+		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.30-1.0.0.40"), must(ParseRange, "1.0.0.50-1.0.0.60")}},
+		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 30}),
+		dst:     []string{"1.0.0.31-1.0.0.40", "1.0.0.50-1.0.0.60"},
+	},
+	{
+		include: must(ParsePrefix, "1.0.0.0/24"),
+		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.30-1.0.0.40"), must(ParseRange, "1.0.0.50-1.0.0.60")}},
+		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 40}),
+		dst:     []string{"1.0.0.30-1.0.0.39", "1.0.0.50-1.0.0.60"},
+	},
+
+	{
+		include: must(ParsePrefix, "1.0.0.0/24"),
+		exclude: Group{arr: []Consecutive{must(ParseSingle, "1.0.0.30"), must(ParseSingle, "1.0.0.31"), must(ParseSingle, "1.0.0.32")}},
+		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 31}),
+		dst:     []string{"1.0.0.30", "1.0.0.32"},
+	},
+	{
+		include: must(ParsePrefix, "1.0.0.0/24"),
+		exclude: Group{arr: []Consecutive{must(ParseSingle, "1.0.0.30"), must(ParseSingle, "1.0.0.31"), must(ParseSingle, "1.0.0.32")}},
+		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 30}),
+		dst:     []string{"1.0.0.31", "1.0.0.32"},
+	},
+	{
+		include: must(ParsePrefix, "1.0.0.0/24"),
+		exclude: Group{arr: []Consecutive{must(ParseSingle, "1.0.0.30"), must(ParseSingle, "1.0.0.31"), must(ParseSingle, "1.0.0.32")}},
+		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 32}),
+		dst:     []string{"1.0.0.30", "1.0.0.31"},
 	},
 }
 
@@ -360,7 +397,9 @@ func TestExclude_DelAddress(t *testing.T) {
 		err := e.DelAddress(val.ip)
 		switch {
 		case err == nil && val.error == nil:
-			continue
+			if dst := e.Strings(); strings.Join(dst, "|") != strings.Join(val.dst, "|") {
+				t.Errorf("expected value is %s, but got %s", val.dst, dst)
+			}
 
 		case err != nil && val.error != nil:
 			if !errors.Is(err, val.error) {
