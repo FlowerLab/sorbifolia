@@ -45,6 +45,10 @@ func (x *Range) LastIP() netip.Addr  { return x.e }
 func (x *Range) String() string      { return fmt.Sprintf("%s-%s", x.s.String(), x.e.String()) }
 func (x *Range) Contains(c CIDR) ContainsStatus {
 	if val, ok := c.(Consecutive); ok {
+		if x.LastIP().Compare(val.FirstIP()) < 0 { // x.start < x.end < c.start < c.end
+			return ContainsNot
+		}
+
 		xs := x.FirstIP().Compare(val.FirstIP()) <= 0
 		xe := x.LastIP().Compare(val.LastIP()) >= 0
 		if xs && xe { // x.start < c.start < c.end < x.end

@@ -1,0 +1,48 @@
+package cidr
+
+import (
+	"testing"
+)
+
+func must[T any](fn func(s string) (*T, error), s string) *T {
+	t, err := fn(s)
+	if err != nil {
+		panic(err)
+	}
+	return t
+}
+
+var testExcludeContains = []struct {
+	include  CIDR
+	exclude  Group
+	contains CIDR
+	status   ContainsStatus
+}{
+	{
+		include:  must(ParsePrefix, "1.0.0.0/24"),
+		exclude:  Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		contains: must(ParsePrefix, "1.0.0.0/25"),
+		status:   ContainsPartially,
+	},
+	{
+		include:  must(ParsePrefix, "1.0.0.0/24"),
+		exclude:  Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		contains: must(ParsePrefix, "1.0.0.0/26"),
+		status:   ContainsNot,
+	},
+	{
+		include:  must(ParsePrefix, "1.0.0.0/24"),
+		exclude:  Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		contains: must(ParsePrefix, "1.0.0.233/32"),
+		status:   Contains,
+	},
+}
+
+func TestExclude_Contains(t *testing.T) {
+	for _, val := range testExcludeContains {
+		e := &Exclude{e: val.exclude, i: val.include}
+		if status := e.Contains(val.contains); status != val.status {
+			t.Errorf("expected value is %d, but got %d", val.status, status)
+		}
+	}
+}
