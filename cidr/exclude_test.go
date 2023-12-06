@@ -1,6 +1,7 @@
 package cidr
 
 import (
+	"errors"
 	"math/big"
 	"net/netip"
 	"strings"
@@ -284,6 +285,50 @@ func TestExclude_ContainsIP(t *testing.T) {
 		e := &Exclude{e: val.exclude, i: val.include}
 		if contains := e.ContainsIP(val.ip); contains != val.contains {
 			t.Errorf("expected value is %t, but got %t", val.contains, contains)
+		}
+	}
+}
+
+var testExcludeAddAddress = []struct {
+	include CIDR
+	exclude Group
+	ip      netip.Addr
+	error   error
+}{
+	{
+		include: must(ParsePrefix, "1.0.0.0/24"),
+		exclude: Group{arr: []Consecutive{}},
+		ip:      netip.AddrFrom4([4]byte{1, 2, 0, 1}),
+		error:   ErrNotInAddressRange,
+	},
+	{
+		include: must(ParsePrefix, "1.0.0.0/24"),
+		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 23}),
+		error:   ErrHasBeenExcluded,
+	},
+	{
+		include: must(ParsePrefix, "1.0.0.0/24"),
+		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 123}),
+		error:   nil,
+	},
+}
+
+func TestExclude_AddAddress(t *testing.T) {
+	for _, val := range testExcludeAddAddress {
+		e := &Exclude{e: val.exclude, i: val.include}
+		err := e.AddAddress(val.ip)
+		switch {
+		case err == nil && val.error == nil:
+			continue
+
+		case err != nil && val.error != nil:
+			if !errors.Is(err, val.error) {
+				t.Errorf("expected value is %s, but got %s", val.error, err)
+			}
+		default:
+			t.Errorf("expected value is %s, but got %s", val.error, err)
 		}
 	}
 }

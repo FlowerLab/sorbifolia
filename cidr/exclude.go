@@ -57,13 +57,11 @@ func (e *Exclude) DelAddress(addr netip.Addr) error {
 }
 
 func (e *Exclude) AddAddress(addr netip.Addr) error {
-	if !e.ContainsIP(addr) {
+	if !e.i.ContainsIP(addr) {
 		return ErrNotInAddressRange
 	}
-	for _, v := range e.e.arr {
-		if v.ContainsIP(addr) {
-			return ErrHasBeenExcluded
-		}
+	if e.e.ContainsIP(addr) {
+		return ErrHasBeenExcluded
 	}
 	e.e.arr = append(e.e.arr, &Single{p: addr})
 	return nil
