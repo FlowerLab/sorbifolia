@@ -33,7 +33,7 @@ func (e *Exclude) AddCIDR(c Consecutive) error {
 }
 
 func (e *Exclude) DelAddress(addr netip.Addr) error {
-	if !e.ContainsIP(addr) {
+	if !e.i.ContainsIP(addr) {
 		return ErrNotInAddressRange
 	}
 	for i, v := range e.e.arr {
