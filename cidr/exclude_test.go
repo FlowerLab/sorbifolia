@@ -382,6 +382,12 @@ var testExcludeDelAddress = []struct {
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 40}),
 		dst:     []string{"1.0.0.30-1.0.0.39", "1.0.0.50-1.0.0.60"},
 	},
+	{
+		include: must(ParsePrefix, "1.0.0.0/24"),
+		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.30-1.0.0.40")}},
+		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 33}),
+		dst:     []string{"1.0.0.30-1.0.0.32", "1.0.0.34-1.0.0.40"},
+	},
 
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
