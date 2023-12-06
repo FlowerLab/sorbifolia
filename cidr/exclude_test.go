@@ -428,3 +428,62 @@ func TestExclude_DelAddress(t *testing.T) {
 		}
 	}
 }
+
+var testExcludeAddCIDR = []struct {
+	include CIDR
+	exclude Group
+	val     Consecutive
+	error   error
+	dst     []string
+}{
+	{
+		include: must(ParsePrefix, "1.0.0.0/24"),
+		exclude: Group{arr: []Consecutive{}},
+		val:     must(ParseRange, "1.0.0.222-1.0.1.10"),
+		error:   ErrNotInAddressRange,
+	},
+	{
+		include: must(ParsePrefix, "1.0.0.0/24"),
+		exclude: Group{arr: []Consecutive{}},
+		val:     must(ParseRange, "1.0.0.222-1.0.0.240"),
+		dst:     []string{"1.0.0.222-1.0.0.240"},
+	},
+	{
+		include: must(ParsePrefix, "1.0.0.0/16"),
+		exclude: Group{arr: []Consecutive{must(ParsePrefix, "1.0.0.0/24")}},
+		val:     must(ParseRange, "1.0.0.12-1.0.0.22"),
+		error:   ErrHasBeenExcluded,
+	},
+	{
+		include: must(ParsePrefix, "1.0.0.0/16"),
+		exclude: Group{arr: []Consecutive{must(ParsePrefix, "1.0.0.0/24")}},
+		val:     must(ParseRange, "1.0.0.12-1.0.1.22"),
+		error:   ErrHasBeenPartiallyExcluded,
+	},
+	{
+		include: must(ParsePrefix, "1.0.0.0/16"),
+		exclude: Group{arr: []Consecutive{must(ParsePrefix, "1.0.0.0/24")}},
+		val:     must(ParseRange, "1.0.1.12-1.0.1.22"),
+		dst:     []string{"1.0.0.0/24", "1.0.1.12-1.0.1.22"},
+	},
+}
+
+func TestExclude_AddCIDR(t *testing.T) {
+	for _, val := range testExcludeAddCIDR {
+		e := &Exclude{e: val.exclude, i: val.include}
+		err := e.AddCIDR(val.val)
+		switch {
+		case err == nil && val.error == nil:
+			if dst := e.Strings(); strings.Join(dst, "|") != strings.Join(val.dst, "|") {
+				t.Errorf("expected value is %s, but got %s", val.dst, dst)
+			}
+
+		case err != nil && val.error != nil:
+			if !errors.Is(err, val.error) {
+				t.Errorf("expected value is %s, but got %s", val.error, err)
+			}
+		default:
+			t.Errorf("expected value is %s, but got %s", val.error, err)
+		}
+	}
+}

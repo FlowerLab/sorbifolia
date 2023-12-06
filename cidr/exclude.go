@@ -17,15 +17,11 @@ func (e *Exclude) AddCIDR(c Consecutive) error {
 	}
 
 	for _, v := range e.e.arr {
-		var (
-			cs = v.ContainsIP(c.FirstIP()) // v.start < cidr.start < v.end
-			ce = v.ContainsIP(c.LastIP())  // v.start < cidr.end < v.end
-		)
-		if cs && ce { // v.start < cidr.start < cidr.end < v.end
-			return ErrHasBeenExcluded
-		}
-		if cs || ce { // v.start < cidr.start < v.end < cidr.end || cidr.start < v.start < cidr.end < v.end
+		switch v.Contains(c) {
+		case ContainsPartially:
 			return ErrHasBeenPartiallyExcluded
+		case Contains:
+			return ErrHasBeenExcluded
 		}
 	}
 	e.e.arr = append(e.e.arr, c)
