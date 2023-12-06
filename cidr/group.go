@@ -28,7 +28,7 @@ func (x *Group) Length() *big.Int {
 
 func (x *Group) NextIP(ip netip.Addr) netip.Addr {
 	if len(x.arr) == 0 {
-		return netip.Addr{}
+		return invalidIP
 	}
 
 	if !ip.IsValid() {

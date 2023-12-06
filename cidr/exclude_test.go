@@ -191,6 +191,37 @@ var testExcludeNextIP = []struct {
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 255}),
 		next:    invalidIP,
 	},
+
+	{
+		include: &Group{},
+		exclude: Group{},
+		ip:      invalidIP,
+		next:    invalidIP,
+	},
+	{
+		include: &Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
+		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.80")}},
+		ip:      invalidIP,
+		next:    netip.AddrFrom4([4]byte{1, 0, 0, 81}),
+	},
+	{
+		include: &Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
+		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.80")}},
+		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 81}),
+		next:    netip.AddrFrom4([4]byte{1, 0, 0, 82}),
+	},
+	{
+		include: &Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
+		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.80")}},
+		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 100}),
+		next:    invalidIP,
+	},
+	{
+		include: &Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100"), must(ParseRange, "1.0.0.130-1.0.0.140")}},
+		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.80")}},
+		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 100}),
+		next:    netip.AddrFrom4([4]byte{1, 0, 0, 130}),
+	},
 }
 
 func TestExclude_NextIP(t *testing.T) {
