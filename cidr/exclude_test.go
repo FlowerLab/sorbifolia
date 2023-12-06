@@ -86,6 +86,12 @@ var testExcludeContains = []struct {
 		contains: must(ParsePrefix, "1.0.0.233/32"),
 		status:   Contains,
 	},
+	{
+		include:  must(ParsePrefix, "1.0.0.0/24"),
+		exclude:  Group{arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
+		contains: must(ParseSingle, "1.0.0.3"),
+		status:   ContainsNot,
+	},
 }
 
 func TestExclude_Contains(t *testing.T) {

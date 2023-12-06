@@ -97,21 +97,19 @@ func (e *Exclude) Contains(c CIDR) ContainsStatus {
 	switch e.i.Contains(c) {
 	case ContainsPartially:
 		return ContainsPartially
+
 	case ContainsNot:
 		return ContainsNot
-	case Contains:
-		for _, v := range e.e.arr {
-			switch v.Contains(c) {
-			case ContainsPartially:
-				return ContainsPartially
-			case ContainsNot:
-				continue
-			case Contains:
-				return ContainsNot
-			}
-		}
 
-		return Contains
+	case Contains:
+		switch e.e.Contains(c) {
+		case ContainsPartially:
+			return ContainsPartially
+		case ContainsNot:
+			return Contains
+		case Contains:
+			return ContainsNot
+		}
 	}
 
 	return ContainsNot
