@@ -75,7 +75,7 @@ func (e *Exclude) ContainsIP(addr netip.Addr) bool {
 
 func (e *Exclude) NextIP(addr netip.Addr) netip.Addr {
 	for {
-		if addr = e.i.NextIP(addr); !addr.IsValid() {
+		if addr = e.i.NextIP(addr); !addr.IsValid() || addr.IsUnspecified() {
 			return addr
 		}
 		if !e.e.ContainsIP(addr) {
