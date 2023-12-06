@@ -29,16 +29,14 @@ func (x Prefix) LastIP() netip.Addr {
 }
 
 func (x Prefix) NextIP(ip netip.Addr) netip.Addr {
-	if !ip.IsValid() || ip.IsUnspecified() {
+	if !ip.IsValid() {
 		return x.p.Addr()
 	}
 	if ip = ip.Next(); x.ContainsIP(ip) {
 		return ip
 	}
-	if x.p.Addr().Is4() {
-		return netip.IPv4Unspecified()
-	}
-	return netip.IPv6Unspecified()
+
+	return invalidIP
 }
 
 func (x Prefix) Contains(c CIDR) ContainsStatus {

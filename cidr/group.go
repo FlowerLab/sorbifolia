@@ -48,10 +48,7 @@ func (x *Group) NextIP(ip netip.Addr) netip.Addr {
 		break
 	}
 
-	if x.arr[0].FirstIP().Is4() {
-		return netip.IPv4Unspecified()
-	}
-	return netip.IPv6Unspecified()
+	return invalidIP
 }
 
 func (x *Group) Strings() []string {

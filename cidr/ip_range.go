@@ -27,17 +27,14 @@ func (x *Range) Length() *big.Int {
 }
 
 func (x *Range) NextIP(ip netip.Addr) netip.Addr {
-	if !ip.IsValid() || ip.IsUnspecified() {
+	if !ip.IsValid() {
 		return x.s
 	}
 	if ip = ip.Next(); x.ContainsIP(ip) {
 		return ip
 	}
 
-	if x.s.Is4() {
-		return netip.IPv4Unspecified()
-	}
-	return netip.IPv6Unspecified()
+	return invalidIP
 }
 
 func (x *Range) FirstIP() netip.Addr { return x.s }
