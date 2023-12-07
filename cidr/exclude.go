@@ -21,21 +21,7 @@ func NewExclude(c CIDR, exclude ...Consecutive) (*Exclude, error) {
 }
 
 func (e *Exclude) ExcludeCIDR(c Consecutive) error {
-	switch e.i.Contains(c) {
-	case ContainsPartially, ContainsNot:
-		return ErrNotInAddressRange
-	}
-
-	for _, v := range e.e.Arr {
-		switch v.Contains(c) {
-		case ContainsPartially:
-			return ErrHasBeenPartiallyExcluded
-		case Contains:
-			return ErrHasBeenExcluded
-		}
-	}
-	e.e.Arr = append(e.e.Arr, c)
-	return nil
+	return e.e.AddCIDR(c)
 }
 
 func (e *Exclude) DelExclude(addr netip.Addr) error {
