@@ -10,7 +10,17 @@ type Exclude struct {
 	i CIDR
 }
 
-func (e *Exclude) AddCIDR(c Consecutive) error {
+func NewExclude(c CIDR, exclude ...Consecutive) (*Exclude, error) {
+	e := &Exclude{i: c}
+	for i := range exclude {
+		if err := e.ExcludeCIDR(exclude[i]); err != nil {
+			return nil, err
+		}
+	}
+	return e, nil
+}
+
+func (e *Exclude) ExcludeCIDR(c Consecutive) error {
 	switch e.i.Contains(c) {
 	case ContainsPartially, ContainsNot:
 		return ErrNotInAddressRange
@@ -28,7 +38,7 @@ func (e *Exclude) AddCIDR(c Consecutive) error {
 	return nil
 }
 
-func (e *Exclude) DelAddress(addr netip.Addr) error {
+func (e *Exclude) DelExclude(addr netip.Addr) error {
 	if !e.i.ContainsIP(addr) {
 		return ErrNotInAddressRange
 	}
@@ -67,7 +77,7 @@ func (e *Exclude) DelAddress(addr netip.Addr) error {
 	return nil
 }
 
-func (e *Exclude) AddAddress(addr netip.Addr) error {
+func (e *Exclude) ExcludeAddress(addr netip.Addr) error {
 	if !e.i.ContainsIP(addr) {
 		return ErrNotInAddressRange
 	}

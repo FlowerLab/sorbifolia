@@ -301,7 +301,7 @@ func TestExclude_ContainsIP(t *testing.T) {
 	}
 }
 
-var testExcludeAddAddress = []struct {
+var testExcludeExcludeAddress = []struct {
 	include CIDR
 	exclude Group
 	ip      netip.Addr
@@ -327,10 +327,10 @@ var testExcludeAddAddress = []struct {
 	},
 }
 
-func TestExclude_AddAddress(t *testing.T) {
-	for _, val := range testExcludeAddAddress {
+func TestExclude_ExcludeAddress(t *testing.T) {
+	for _, val := range testExcludeExcludeAddress {
 		e := &Exclude{e: val.exclude, i: val.include}
-		err := e.AddAddress(val.ip)
+		err := e.ExcludeAddress(val.ip)
 		switch {
 		case err == nil && val.error == nil:
 			continue
@@ -345,7 +345,7 @@ func TestExclude_AddAddress(t *testing.T) {
 	}
 }
 
-var testExcludeDelAddress = []struct {
+var testExcludeDelExclude = []struct {
 	include CIDR
 	exclude Group
 	ip      netip.Addr
@@ -409,10 +409,10 @@ var testExcludeDelAddress = []struct {
 	},
 }
 
-func TestExclude_DelAddress(t *testing.T) {
-	for _, val := range testExcludeDelAddress {
+func TestExclude_DelExclude(t *testing.T) {
+	for _, val := range testExcludeDelExclude {
 		e := &Exclude{e: val.exclude, i: val.include}
-		err := e.DelAddress(val.ip)
+		err := e.DelExclude(val.ip)
 		switch {
 		case err == nil && val.error == nil:
 			if dst := e.Strings(); strings.Join(dst, "|") != strings.Join(val.dst, "|") {
@@ -429,7 +429,7 @@ func TestExclude_DelAddress(t *testing.T) {
 	}
 }
 
-var testExcludeAddCIDR = []struct {
+var testExcludeExcludeCIDR = []struct {
 	include CIDR
 	exclude Group
 	val     Consecutive
@@ -468,10 +468,10 @@ var testExcludeAddCIDR = []struct {
 	},
 }
 
-func TestExclude_AddCIDR(t *testing.T) {
-	for _, val := range testExcludeAddCIDR {
+func TestExclude_ExcludeCIDR(t *testing.T) {
+	for _, val := range testExcludeExcludeCIDR {
 		e := &Exclude{e: val.exclude, i: val.include}
-		err := e.AddCIDR(val.val)
+		err := e.ExcludeCIDR(val.val)
 		switch {
 		case err == nil && val.error == nil:
 			if dst := e.Strings(); strings.Join(dst, "|") != strings.Join(val.dst, "|") {
