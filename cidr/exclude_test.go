@@ -24,107 +24,107 @@ var testExcludeContains = []struct {
 }{
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
-		exclude:  Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		exclude:  Group{Arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
 		contains: must(ParsePrefix, "1.0.0.0/25"),
 		status:   ContainsPartially,
 	},
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
-		exclude:  Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		exclude:  Group{Arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
 		contains: must(ParseRange, "1.0.0.0-1.0.1.100"),
 		status:   ContainsPartially,
 	},
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
-		exclude:  Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		exclude:  Group{Arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
 		contains: must(ParsePrefix, "1.0.0.0/26"),
 		status:   ContainsNot,
 	},
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
-		exclude:  Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		exclude:  Group{Arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
 		contains: must(ParsePrefix, "1.0.0.233/32"),
 		status:   Contains,
 	},
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
-		exclude:  Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		exclude:  Group{Arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
 		contains: &Group{}, // unhandled behavior
 		status:   ContainsNot,
 	},
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
-		exclude:  Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
-		contains: &Group{arr: []Consecutive{must(ParseRange, "1.0.0.111-1.0.0.112")}},
+		exclude:  Group{Arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		contains: &Group{Arr: []Consecutive{must(ParseRange, "1.0.0.111-1.0.0.112")}},
 		status:   ContainsNot, // unhandled behavior
 	},
 
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
-		exclude:  Group{arr: []Consecutive{must(ParsePrefix, "1.0.0.0/30")}},
+		exclude:  Group{Arr: []Consecutive{must(ParsePrefix, "1.0.0.0/30")}},
 		contains: must(ParsePrefix, "1.0.0.0/25"),
 		status:   ContainsPartially,
 	},
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
-		exclude:  Group{arr: []Consecutive{must(ParsePrefix, "1.0.0.0/30")}},
+		exclude:  Group{Arr: []Consecutive{must(ParsePrefix, "1.0.0.0/30")}},
 		contains: must(ParsePrefix, "1.0.0.0/31"),
 		status:   ContainsNot,
 	},
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
-		exclude:  Group{arr: []Consecutive{must(ParsePrefix, "1.0.0.0/30")}},
+		exclude:  Group{Arr: []Consecutive{must(ParsePrefix, "1.0.0.0/30")}},
 		contains: must(ParsePrefix, "1.0.0.233/32"),
 		status:   Contains,
 	},
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
-		exclude:  Group{arr: []Consecutive{must(ParsePrefix, "1.0.0.0/30")}},
+		exclude:  Group{Arr: []Consecutive{must(ParsePrefix, "1.0.0.0/30")}},
 		contains: &Group{}, // unhandled behavior
 		status:   ContainsNot,
 	},
 
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
-		exclude:  Group{arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
+		exclude:  Group{Arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
 		contains: must(ParsePrefix, "1.0.0.0/25"),
 		status:   ContainsPartially,
 	},
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
-		exclude:  Group{arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
+		exclude:  Group{Arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
 		contains: must(ParsePrefix, "1.0.0.6/31"),
 		status:   Contains,
 	},
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
-		exclude:  Group{arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
+		exclude:  Group{Arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
 		contains: must(ParsePrefix, "1.0.0.233/32"),
 		status:   Contains,
 	},
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
-		exclude:  Group{arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
+		exclude:  Group{Arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
 		contains: must(ParseSingle, "1.0.0.1"),
 		status:   ContainsNot,
 	},
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
-		exclude:  Group{arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
+		exclude:  Group{Arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
 		contains: must(ParseSingle, "1.0.0.13"),
 		status:   Contains,
 	},
 
 	{
 		include:  unknownContainsStatus{},
-		exclude:  Group{arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
+		exclude:  Group{Arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
 		contains: must(ParseSingle, "1.0.0.13"),
 		status:   ContainsNot,
 	},
 	{
 		include:  must(ParseRange, "1.0.0.1-1.0.0.10"),
 		exclude:  Group{},
-		contains: &Group{arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
+		contains: &Group{Arr: []Consecutive{must(ParseSingle, "1.0.0.1")}},
 		status:   ContainsNot,
 	},
 }
@@ -153,7 +153,7 @@ var testExcludeLength = []struct {
 }{
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		exclude: Group{Arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
 		expect:  big.NewInt(155),
 	},
 }
@@ -176,25 +176,25 @@ var testExcludeNextIP = []struct {
 }{
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
+		exclude: Group{Arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
 		ip:      invalidIP,
 		next:    netip.AddrFrom4([4]byte{1, 0, 0, 0}),
 	},
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
+		exclude: Group{Arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 1}),
 		next:    netip.AddrFrom4([4]byte{1, 0, 0, 2}),
 	},
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
+		exclude: Group{Arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 3}),
 		next:    netip.AddrFrom4([4]byte{1, 0, 0, 101}),
 	},
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
+		exclude: Group{Arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 255}),
 		next:    invalidIP,
 	},
@@ -206,32 +206,32 @@ var testExcludeNextIP = []struct {
 		next:    invalidIP,
 	},
 	{
-		include: &Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
-		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.80")}},
+		include: &Group{Arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
+		exclude: Group{Arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.80")}},
 		ip:      invalidIP,
 		next:    netip.AddrFrom4([4]byte{1, 0, 0, 81}),
 	},
 	{
-		include: &Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
-		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.80")}},
+		include: &Group{Arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
+		exclude: Group{Arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.80")}},
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 81}),
 		next:    netip.AddrFrom4([4]byte{1, 0, 0, 82}),
 	},
 	{
-		include: &Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
-		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.80")}},
+		include: &Group{Arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100")}},
+		exclude: Group{Arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.80")}},
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 100}),
 		next:    invalidIP,
 	},
 	{
-		include: &Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100"), must(ParseRange, "1.0.0.130-1.0.0.140")}},
-		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.80")}},
+		include: &Group{Arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100"), must(ParseRange, "1.0.0.130-1.0.0.140")}},
+		exclude: Group{Arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.80")}},
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 100}),
 		next:    netip.AddrFrom4([4]byte{1, 0, 0, 130}),
 	},
 	{
-		include: &Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100"), must(ParseRange, "1.0.0.130-1.0.0.140")}},
-		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.80")}},
+		include: &Group{Arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.100"), must(ParseRange, "1.0.0.130-1.0.0.140")}},
+		exclude: Group{Arr: []Consecutive{must(ParseRange, "1.0.0.3-1.0.0.80")}},
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 133}),
 		next:    netip.AddrFrom4([4]byte{1, 0, 0, 134}),
 	},
@@ -251,7 +251,7 @@ var testExcludeString = []struct {
 	dst     []string
 }{
 	{
-		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		exclude: Group{Arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
 		dst:     []string{"1.0.0.0-1.0.0.100"},
 	},
 }
@@ -275,13 +275,13 @@ var testExcludeContainsIP = []struct {
 }{
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
-		exclude:  Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		exclude:  Group{Arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
 		ip:       netip.AddrFrom4([4]byte{1, 0, 0, 1}),
 		contains: false,
 	},
 	{
 		include:  must(ParsePrefix, "1.0.0.0/24"),
-		exclude:  Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		exclude:  Group{Arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
 		ip:       netip.AddrFrom4([4]byte{1, 0, 0, 101}),
 		contains: true,
 	},
@@ -309,19 +309,19 @@ var testExcludeExcludeAddress = []struct {
 }{
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{}},
+		exclude: Group{Arr: []Consecutive{}},
 		ip:      netip.AddrFrom4([4]byte{1, 2, 0, 1}),
 		error:   ErrNotInAddressRange,
 	},
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		exclude: Group{Arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 23}),
 		error:   ErrHasBeenExcluded,
 	},
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
+		exclude: Group{Arr: []Consecutive{must(ParseRange, "1.0.0.0-1.0.0.100")}},
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 123}),
 		error:   nil,
 	},
@@ -354,56 +354,56 @@ var testExcludeDelExclude = []struct {
 }{
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{}},
+		exclude: Group{Arr: []Consecutive{}},
 		ip:      netip.AddrFrom4([4]byte{1, 2, 0, 1}),
 		error:   ErrNotInAddressRange,
 	},
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.30-1.0.0.40"), must(ParseRange, "1.0.0.50-1.0.0.60")}},
+		exclude: Group{Arr: []Consecutive{must(ParseRange, "1.0.0.30-1.0.0.40"), must(ParseRange, "1.0.0.50-1.0.0.60")}},
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 90}),
 		dst:     []string{"1.0.0.30-1.0.0.40", "1.0.0.50-1.0.0.60"},
 	},
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.30-1.0.0.30"), must(ParseRange, "1.0.0.50-1.0.0.60")}},
+		exclude: Group{Arr: []Consecutive{must(ParseRange, "1.0.0.30-1.0.0.30"), must(ParseRange, "1.0.0.50-1.0.0.60")}},
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 30}),
 		dst:     []string{"1.0.0.50-1.0.0.60"},
 	},
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.30-1.0.0.40"), must(ParseRange, "1.0.0.50-1.0.0.60")}},
+		exclude: Group{Arr: []Consecutive{must(ParseRange, "1.0.0.30-1.0.0.40"), must(ParseRange, "1.0.0.50-1.0.0.60")}},
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 30}),
 		dst:     []string{"1.0.0.31-1.0.0.40", "1.0.0.50-1.0.0.60"},
 	},
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.30-1.0.0.40"), must(ParseRange, "1.0.0.50-1.0.0.60")}},
+		exclude: Group{Arr: []Consecutive{must(ParseRange, "1.0.0.30-1.0.0.40"), must(ParseRange, "1.0.0.50-1.0.0.60")}},
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 40}),
 		dst:     []string{"1.0.0.30-1.0.0.39", "1.0.0.50-1.0.0.60"},
 	},
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{must(ParseRange, "1.0.0.30-1.0.0.40")}},
+		exclude: Group{Arr: []Consecutive{must(ParseRange, "1.0.0.30-1.0.0.40")}},
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 33}),
 		dst:     []string{"1.0.0.30-1.0.0.32", "1.0.0.34-1.0.0.40"},
 	},
 
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{must(ParseSingle, "1.0.0.30"), must(ParseSingle, "1.0.0.31"), must(ParseSingle, "1.0.0.32")}},
+		exclude: Group{Arr: []Consecutive{must(ParseSingle, "1.0.0.30"), must(ParseSingle, "1.0.0.31"), must(ParseSingle, "1.0.0.32")}},
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 31}),
 		dst:     []string{"1.0.0.30", "1.0.0.32"},
 	},
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{must(ParseSingle, "1.0.0.30"), must(ParseSingle, "1.0.0.31"), must(ParseSingle, "1.0.0.32")}},
+		exclude: Group{Arr: []Consecutive{must(ParseSingle, "1.0.0.30"), must(ParseSingle, "1.0.0.31"), must(ParseSingle, "1.0.0.32")}},
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 30}),
 		dst:     []string{"1.0.0.31", "1.0.0.32"},
 	},
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{must(ParseSingle, "1.0.0.30"), must(ParseSingle, "1.0.0.31"), must(ParseSingle, "1.0.0.32")}},
+		exclude: Group{Arr: []Consecutive{must(ParseSingle, "1.0.0.30"), must(ParseSingle, "1.0.0.31"), must(ParseSingle, "1.0.0.32")}},
 		ip:      netip.AddrFrom4([4]byte{1, 0, 0, 32}),
 		dst:     []string{"1.0.0.30", "1.0.0.31"},
 	},
@@ -438,31 +438,31 @@ var testExcludeExcludeCIDR = []struct {
 }{
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{}},
+		exclude: Group{Arr: []Consecutive{}},
 		val:     must(ParseRange, "1.0.0.222-1.0.1.10"),
 		error:   ErrNotInAddressRange,
 	},
 	{
 		include: must(ParsePrefix, "1.0.0.0/24"),
-		exclude: Group{arr: []Consecutive{}},
+		exclude: Group{Arr: []Consecutive{}},
 		val:     must(ParseRange, "1.0.0.222-1.0.0.240"),
 		dst:     []string{"1.0.0.222-1.0.0.240"},
 	},
 	{
 		include: must(ParsePrefix, "1.0.0.0/16"),
-		exclude: Group{arr: []Consecutive{must(ParsePrefix, "1.0.0.0/24")}},
+		exclude: Group{Arr: []Consecutive{must(ParsePrefix, "1.0.0.0/24")}},
 		val:     must(ParseRange, "1.0.0.12-1.0.0.22"),
 		error:   ErrHasBeenExcluded,
 	},
 	{
 		include: must(ParsePrefix, "1.0.0.0/16"),
-		exclude: Group{arr: []Consecutive{must(ParsePrefix, "1.0.0.0/24")}},
+		exclude: Group{Arr: []Consecutive{must(ParsePrefix, "1.0.0.0/24")}},
 		val:     must(ParseRange, "1.0.0.12-1.0.1.22"),
 		error:   ErrHasBeenPartiallyExcluded,
 	},
 	{
 		include: must(ParsePrefix, "1.0.0.0/16"),
-		exclude: Group{arr: []Consecutive{must(ParsePrefix, "1.0.0.0/24")}},
+		exclude: Group{Arr: []Consecutive{must(ParsePrefix, "1.0.0.0/24")}},
 		val:     must(ParseRange, "1.0.1.12-1.0.1.22"),
 		dst:     []string{"1.0.0.0/24", "1.0.1.12-1.0.1.22"},
 	},

@@ -26,7 +26,7 @@ func (e *Exclude) ExcludeCIDR(c Consecutive) error {
 		return ErrNotInAddressRange
 	}
 
-	for _, v := range e.e.arr {
+	for _, v := range e.e.Arr {
 		switch v.Contains(c) {
 		case ContainsPartially:
 			return ErrHasBeenPartiallyExcluded
@@ -34,7 +34,7 @@ func (e *Exclude) ExcludeCIDR(c Consecutive) error {
 			return ErrHasBeenExcluded
 		}
 	}
-	e.e.arr = append(e.e.arr, c)
+	e.e.Arr = append(e.e.Arr, c)
 	return nil
 }
 
@@ -42,14 +42,14 @@ func (e *Exclude) DelExclude(addr netip.Addr) error {
 	if !e.i.ContainsIP(addr) {
 		return ErrNotInAddressRange
 	}
-	for i, v := range e.e.arr {
+	for i, v := range e.e.Arr {
 		if !v.ContainsIP(addr) {
 			continue
 		}
 
 		switch v.(type) {
 		case *Single:
-			e.e.arr = append(e.e.arr[:i], e.e.arr[i+1:]...)
+			e.e.Arr = append(e.e.Arr[:i], e.e.Arr[i+1:]...)
 			return nil
 
 		case *Range, *Prefix:
@@ -57,17 +57,17 @@ func (e *Exclude) DelExclude(addr netip.Addr) error {
 
 			switch {
 			case vl.Cmp(big.NewInt(1)) == 0: // only one ip
-				e.e.arr = append(e.e.arr[:i], e.e.arr[i+1:]...)
+				e.e.Arr = append(e.e.Arr[:i], e.e.Arr[i+1:]...)
 
 			case vfi.Compare(addr) == 0: // delete first ip
-				e.e.arr[i] = &Range{s: vfi.Next(), e: vli}
+				e.e.Arr[i] = &Range{s: vfi.Next(), e: vli}
 
 			case vli.Compare(addr) == 0: // delete last ip
-				e.e.arr[i] = &Range{s: vfi, e: vli.Prev()}
+				e.e.Arr[i] = &Range{s: vfi, e: vli.Prev()}
 
 			default:
-				e.e.arr[i] = &Range{s: v.FirstIP(), e: addr.Prev()}
-				e.e.arr = append(e.e.arr, &Range{s: addr.Next(), e: v.LastIP()})
+				e.e.Arr[i] = &Range{s: v.FirstIP(), e: addr.Prev()}
+				e.e.Arr = append(e.e.Arr, &Range{s: addr.Next(), e: v.LastIP()})
 			}
 
 			return nil
@@ -84,7 +84,7 @@ func (e *Exclude) ExcludeAddress(addr netip.Addr) error {
 	if e.e.ContainsIP(addr) {
 		return ErrHasBeenExcluded
 	}
-	e.e.arr = append(e.e.arr, &Single{p: addr})
+	e.e.Arr = append(e.e.Arr, &Single{p: addr})
 	return nil
 }
 
@@ -128,3 +128,6 @@ func (e *Exclude) Contains(c CIDR) ContainsStatus {
 }
 
 func (e *Exclude) Strings() []string { return e.e.Strings() }
+
+func (e *Exclude) Include() CIDR  { return e.i }
+func (e *Exclude) Exclude() Group { return e.e }
