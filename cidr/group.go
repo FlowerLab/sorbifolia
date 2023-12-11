@@ -75,8 +75,8 @@ func (x *Group) Contains(cidr CIDR) ContainsStatus {
 
 func (x *Group) AddCIDR(c Consecutive) error {
 	switch x.Contains(c) {
-	case ContainsPartially, ContainsNot:
-		return ErrNotInAddressRange
+	case ContainsPartially, Contains:
+		return ErrAddressRangeConflict
 	}
 
 	for _, v := range x.Arr {
