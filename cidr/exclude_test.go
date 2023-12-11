@@ -452,13 +452,13 @@ var testExcludeExcludeCIDR = []struct {
 		include: must(ParsePrefix, "1.0.0.0/16"),
 		exclude: Group{Arr: []Consecutive{must(ParsePrefix, "1.0.0.0/24")}},
 		val:     must(ParseRange, "1.0.0.12-1.0.0.22"),
-		error:   ErrHasBeenExcluded,
+		error:   ErrAddressRangeConflict,
 	},
 	{
 		include: must(ParsePrefix, "1.0.0.0/16"),
 		exclude: Group{Arr: []Consecutive{must(ParsePrefix, "1.0.0.0/24")}},
 		val:     must(ParseRange, "1.0.0.12-1.0.1.22"),
-		error:   ErrHasBeenPartiallyExcluded,
+		error:   ErrAddressRangeConflict,
 	},
 	{
 		include: must(ParsePrefix, "1.0.0.0/16"),

@@ -21,6 +21,9 @@ func NewExclude(c CIDR, exclude ...Consecutive) (*Exclude, error) {
 }
 
 func (e *Exclude) ExcludeCIDR(c Consecutive) error {
+	if e.i.Contains(c) != Contains {
+		return ErrNotInAddressRange
+	}
 	return e.e.AddCIDR(c)
 }
 
