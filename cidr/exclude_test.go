@@ -487,3 +487,32 @@ func TestExclude_ExcludeCIDR(t *testing.T) {
 		}
 	}
 }
+
+var testNewExclude = []struct {
+	cidr    CIDR
+	exclude []Consecutive
+	err     error
+}{
+	{cidr: must(ParsePrefix, "1.0.0.0/24")},
+	{cidr: must(ParsePrefix, "1.0.0.0/24"), exclude: []Consecutive{must(ParseRange, "1.0.0.222-1.0.0.233")}},
+	{cidr: must(ParsePrefix, "1.0.0.0/24"), exclude: []Consecutive{must(ParseRange, "1.0.0.222-1.0.1.233")}, err: ErrNotInAddressRange},
+	{
+		cidr:    must(ParsePrefix, "1.0.0.0/24"),
+		exclude: []Consecutive{must(ParseRange, "1.0.0.222-1.0.0.233"), must(ParseRange, "1.0.0.122-1.0.0.224")},
+		err:     ErrAddressRangeConflict,
+	},
+}
+
+func TestNewExclude(t *testing.T) {
+	for _, val := range testNewExclude {
+		_, err := NewExclude(val.cidr, val.exclude...)
+		switch {
+		case err == nil && val.err == nil:
+		case !errors.Is(err, val.err):
+			t.Errorf("expected value is %s, but got %s", val.err, err)
+		}
+	}
+}
+
+func TestExclude_Include(t *testing.T) { (&Exclude{}).Include() }
+func TestExclude_Exclude(t *testing.T) { (&Exclude{}).Exclude() }
