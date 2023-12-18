@@ -78,15 +78,6 @@ func (x *Group) AddCIDR(c Consecutive) error {
 	case ContainsPartially, Contains:
 		return ErrAddressRangeConflict
 	}
-
-	for _, v := range x.Arr {
-		switch v.Contains(c) {
-		case ContainsPartially:
-			return ErrHasBeenPartiallyExcluded
-		case Contains:
-			return ErrHasBeenExcluded
-		}
-	}
 	x.Arr = append(x.Arr, c)
 	return nil
 }
