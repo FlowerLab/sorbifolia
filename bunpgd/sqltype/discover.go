@@ -9,7 +9,7 @@ import (
 	"go.x2ox.com/sorbifolia/bunpgd/reflectype"
 )
 
-func SetType(field *schema.Field) error {
+func Set(field *schema.Field) error {
 	field.DiscoveredSQLType, _ = field.Tag.Option("type")
 	if field.DiscoveredSQLType == "" {
 		field.DiscoveredSQLType = DiscoverType(field.IndirectType)

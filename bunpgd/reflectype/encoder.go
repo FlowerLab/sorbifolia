@@ -31,10 +31,14 @@ var (
 	EncoderText   = reflect.TypeOf((*encoderText)(nil)).Elem()
 	EncoderBinary = reflect.TypeOf((*encoderBinary)(nil)).Elem()
 
-	Driver  = reflect.TypeOf((*driver.Valuer)(nil)).Elem()
+	Valuer  = reflect.TypeOf((*driver.Valuer)(nil)).Elem()
 	Scanner = reflect.TypeOf((*sql.Scanner)(nil)).Elem()
 
 	JSONUnmarshaler   = reflect.TypeOf((*json.Unmarshaler)(nil)).Elem()
 	TextUnmarshaler   = reflect.TypeOf((*encoding.TextUnmarshaler)(nil)).Elem()
 	BinaryUnmarshaler = reflect.TypeOf((*encoding.BinaryUnmarshaler)(nil)).Elem()
+
+	JSONMarshaler   = reflect.TypeOf((*json.Marshaler)(nil)).Elem()
+	TextMarshaler   = reflect.TypeOf((*encoding.TextMarshaler)(nil)).Elem()
+	BinaryMarshaler = reflect.TypeOf((*encoding.BinaryMarshaler)(nil)).Elem()
 )

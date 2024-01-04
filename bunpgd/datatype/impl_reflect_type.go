@@ -1,39 +1,17 @@
-package scanner
+package datatype
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
-	"fmt"
 	"net"
 	"net/netip"
 	"reflect"
-	"sync"
 
-	"github.com/uptrace/bun/schema"
 	"go.x2ox.com/sorbifolia/bunpgd/internal/b2s"
+	"go.x2ox.com/sorbifolia/bunpgd/reflectype"
 )
 
-var scannerFuncMap sync.Map
-
-func RegisterScanner(rt reflect.Type, sf schema.ScannerFunc) {
-	if _, loaded := scannerFuncMap.LoadOrStore(rt, sf); loaded {
-		panic(fmt.Sprintf("type %s is loaded", rt))
-	}
-}
-
-func scanBytes(dest reflect.Value, src any) error {
-	switch src := src.(type) {
-	case nil:
-		dest.SetBytes(nil)
-	case string:
-		dest.SetBytes([]byte(src))
-	case []byte:
-		dest.SetBytes(bytes.Clone(src))
-	default:
-		return errors.New("not support")
-	}
-	return nil
+var typeAdapters = map[reflect.Type]*Adapter{
+	reflectype.IPNet:        {Append: nil, Scan: scanHardwareAddr, IsZero: nil},
+	reflectype.HardwareAddr: {Append: nil, Scan: scanINetIP, IsZero: nil},
 }
 
 func scanHardwareAddr(dest reflect.Value, src any) error {
@@ -56,7 +34,7 @@ func scanHardwareAddr(dest reflect.Value, src any) error {
 		dest.Set(reflect.ValueOf(hw))
 
 	default:
-		return errors.New("not support")
+		return ErrNotSupportValueType
 	}
 
 	return nil
@@ -98,22 +76,4 @@ func scanINetIP(dest reflect.Value, src any) error {
 	}
 
 	return ErrNotSupportValueType
-}
-
-func scanMap(dest reflect.Value, src any) error {
-	if src == nil {
-		setNil(dest)
-		return nil
-	}
-	return json.Unmarshal(b2s.A(src), dest.Addr().Interface())
-}
-
-func setNil(rv reflect.Value) {
-	switch rv.Kind() {
-	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
-		if rv.IsNil() {
-			return
-		}
-	}
-	rv.Set(reflect.New(rv.Type()).Elem())
 }

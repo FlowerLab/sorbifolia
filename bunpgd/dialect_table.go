@@ -2,7 +2,7 @@ package bunpgd
 
 import (
 	"github.com/uptrace/bun/schema"
-	"go.x2ox.com/sorbifolia/bunpgd/scanner"
+	"go.x2ox.com/sorbifolia/bunpgd/datatype"
 	"go.x2ox.com/sorbifolia/bunpgd/sqltype"
 )
 
@@ -13,10 +13,8 @@ func (d *Dialect) OnTable(table *schema.Table) {
 }
 
 func (d *Dialect) onField(field *schema.Field) {
-	if err := sqltype.SetType(field); err != nil {
+	if err := sqltype.Set(field); err != nil {
 		panic(err)
 	}
-	if err := scanner.SetScanner(field); err != nil {
-		panic(err)
-	}
+	datatype.Set(field)
 }
