@@ -65,8 +65,7 @@ func DiscoverType(typ reflect.Type) (st string) {
 		return DiscoverSliceType(typ)
 	case reflect.Struct:
 		return DiscoverInterface(typ)
-	case reflect.Array:
-		panic("TODO future support")
+	// case reflect.Array:	panic("TODO future support")
 	default:
 		return UnknownType
 	}
@@ -83,8 +82,7 @@ func DiscoverComplexType(typ reflect.Type) string {
 	switch typ {
 	case reflectype.NullTime, reflectype.Time:
 		return TimestampTZ
-	case reflectype.TimeDuration:
-		panic("TODO future support")
+	// case reflectype.TimeDuration: // TODO future support
 	case reflectype.NullBool:
 		return Boolean
 	case reflectype.NullFloat:
