@@ -1,81 +1,51 @@
 package datatype
 
 import (
+	"fmt"
 	"reflect"
-	"sync"
 
+	"github.com/uptrace/bun/dialect"
 	"github.com/uptrace/bun/schema"
-	"go.x2ox.com/sorbifolia/bunpgd/reflectype"
+	"go.x2ox.com/sorbifolia/bunpgd/sqltype"
 )
 
-var adapterMap sync.Map
-
 func Set(field *schema.Field) {
-	if adp := sqlTypeAdapters[field.DiscoveredSQLType]; adp != nil {
-		adp.Set(field)
-		return
-	}
-	if val, ok := adapterMap.Load(field.StructField.Type); ok {
-		val.(*Adapter).Set(field)
-		return
-	}
-
-	if adp := FindDatatype(field.StructField.Type); adp != nil {
-		adapterMap.LoadOrStore(field.StructField.Type, adp)
-		adp.Set(field)
-		return
+	switch field.DiscoveredSQLType {
+	case sqltype.Bytea:
+		field.Append, field.Scan = appendBytes, scanBytes
+	case sqltype.JSON:
+		field.Append, field.Scan = appendJSON, scanBytes
+	case sqltype.JSONB:
+		field.Append, field.Scan = appendJSON, scanBytes
+	case sqltype.HSTORE:
+		field.Append, field.Scan = appendHstore, scanHstore
+	default:
+		field.Append, field.Scan = TypeAppender(field.StructField.Type), TypeScanner(field.StructField.Type)
 	}
 }
 
-func FindDatatype(rt reflect.Type) *Adapter {
-	if adp := FindWithImplement(rt); adp != nil {
-		return adp
-	}
-	if adp := typeAdapters[rt]; adp != nil {
-		return adp
-	}
-
-	kind := rt.Kind()
-	if kind == reflect.Ptr {
-		if adp := FindDatatype(rt.Elem()); adp != nil {
-			return adp.Ptr()
+func addrScanner(fn schema.ScannerFunc) schema.ScannerFunc {
+	return func(dest reflect.Value, src any) error {
+		if !dest.CanAddr() {
+			return fmt.Errorf("bunpgd: Scan(nonaddressable %T)", dest.Interface())
 		}
-	}
-
-	if kind != reflect.Ptr {
-		if adp := FindWithImplement(reflect.PtrTo(rt)); adp != nil {
-			return adp.Addr()
+		if err := fn(dest.Addr(), src); err != nil {
+			return err
 		}
-	}
 
-	if kind == reflect.Slice {
-		if adp := FindWithSlice(rt); adp != nil {
-			return adp
+		if dest.Elem().IsZero() {
+			dest.SetZero()
 		}
+		return nil
 	}
-
-	return kindAdapters[rt.Kind()]
 }
 
-func FindWithImplement(rt reflect.Type) *Adapter {
-	switch {
-	case rt.Implements(reflectype.EncoderSQL):
-		return ifSQLDriver
-	case rt.Implements(reflectype.TextUnmarshaler):
-		return ifText
-	case rt.Implements(reflectype.JSONUnmarshaler):
-		return ifJSON
-	case rt.Implements(reflectype.BinaryUnmarshaler):
-		return ifBinary
+func addrAppender(fn schema.AppenderFunc) schema.AppenderFunc {
+	return func(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
+		if !v.CanAddr() {
+			err := fmt.Errorf("bunpgd: Append(nonaddressable %T)", v.Interface())
+			return dialect.AppendError(b, err)
+		}
+		return fn(fmter, b, v.Addr())
 	}
-
-	return nil
-}
-
-func FindWithSlice(rt reflect.Type) *Adapter {
-	adp := FindDatatype(rt.Elem())
-	if adp == nil {
-		return nil // not support type
-	}
-	return arrayAdapter(adp)
 }

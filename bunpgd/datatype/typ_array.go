@@ -7,15 +7,7 @@ import (
 	"go.x2ox.com/sorbifolia/bunpgd/internal/b2s"
 )
 
-func arrayAdapter(elemAdp *Adapter) *Adapter {
-	return &Adapter{
-		Append: appendArray(elemAdp),
-		Scan:   scanArray(elemAdp),
-		IsZero: func(v reflect.Value) bool { return v.Len() == 0 },
-	}
-}
-
-func appendArray(elemAdp *Adapter) func(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
+func appendArray(sf schema.AppenderFunc) func(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
 	return func(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
 		length := v.Len()
 		if length == 0 {
@@ -27,7 +19,7 @@ func appendArray(elemAdp *Adapter) func(fmter schema.Formatter, b []byte, v refl
 				b = append(b, "'{"...)
 			}
 
-			b = elemAdp.Append(fmter, b, v.Index(i))
+			b = sf(fmter, b, v.Index(i))
 
 			if i+1 == length {
 				b = append(b, "}'"...)
@@ -40,7 +32,7 @@ func appendArray(elemAdp *Adapter) func(fmter schema.Formatter, b []byte, v refl
 	}
 }
 
-func scanArray(elemAdp *Adapter) func(dest reflect.Value, src any) error {
+func scanArray(sf schema.ScannerFunc) func(dest reflect.Value, src any) error {
 	return func(dest reflect.Value, src any) error {
 		b := b2s.A(src)
 		if len(b) < 2 || (b[0] != '{' && b[1] != '}') {
@@ -61,7 +53,7 @@ func scanArray(elemAdp *Adapter) func(dest reflect.Value, src any) error {
 		slice := reflect.MakeSlice(dest.Type(), length, length)
 
 		for i := 0; i < length; i++ {
-			if err = elemAdp.Scan(slice.Index(i), arr[i]); err != nil {
+			if err = sf(slice.Index(i), arr[i]); err != nil {
 				return err
 			}
 		}

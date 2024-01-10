@@ -8,16 +8,7 @@ import (
 
 	"github.com/uptrace/bun/dialect"
 	"github.com/uptrace/bun/schema"
-	"go.x2ox.com/sorbifolia/bunpgd/sqltype"
 )
-
-var sqlTypeAdapters = map[string]*Adapter{
-	sqltype.Bytea: {Append: appendBytes, Scan: scanBytes},
-	sqltype.JSON:  {Append: appendJSON, Scan: scanBytes},
-	sqltype.JSONB: {Append: appendJSON, Scan: scanBytes},
-
-	sqltype.HSTORE: {Append: appendHstore, Scan: scanHstore},
-}
 
 func scanBytes(dest reflect.Value, src any) error {
 	switch src := src.(type) {

@@ -6,13 +6,7 @@ import (
 	"reflect"
 
 	"go.x2ox.com/sorbifolia/bunpgd/internal/b2s"
-	"go.x2ox.com/sorbifolia/bunpgd/reflectype"
 )
-
-var typeAdapters = map[reflect.Type]*Adapter{
-	reflectype.IPNet:        {Append: nil, Scan: scanHardwareAddr, IsZero: nil},
-	reflectype.HardwareAddr: {Append: nil, Scan: scanINetIP, IsZero: nil},
-}
 
 func scanHardwareAddr(dest reflect.Value, src any) error {
 	switch src := src.(type) {
