@@ -1,6 +1,7 @@
 package datatype
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 
@@ -49,3 +50,7 @@ func addrAppender(fn schema.AppenderFunc) schema.AppenderFunc {
 		return fn(fmter, b, v.Addr())
 	}
 }
+
+var (
+	ErrNotSupportValueType = errors.New("not support value type")
+)

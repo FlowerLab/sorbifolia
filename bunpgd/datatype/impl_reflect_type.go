@@ -5,6 +5,7 @@ import (
 	"net/netip"
 	"reflect"
 
+	"github.com/uptrace/bun/schema"
 	"go.x2ox.com/sorbifolia/bunpgd/internal/b2s"
 )
 
@@ -70,4 +71,14 @@ func scanINetIP(dest reflect.Value, src any) error {
 	}
 
 	return ErrNotSupportValueType
+}
+
+func appendHardwareAddr(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
+	bts, _ := v.Interface().(net.HardwareAddr)
+	return fmter.Dialect().AppendString(b, bts.String())
+}
+
+func appendINetIP(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
+	bts, _ := v.Interface().(net.IP)
+	return fmter.Dialect().AppendString(b, bts.String())
 }

@@ -22,14 +22,18 @@ func TypeAppender(rt reflect.Type) (sf schema.AppenderFunc) {
 	}()
 
 	switch {
+	case rt.Implements(reflectype.QueryAppender):
+		return ifQueryAppender
+	case rt.Implements(reflectype.Valuer):
+		return schema.Appender(nil, rt)
 	case rt.Implements(reflectype.TextMarshaler):
 		return ifTextMarshaler
 	case rt.Implements(reflectype.JSONMarshaler):
 		return ifJSONMarshaler
 	case rt == reflectype.IPNet:
-		// return scanHardwareAddr
+		return appendHardwareAddr
 	case rt == reflectype.HardwareAddr:
-		// return scanINetIP
+		return appendINetIP
 	}
 
 	kind := rt.Kind()
@@ -42,7 +46,10 @@ func TypeAppender(rt reflect.Type) (sf schema.AppenderFunc) {
 	if kind != reflect.Ptr {
 		typ := reflect.PtrTo(rt)
 		switch {
-
+		case rt.Implements(reflectype.QueryAppender):
+			return addrAppender(ifQueryAppender)
+		case rt.Implements(reflectype.Valuer):
+			return schema.Appender(nil, rt)
 		case typ.Implements(reflectype.TextMarshaler):
 			return addrAppender(ifTextMarshaler)
 		case typ.Implements(reflectype.JSONMarshaler):

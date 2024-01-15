@@ -6,6 +6,8 @@ import (
 	"encoding"
 	"encoding/json"
 	"reflect"
+
+	"github.com/uptrace/bun/schema"
 )
 
 type encoderSQL interface {
@@ -41,4 +43,6 @@ var (
 	JSONMarshaler   = reflect.TypeOf((*json.Marshaler)(nil)).Elem()
 	TextMarshaler   = reflect.TypeOf((*encoding.TextMarshaler)(nil)).Elem()
 	BinaryMarshaler = reflect.TypeOf((*encoding.BinaryMarshaler)(nil)).Elem()
+
+	QueryAppender = reflect.TypeOf((*schema.QueryAppender)(nil)).Elem()
 )

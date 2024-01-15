@@ -25,7 +25,7 @@ func TypeScanner(rt reflect.Type) (sf schema.ScannerFunc) {
 	case rt.Implements(reflectype.Scanner):
 		return ifScanner
 	case rt.Implements(reflectype.TextUnmarshaler):
-		return ifJSONTextUnmarshaler
+		return ifTextUnmarshaler
 	case rt.Implements(reflectype.JSONUnmarshaler):
 		return ifJSONUnmarshaler
 	case rt == reflectype.IPNet:
@@ -47,7 +47,7 @@ func TypeScanner(rt reflect.Type) (sf schema.ScannerFunc) {
 		case typ.Implements(reflectype.Scanner):
 			return addrScanner(ifScanner)
 		case typ.Implements(reflectype.TextUnmarshaler):
-			return addrScanner(ifJSONTextUnmarshaler)
+			return addrScanner(ifTextUnmarshaler)
 		case typ.Implements(reflectype.JSONUnmarshaler):
 			return addrScanner(ifJSONUnmarshaler)
 		}

@@ -25,6 +25,10 @@ var testDiscoverTypeData = []struct {
 	{typ: reflect.TypeOf([]chan string{}), val: UnknownType},
 	{typ: reflect.TypeOf(make(chan string)), val: UnknownType},
 
+	{typ: reflect.TypeOf(uint16(1)), val: SmallInt},
+	{typ: reflect.TypeOf(int32(1)), val: Integer},
+	{typ: reflect.TypeOf(1), val: BigInt},
+
 	{typ: reflect.TypeOf(&encoderJSON{}), val: JSONB},
 	{typ: reflect.TypeOf(&encoderText{}), val: Text},
 	{typ: reflect.TypeOf(&encoderBinary{}), val: Bytea},

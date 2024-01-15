@@ -15,7 +15,7 @@ func ifScanner(dest reflect.Value, src any) error { return dest.Interface().(sql
 func ifJSONUnmarshaler(dest reflect.Value, src any) error {
 	return dest.Interface().(json.Unmarshaler).UnmarshalJSON(b2s.A(src))
 }
-func ifJSONTextUnmarshaler(dest reflect.Value, src any) error {
+func ifTextUnmarshaler(dest reflect.Value, src any) error {
 	return dest.Interface().(encoding.TextUnmarshaler).UnmarshalText(b2s.A(src))
 }
 
@@ -27,4 +27,8 @@ func ifJSONMarshaler(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
 func ifTextMarshaler(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
 	bts, _ := v.Interface().(encoding.TextMarshaler).MarshalText()
 	return fmter.Dialect().AppendString(b, b2s.B(bts))
+}
+
+func ifQueryAppender(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
+	return schema.AppendQueryAppender(fmter, b, v.Interface().(schema.QueryAppender))
 }
