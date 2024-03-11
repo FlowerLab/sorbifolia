@@ -1,7 +1,7 @@
 package random
 
 import (
-	cr "crypto/rand"
+	"crypto/rand"
 	"unsafe"
 
 	pn "go.x2ox.com/sorbifolia/pyrokinesis"
@@ -16,7 +16,7 @@ func Safe() Random {
 func (r safeRand) RandString(length int) string {
 	arr := make([]byte, length)
 	arr1 := make([]int, length)
-	_, _ = cr.Read(arr)
+	_, _ = rand.Read(arr)
 	for i := range arr {
 		arr1[i] = int(uint64(arr[i]) * uint64(r.randBytesLen) >> 8)
 	}
@@ -53,7 +53,7 @@ func (r safeRand) Int8n(n int8) int8    { return remainder(n, r.Int8()) }
 
 func (r safeRand) read(num int) []byte {
 	arr := make([]byte, num)
-	_, _ = cr.Read(arr)
+	_, _ = rand.Read(arr)
 	return arr
 }
 

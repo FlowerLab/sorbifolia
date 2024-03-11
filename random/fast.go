@@ -24,7 +24,7 @@ func (r fastRand) SetRandBytes(data []byte) Random {
 	return &fastRand{r.randString.SetRandBytes(data)}
 }
 
-func (r fastRand) Uint() uint     { return _fastRandUint() }
+func (r fastRand) Uint() uint     { return uint(_fastRand64()) }
 func (r fastRand) Uint64() uint64 { return _fastRand64() }
 func (r fastRand) Uint32() uint32 { return _fastRand() }
 func (r fastRand) Uint16() uint16 { return uint16(_fastRand()) }
@@ -58,12 +58,3 @@ func remainder[T uint | uint64 | uint32 | uint16 | uint8 | int | int64 | int32 |
 	}
 	return r % n
 }
-
-//go:linkname _fastRand runtime.fastrand
-func _fastRand() uint32
-
-//go:linkname _fastRand64 runtime.fastrand64
-func _fastRand64() uint64
-
-//go:linkname _fastRandUint runtime.fastrandu
-func _fastRandUint() uint
