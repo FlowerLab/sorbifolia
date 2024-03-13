@@ -1,0 +1,1 @@
+[.Use[].DiskPath | select(. != "gorm-datatype") | select(. != "gomod")] | map_values("./" + . + "/...")[]
