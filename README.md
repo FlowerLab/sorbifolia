@@ -1,7 +1,8 @@
 <h1 align="center">Sorbifolia</h1>
 
-**Sorbifolia** is a set of toolkits based on Golang 1.21.
+**Sorbifolia** is a set of toolkits based on Golang 1.22.
 
+- [_cidr_](https://go.x2ox.com/sorbifolia/cidr)
 - [_coarsetime_](https://go.x2ox.com/sorbifolia/coarsetime) is a package for getting time under high performance.
 - [_cryptutils_](https://go.x2ox.com/sorbifolia/cryptutils)
 - [_datastructures_](https://go.x2ox.com/sorbifolia/datastructures)
@@ -9,13 +10,20 @@
 - [_gomod_](https://go.x2ox.com/sorbifolia/gomod)
 - [_gorm-datatype_](https://go.x2ox.com/sorbifolia/gorm-datatype)
 - [_httputils_](https://go.x2ox.com/sorbifolia/httputils)
+- [_jsonutils_](https://go.x2ox.com/sorbifolia/jsonutils)
 - [_jwt_](https://go.x2ox.com/sorbifolia/jwt)
 - [_password_](https://go.x2ox.com/sorbifolia/password) is a password encryption based on Argon2 algorithm.
 - [_pool_](https://go.x2ox.com/sorbifolia/pool) is a generics type of sync.Map.
 - [_random_](https://go.x2ox.com/sorbifolia/random) is a random generator package.
 - [_rogu_](https://go.x2ox.com/sorbifolia/rogu) is a zap integration, from [blackdatura](https://github.com/FlowerLab/blackdatura).
 - [_sitemap_](https://go.x2ox.com/sorbifolia/sitemap)
+- [_slog-attr_](https://go.x2ox.com/sorbifolia/slog-attr)
 - [_strong_](https://go.x2ox.com/sorbifolia/strong)
+- [_strutils_](https://go.x2ox.com/sorbifolia/strutils)
+
+### Deprecated
+- [_~~gorm-pure-sqlite~~_](https://go.x2ox.com/sorbifolia/gorm-pure-sqlite)
+- [_~~httorouter~~_](https://go.x2ox.com/sorbifolia/httorouter)
 
 
 [![GoDoc](https://pkg.go.dev/badge/pkg.go.dev/go.x2ox.com/sorbifolia)](https://pkg.go.dev/go.x2ox.com/sorbifolia)
