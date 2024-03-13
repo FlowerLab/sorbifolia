@@ -161,7 +161,7 @@ func (m Migrator) DropColumn(value any, name string) error {
 
 func (m Migrator) CreateConstraint(value any, name string) error {
 	return m.RunWithValue(value, func(stmt *gorm.Statement) error {
-		constraint, chk, table := m.GuessConstraintAndTable(stmt, name)
+		constraint, table := m.GuessConstraintInterfaceAndTable(stmt, name)
 
 		return m.recreateTable(value, &table,
 			func(rawDDL string, stmt *gorm.Statement) (sql string, sqlArgs []interface{}, err error) {
@@ -171,14 +171,15 @@ func (m Migrator) CreateConstraint(value any, name string) error {
 					constraintValues []interface{}
 				)
 
-				if constraint != nil {
-					constraintName = constraint.Name
-					constraintSql, constraintValues = buildConstraint(constraint)
-				} else if chk != nil {
-					constraintName = chk.Name
+				switch c := constraint.(type) {
+				case *schema.Constraint:
+					constraintName = c.Name
+					constraintSql, constraintValues = buildConstraint(c)
+				case *schema.CheckConstraint:
+					constraintName = c.Name
 					constraintSql = "CONSTRAINT ? CHECK (?)"
-					constraintValues = []any{clause.Column{Name: chk.Name}, clause.Expr{SQL: chk.Constraint}}
-				} else {
+					constraintValues = []any{clause.Column{Name: c.Name}, clause.Expr{SQL: c.Constraint}}
+				default:
 					return "", nil, nil
 				}
 
@@ -196,11 +197,12 @@ func (m Migrator) CreateConstraint(value any, name string) error {
 
 func (m Migrator) DropConstraint(value any, name string) error {
 	return m.RunWithValue(value, func(stmt *gorm.Statement) error {
-		constraint, chk, table := m.GuessConstraintAndTable(stmt, name)
-		if constraint != nil {
-			name = constraint.Name
-		} else if chk != nil {
-			name = chk.Name
+		constraint, table := m.GuessConstraintInterfaceAndTable(stmt, name)
+		switch c := constraint.(type) {
+		case *schema.Constraint:
+			name = c.Name
+		case *schema.CheckConstraint:
+			name = c.Name
 		}
 
 		return m.recreateTable(value, &table,
@@ -220,11 +222,12 @@ func (m Migrator) DropConstraint(value any, name string) error {
 func (m Migrator) HasConstraint(value any, name string) bool {
 	var count int64
 	_ = m.RunWithValue(value, func(stmt *gorm.Statement) error {
-		constraint, chk, table := m.GuessConstraintAndTable(stmt, name)
-		if constraint != nil {
-			name = constraint.Name
-		} else if chk != nil {
-			name = chk.Name
+		constraint, table := m.GuessConstraintInterfaceAndTable(stmt, name)
+		switch c := constraint.(type) {
+		case *schema.Constraint:
+			name = c.Name
+		case *schema.CheckConstraint:
+			name = c.Name
 		}
 
 		_ = m.DB.Raw(

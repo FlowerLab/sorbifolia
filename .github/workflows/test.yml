@@ -17,12 +17,10 @@ jobs:
           - 5432:5432
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
-          go-version: 1.21.x
-          cache: true
-          cache-dependency-path: go.work.sum
+          go-version: 1.22
 
       - run: go version
       - run: go test $(go work edit -json | jq -c -r '[.Use[].DiskPath | select(. != "gomod")] | map_values("./" + . + "/...")[]')
@@ -35,16 +33,14 @@ jobs:
   test-windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
-          go-version: 1.21.x
-          cache: true
-          cache-dependency-path: go.work.sum
+          go-version: 1.22
 
       - run: go version
-      - run: go test $(go work edit -json | jq -c -r "[.Use[].DiskPath | select(. != \""gorm-datatype\"") | select(. != \""gomod\"")]  | map_values(\""./\"" + . + \""/...\"")[]")
-      - run: go test -race -cover -coverprofile="coverage.txt" $(go work edit -json | jq -c -r "[.Use[].DiskPath | select(. != \""gorm-datatype\"") | select(. != \""gomod\"")]  | map_values(\""./\"" + . + \""/...\"")[]")
+      - run: go test $(go work edit -json | jq -c -r -f filter.jq)
+      - run: go test -race -cover -coverprofile="coverage.txt" $(go work edit -json | jq -c -r -f filter.jq)
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
@@ -53,16 +49,14 @@ jobs:
   test-macos:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
-          go-version: 1.21.x
-          cache: true
-          cache-dependency-path: go.work.sum
+          go-version: 1.22
 
       - run: go version
-      - run: go test $(go work edit -json | jq -c -r '[.Use[].DiskPath | select(. !="gorm-datatype") | select(. !="gomod")] | map_values("./" + . + "/...")[]')
-      - run: go test -race -cover -coverprofile=coverage.txt $(go work edit -json | jq -c -r '[.Use[].DiskPath | select(. !="gorm-datatype") | select(. !="gomod")] | map_values("./" + . + "/...")[]')
+      - run: go test $(go work edit -json | jq -c -r -f filter.jq)
+      - run: go test -race -cover -coverprofile=coverage.txt $(go work edit -json | jq -c -r -f filter.jq)
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:

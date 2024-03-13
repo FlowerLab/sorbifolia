@@ -11,7 +11,22 @@ updates:
       interval: "daily"
 
   - package-ecosystem: "gomod"
+    directory: "/bunpgd"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "/cidr"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
     directory: "/coarsetime"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "/cryptutils"
     schedule:
       interval: "daily"
 
@@ -41,6 +56,11 @@ updates:
       interval: "daily"
 
   - package-ecosystem: "gomod"
+    directory: "/jsonutils"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
     directory: "/jwt"
     schedule:
       interval: "daily"
@@ -52,6 +72,11 @@ updates:
 
   - package-ecosystem: "gomod"
     directory: "/pool"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "/pyrokinesis"
     schedule:
       interval: "daily"
 
@@ -71,6 +96,16 @@ updates:
       interval: "daily"
 
   - package-ecosystem: "gomod"
+    directory: "/slog-attr"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
     directory: "/strong"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "/strutils"
     schedule:
       interval: "daily"

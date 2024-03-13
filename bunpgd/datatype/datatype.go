@@ -51,6 +51,4 @@ func addrAppender(fn schema.AppenderFunc) schema.AppenderFunc {
 	}
 }
 
-var (
-	ErrNotSupportValueType = errors.New("not support value type")
-)
+var ErrNotSupportValueType = errors.New("not support value type")
