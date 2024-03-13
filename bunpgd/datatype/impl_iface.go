@@ -15,6 +15,7 @@ func ifScanner(dest reflect.Value, src any) error { return dest.Interface().(sql
 func ifJSONUnmarshaler(dest reflect.Value, src any) error {
 	return dest.Interface().(json.Unmarshaler).UnmarshalJSON(b2s.A(src))
 }
+
 func ifTextUnmarshaler(dest reflect.Value, src any) error {
 	return dest.Interface().(encoding.TextUnmarshaler).UnmarshalText(b2s.A(src))
 }
