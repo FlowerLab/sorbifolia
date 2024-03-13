@@ -1,7 +1,7 @@
 package random
 
 import (
-	"math/rand"
+	"math/rand/v2"
 )
 
 type mathRand struct{ *randString }
