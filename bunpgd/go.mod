@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/jackc/pgx/v5 v5.5.5
-	github.com/uptrace/bun v1.1.17
+	github.com/uptrace/bun v1.2.0
 )
 
 require (
