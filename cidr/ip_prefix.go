@@ -41,8 +41,8 @@ func (x Prefix) NextIP(ip netip.Addr) netip.Addr {
 
 func (x Prefix) Contains(c CIDR) ContainsStatus {
 	if val, ok := c.(Consecutive); ok {
-		if x.LastIP().Compare(val.FirstIP()) < 0 { // x.start < x.end < c.start < c.end
-			return ContainsNot
+		if x.LastIP().Compare(val.FirstIP()) < 0 || val.LastIP().Compare(x.FirstIP()) < 0 {
+			return ContainsNot // x.start < x.end < c.start < c.end || c.start < c.end < x.start < x.end
 		}
 
 		xs := x.FirstIP().Compare(val.FirstIP()) <= 0
