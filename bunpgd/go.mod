@@ -3,7 +3,7 @@ module go.x2ox.com/sorbifolia/bunpgd
 go 1.21
 
 require (
-	github.com/jackc/pgx/v5 v5.5.5
+	github.com/jackc/pgx/v5 v5.6.0
 	github.com/uptrace/bun v1.2.1
 )
 
