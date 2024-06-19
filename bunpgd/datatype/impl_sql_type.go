@@ -7,6 +7,7 @@ import (
 	"reflect"
 
 	"github.com/uptrace/bun/dialect"
+	"github.com/uptrace/bun/extra/bunjson"
 	"github.com/uptrace/bun/schema"
 )
 
@@ -22,6 +23,31 @@ func scanBytes(dest reflect.Value, src any) error {
 		return ErrNotSupportValueType
 	}
 	return nil
+}
+
+func scanJSON(dest reflect.Value, src any) error {
+	if src == nil {
+		return nil
+	}
+
+	if dest.IsNil() {
+		var b []byte
+		if str, isStr := src.(string); isStr {
+			b = []byte(str)
+		} else if v, isBts := src.([]byte); isBts {
+			b = v
+		} else {
+			return ErrNotSupportValueType
+		}
+
+		return bunjson.Unmarshal(b, dest.Addr().Interface())
+	}
+
+	dest = dest.Elem()
+	if fn := TypeScanner(dest.Type()); fn != nil {
+		return fn(dest, src)
+	}
+	return ErrNotSupportValueType
 }
 
 func appendJSON(fmter schema.Formatter, b []byte, v reflect.Value) []byte {

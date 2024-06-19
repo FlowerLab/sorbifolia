@@ -15,9 +15,9 @@ func Set(field *schema.Field) {
 	case sqltype.Bytea:
 		field.Append, field.Scan = appendBytes, scanBytes
 	case sqltype.JSON:
-		field.Append, field.Scan = appendJSON, scanBytes
+		field.Append, field.Scan = appendJSON, scanJSON
 	case sqltype.JSONB:
-		field.Append, field.Scan = appendJSON, scanBytes
+		field.Append, field.Scan = appendJSON, scanJSON
 	case sqltype.HSTORE:
 		field.Append, field.Scan = appendHstore, scanHstore
 	default:
@@ -34,7 +34,7 @@ func addrScanner(fn schema.ScannerFunc) schema.ScannerFunc {
 			return err
 		}
 
-		if dest.Elem().IsZero() {
+		if dest.IsZero() {
 			dest.SetZero()
 		}
 		return nil

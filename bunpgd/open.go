@@ -4,12 +4,12 @@ import (
 	"database/sql"
 	"time"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/uptrace/bun"
+	_ "github.com/uptrace/bun/driver/pgdriver"
 )
 
 func Open(dataSourceName string, opts ...bun.DBOption) (*bun.DB, error) {
-	db, err := sql.Open("pgx/v5", dataSourceName)
+	db, err := sql.Open("pg", dataSourceName)
 	if err != nil {
 		return nil, err
 	}
