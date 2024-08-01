@@ -1,11 +1,13 @@
 go 1.22
 
 use (
+	buffer
 	bunpgd
 	cidr
 	coarsetime
 	cryptutils
 	datastructures
+	debugger
 	finder
 	gomod
 	gorm-datatype
