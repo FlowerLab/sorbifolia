@@ -13,7 +13,6 @@
 - [_jsonutils_](https://go.x2ox.com/sorbifolia/jsonutils)
 - [_jwt_](https://go.x2ox.com/sorbifolia/jwt)
 - [_password_](https://go.x2ox.com/sorbifolia/password) is a password encryption based on Argon2 algorithm.
-- [_pool_](https://go.x2ox.com/sorbifolia/pool) is a generics type of sync.Map.
 - [_random_](https://go.x2ox.com/sorbifolia/random) is a random generator package.
 - [_rogu_](https://go.x2ox.com/sorbifolia/rogu) is a zap integration, from [blackdatura](https://github.com/FlowerLab/blackdatura).
 - [_sitemap_](https://go.x2ox.com/sorbifolia/sitemap)
@@ -24,6 +23,7 @@
 ### Deprecated
 - [_~~gorm-pure-sqlite~~_](https://go.x2ox.com/sorbifolia/gorm-pure-sqlite)
 - [_~~httorouter~~_](https://go.x2ox.com/sorbifolia/httorouter)
+- [_~~pool~~_](https://go.x2ox.com/sorbifolia/pool)
 
 
 [![GoDoc](https://pkg.go.dev/badge/pkg.go.dev/go.x2ox.com/sorbifolia)](https://pkg.go.dev/go.x2ox.com/sorbifolia)
