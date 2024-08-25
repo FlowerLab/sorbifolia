@@ -20,12 +20,6 @@
 - [_strong_](https://go.x2ox.com/sorbifolia/strong)
 - [_strutils_](https://go.x2ox.com/sorbifolia/strutils)
 
-### Deprecated
-- [_~~gorm-pure-sqlite~~_](https://go.x2ox.com/sorbifolia/gorm-pure-sqlite)
-- [_~~httorouter~~_](https://go.x2ox.com/sorbifolia/httorouter)
-- [_~~pool~~_](https://go.x2ox.com/sorbifolia/pool)
-
-
 [![GoDoc](https://pkg.go.dev/badge/pkg.go.dev/go.x2ox.com/sorbifolia)](https://pkg.go.dev/go.x2ox.com/sorbifolia)
 [![Sourcegraph](https://sourcegraph.com/github.com/FlowerLab/sorbifolia/-/badge.svg)](https://sourcegraph.com/github.com/FlowerLab/sorbifolia?badge)
 [![Go Report Card](https://goreportcard.com/badge/github.com/FlowerLab/sorbifolia)](https://goreportcard.com/report/github.com/FlowerLab/sorbifolia)
