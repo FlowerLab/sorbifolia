@@ -44,7 +44,7 @@ func TypeAppender(rt reflect.Type) (sf schema.AppenderFunc) {
 	}
 
 	if kind != reflect.Ptr {
-		typ := reflect.PtrTo(rt)
+		typ := reflect.PointerTo(rt)
 		switch {
 		case rt.Implements(reflectype.QueryAppender):
 			return addrAppender(ifQueryAppender)
