@@ -6,44 +6,20 @@ on:
   pull_request:
 
 jobs:
-  test-linux:
-    runs-on: ubuntu-latest
+  test:
+    strategy:
+      matrix:
+        version: [1.23, 1.22, 1.21]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: 1.23
-
-      - run: go version
-      - run: go test $(go work edit -json | jq -c -r '[.Use[].DiskPath | select(. != "gomod")] | map_values("./" + . + "/...")[]')
-      - run: go test -race -cover -coverprofile=coverage.txt $(go work edit -json | jq -c -r '[.Use[].DiskPath | select(. != "gomod")] | map_values("./" + . + "/...")[]')
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-
-  test-windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: 1.23
+          go-version: ${{ matrix.version }}
 
       - run: go version
       - run: go test $(go work edit -json | jq -c -r -f filter.jq)
       - run: go test -race -cover -coverprofile="coverage.txt" $(go work edit -json | jq -c -r -f filter.jq)
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-
-  test-macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: 1.23
-
-      - run: go version
-      - run: go test $(go work edit -json | jq -c -r -f filter.jq)
-      - run: go test -race -cover -coverprofile=coverage.txt $(go work edit -json | jq -c -r -f filter.jq)
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
