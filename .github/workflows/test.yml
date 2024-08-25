@@ -8,14 +8,6 @@ on:
 jobs:
   test-linux:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -27,8 +19,6 @@ jobs:
       - run: go test -race -cover -coverprofile=coverage.txt $(go work edit -json | jq -c -r '[.Use[].DiskPath | select(. != "gomod")] | map_values("./" + . + "/...")[]')
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
-        with:
-          gcov_ignore: gorm-pure-sqlite
 
   test-windows:
     runs-on: windows-latest
@@ -43,8 +33,6 @@ jobs:
       - run: go test -race -cover -coverprofile="coverage.txt" $(go work edit -json | jq -c -r -f filter.jq)
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
-        with:
-          gcov_ignore: gorm-pure-sqlite
 
   test-macos:
     runs-on: macos-latest
@@ -59,5 +47,3 @@ jobs:
       - run: go test -race -cover -coverprofile=coverage.txt $(go work edit -json | jq -c -r -f filter.jq)
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
-        with:
-          gcov_ignore: gorm-pure-sqlite
