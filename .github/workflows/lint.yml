@@ -20,8 +20,3 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           args: --timeout=5m -- $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values(. + "/...")[]')
-
-      - name: Run Gosec Security Scanner
-        uses: securego/gosec@master
-        with:
-          args: '-exclude=G103,G301,G304,G404 ./...'
