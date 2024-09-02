@@ -1,11 +1,14 @@
 package bunpgd
 
 import (
+	"context"
 	"database/sql"
+	"log/slog"
 	"time"
 
 	"github.com/uptrace/bun"
 	_ "github.com/uptrace/bun/driver/pgdriver"
+	"github.com/uptrace/bun/extra/bunslog"
 )
 
 func Open(dataSourceName string, opts ...bun.DBOption) (*bun.DB, error) {
@@ -20,4 +23,28 @@ func WithMaxOpenConns(n int) bun.DBOption { return func(db *bun.DB) { db.DB.SetM
 func WithMaxIdleConns(n int) bun.DBOption { return func(db *bun.DB) { db.DB.SetMaxIdleConns(n) } }
 func WithConnMaxIdleTime(d time.Duration) bun.DBOption {
 	return func(db *bun.DB) { db.DB.SetConnMaxIdleTime(d) }
+}
+
+func WithSLog(opts ...bunslog.Option) bun.DBOption {
+	if len(opts) == 0 {
+		opts = []bunslog.Option{
+			bunslog.WithQueryLogLevel(slog.LevelDebug),
+			bunslog.WithSlowQueryLogLevel(slog.LevelWarn),
+			bunslog.WithErrorQueryLogLevel(slog.LevelError),
+			bunslog.WithSlowQueryThreshold(3 * time.Second),
+		}
+	}
+	return func(db *bun.DB) { db.AddQueryHook(bunslog.NewQueryHook(opts...)) }
+}
+
+func WithCreateTable(ctx context.Context, cancel context.CancelCauseFunc, model ...any) bun.DBOption {
+	return func(db *bun.DB) {
+		db.RegisterModel(model...)
+		for _, v := range model {
+			if _, err := db.NewCreateTable().IfNotExists().Model(v).Exec(ctx); err != nil {
+				cancel(err)
+				break
+			}
+		}
+	}
 }
