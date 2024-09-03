@@ -26,9 +26,11 @@ type Server struct {
 
 func NewServer(opt ...ApplyToServer) (*Server, error) {
 	var (
-		s  = &Server{s: &http.Server{}, handle: http.NewServeMux(), healthAndMetrics: &healthAndMetrics{}}
-		so = &ServerOption{}
+		handle = http.NewServeMux()
+		s      = &Server{s: &http.Server{Handler: handle}, handle: handle, healthAndMetrics: &healthAndMetrics{}}
+		so     = &ServerOption{}
 	)
+
 	for _, v := range opt {
 		v(so)
 	}
@@ -38,6 +40,7 @@ func NewServer(opt ...ApplyToServer) (*Server, error) {
 	}
 	if so.handle != nil {
 		s.handle = so.handle
+		s.s.Handler = s.handle
 	}
 	if so.h2c != nil {
 		s.s.Handler = h2c.NewHandler(s.handle, so.h2c)
