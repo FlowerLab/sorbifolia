@@ -24,13 +24,15 @@ type healthAndMetrics struct {
 	addr, path  string
 }
 
-func (x *healthAndMetrics) IsLive() bool  { return x.live.Load() == nil }
-func (x *healthAndMetrics) IsReady() bool { return x.ready.Load() == nil }
+const __ok__ = ""
 
-func (x *healthAndMetrics) SetLive()           { x.live.Store(nil) }
+func (x *healthAndMetrics) IsLive() bool  { return x.live.Load() == __ok__ }
+func (x *healthAndMetrics) IsReady() bool { return x.ready.Load() == __ok__ }
+
+func (x *healthAndMetrics) SetLive()           { x.live.Store(__ok__) }
 func (x *healthAndMetrics) SetNoLive(e string) { x.live.Store(e) }
 
-func (x *healthAndMetrics) SetReady()           { x.ready.Store(nil) }
+func (x *healthAndMetrics) SetReady()           { x.ready.Store(__ok__) }
 func (x *healthAndMetrics) SetNoReady(e string) { x.ready.Store(e) }
 
 func (x *healthAndMetrics) Register(h HttpHandle) {
