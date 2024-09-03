@@ -51,15 +51,17 @@ func WithCert(cert, key string) ApplyToServer {
 	return WithCertPEM([]byte(cert), []byte(key))
 }
 
-func WithCertFromCheck(env, path string) ApplyToServer {
+func WithCertFromCheck(env string, path ...string) ApplyToServer {
 	if env != "" && os.Getenv(fmt.Sprintf("%s_CRT", env)) != "" {
 		return WithCert(
 			os.Getenv(fmt.Sprintf("%s_CRT", env)),
 			os.Getenv(fmt.Sprintf("%s_KEY", env)),
 		)
 	}
-	if _, err := os.Stat(path + ".crt"); err == nil {
-		return WithCertFile(path+".crt", path+".key")
+	for _, v := range path {
+		if _, err := os.Stat(v + ".crt"); err == nil {
+			return WithCertFile(v+".crt", v+".key")
+		}
 	}
 
 	panic("env and path not found")
