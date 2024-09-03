@@ -3,6 +3,7 @@ package crpc
 import (
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -66,7 +67,10 @@ func NewServer(opt ...ApplyToServer) (*Server, error) {
 }
 
 func (s *Server) Close() error {
-	return s.s.Close()
+	s.SetNoLive("server is closing")
+	err := s.s.Close()
+	s.SetNoLive("server is closed")
+	return err
 }
 
 func (s *Server) HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request)) {
@@ -74,11 +78,26 @@ func (s *Server) HandleFunc(pattern string, handler func(http.ResponseWriter, *h
 }
 
 func (s *Server) Run() error {
-	return run(func() error { return s.s.ListenAndServeTLS("", "") })
+	s.SetNoLive("server is starting")
+
+	if err := run(func() error { return s.s.ListenAndServeTLS("", "") }); err != nil {
+		s.SetNoLive(fmt.Sprintf("server start fail: %s", err))
+		return err
+	}
+	s.SetLive()
+	return nil
 }
 
 func (s *Server) RunH2C() error {
-	return run(func() error { return s.s.ListenAndServe() })
+	s.SetNoLive("server is starting")
+
+	if err := run(func() error { return s.s.ListenAndServe() }); err != nil {
+		s.SetNoLive(fmt.Sprintf("server start fail: %s", err))
+		return err
+	}
+
+	s.SetLive()
+	return nil
 }
 
 func run(serve func() error) error {
