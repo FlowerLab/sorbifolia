@@ -36,7 +36,7 @@ func NewServer(opt ...ApplyToServer) (*Server, error) {
 	if so.srv != nil {
 		s.s = so.srv
 	}
-	if so.handle == nil {
+	if so.handle != nil {
 		s.handle = so.handle
 	}
 	if so.h2c != nil {
@@ -51,7 +51,7 @@ func NewServer(opt ...ApplyToServer) (*Server, error) {
 	if so.ham != nil {
 		s.healthAndMetrics = so.ham
 
-		if so.ham.addr == so.addr {
+		if so.addr != "" && so.ham.addr == so.addr {
 			so.ham.Register(s.handle)
 		} else {
 			h := http.NewServeMux()
