@@ -34,7 +34,7 @@ func (x *healthAndMetrics) SetReady()           { x.ready.Store(nil) }
 func (x *healthAndMetrics) SetNoReady(e string) { x.ready.Store(e) }
 
 func (x *healthAndMetrics) Register(h HttpHandle) {
-	h.HandleFunc(path.Join(x.path, "/livez"), func(w http.ResponseWriter, r *http.Request) {
+	h.HandleFunc(path.Join(x.path, "/metrics"), func(w http.ResponseWriter, r *http.Request) {
 		metrics.WritePrometheus(w, true)
 	})
 

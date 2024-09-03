@@ -2,7 +2,9 @@ package crpc
 
 import (
 	"crypto/tls"
+	"fmt"
 	"net/http"
+	"os"
 
 	"golang.org/x/net/http2"
 )
@@ -43,6 +45,24 @@ func WithCertPEM(cert, key []byte) ApplyToServer {
 	}
 
 	return func(o *ServerOption) { o.cert = &val }
+}
+
+func WithCert(cert, key string) ApplyToServer {
+	return WithCertPEM([]byte(cert), []byte(key))
+}
+
+func WithCertFromCheck(env, path string) ApplyToServer {
+	if env != "" && os.Getenv(fmt.Sprintf("%s_CRT", env)) != "" {
+		return WithCert(
+			os.Getenv(fmt.Sprintf("%s_CRT", env)),
+			os.Getenv(fmt.Sprintf("%s_KEY", env)),
+		)
+	}
+	if _, err := os.Stat(path + ".crt"); err == nil {
+		return WithCertFile(path+".crt", path+".key")
+	}
+
+	panic("env and path not found")
 }
 
 func WithHTTPServer(s *http.Server) ApplyToServer {

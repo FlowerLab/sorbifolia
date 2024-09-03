@@ -21,40 +21,42 @@ type Server struct {
 	s      *http.Server
 	handle HttpHandle
 
-	opt ServerOption
 	*healthAndMetrics
 }
 
 func NewServer(opt ...ApplyToServer) (*Server, error) {
-	var s = &Server{s: &http.Server{}, handle: http.NewServeMux(), healthAndMetrics: &healthAndMetrics{}}
+	var (
+		s  = &Server{s: &http.Server{}, handle: http.NewServeMux(), healthAndMetrics: &healthAndMetrics{}}
+		so = &ServerOption{}
+	)
 	for _, v := range opt {
-		v(&s.opt)
+		v(so)
 	}
 
-	if s.opt.srv != nil {
-		s.s = s.opt.srv
+	if so.srv != nil {
+		s.s = so.srv
 	}
-	if s.opt.handle == nil {
-		s.handle = s.opt.handle
+	if so.handle == nil {
+		s.handle = so.handle
 	}
-	if s.opt.h2c != nil {
-		s.s.Handler = h2c.NewHandler(s.handle, s.opt.h2c)
+	if so.h2c != nil {
+		s.s.Handler = h2c.NewHandler(s.handle, so.h2c)
 	}
-	if s.opt.cert != nil {
-		s.s.TLSConfig = &tls.Config{Certificates: []tls.Certificate{*s.opt.cert}}
+	if so.cert != nil {
+		s.s.TLSConfig = &tls.Config{Certificates: []tls.Certificate{*so.cert}}
 	}
-	if s.opt.addr != "" {
-		s.s.Addr = s.opt.addr
+	if so.addr != "" {
+		s.s.Addr = so.addr
 	}
-	if s.opt.ham == nil {
-		s.healthAndMetrics = s.opt.ham
+	if so.ham != nil {
+		s.healthAndMetrics = so.ham
 
-		if s.opt.ham.addr == s.opt.addr {
-			s.opt.ham.Register(s.handle)
+		if so.ham.addr == so.addr {
+			so.ham.Register(s.handle)
 		} else {
 			h := http.NewServeMux()
-			s.opt.ham.Register(h)
-			if err := run(func() error { return http.ListenAndServe(s.opt.ham.addr, h) }); err != nil {
+			so.ham.Register(h)
+			if err := run(func() error { return http.ListenAndServe(so.ham.addr, h) }); err != nil {
 				return nil, err
 			}
 		}
