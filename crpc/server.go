@@ -13,10 +13,9 @@ import (
 type HttpHandle interface {
 	http.Handler
 
+	Handle(pattern string, handler http.Handler)
 	HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request))
 }
-
-type Handle func(pattern string, handler http.Handler)
 
 type Server struct {
 	s      *http.Server
@@ -71,6 +70,10 @@ func (s *Server) Close() error {
 	err := s.s.Close()
 	s.SetNoLive("server is closed")
 	return err
+}
+
+func (s *Server) Handle(pattern string, handler http.Handler) {
+	s.handle.Handle(pattern, handler)
 }
 
 func (s *Server) HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request)) {
