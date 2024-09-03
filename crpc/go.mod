@@ -6,6 +6,7 @@ require (
 	connectrpc.com/connect v1.16.2
 	github.com/VictoriaMetrics/metrics v1.35.1
 	github.com/bufbuild/httplb v0.3.0
+	github.com/rs/cors v1.11.1
 	golang.org/x/net v0.23.0
 )
 

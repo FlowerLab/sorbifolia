@@ -45,6 +45,9 @@ func NewServer(opt ...ApplyToServer) (*Server, error) {
 	if so.h2c != nil {
 		s.s.Handler = h2c.NewHandler(s.handle, so.h2c)
 	}
+	if so.cors != nil {
+		s.s.Handler = so.cors(s.s.Handler)
+	}
 	if so.cert != nil {
 		s.s.TLSConfig = &tls.Config{Certificates: []tls.Certificate{*so.cert}}
 	}

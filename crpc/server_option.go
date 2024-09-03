@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/rs/cors"
 	"golang.org/x/net/http2"
 )
 
@@ -13,6 +14,7 @@ type ServerOption struct {
 	h2c  *http2.Server
 	srv  *http.Server
 	cert *tls.Certificate
+	cors func(h http.Handler) http.Handler
 
 	addr   string
 	handle HttpHandle
@@ -84,4 +86,16 @@ func WithAddr(addr string) ApplyToServer {
 
 func WithHealthAndMetrics(addr, _path string) ApplyToServer {
 	return func(o *ServerOption) { o.ham = &healthAndMetrics{addr: addr, path: _path} }
+}
+
+func WithCORS(fn func(h http.Handler) http.Handler) ApplyToServer {
+	if fn == nil {
+		fn = cors.New(cors.Options{
+			AllowedOrigins: []string{"*"},
+			AllowedMethods: []string{"GET", "POST"},
+			AllowedHeaders: []string{"Authorization", "Content-Type", "Connect-Protocol-Version", "Connect-Timeout-Ms", "Grpc-Timeout", "X-Grpc-Web", "X-User-Agent"},
+			ExposedHeaders: []string{"Grpc-Status", "Grpc-Message", "Grpc-Status-Details-Bin"},
+		}).Handler
+	}
+	return func(o *ServerOption) { o.cors = fn }
 }
