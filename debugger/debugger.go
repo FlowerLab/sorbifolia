@@ -2,7 +2,6 @@ package debugger
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"runtime"
 	"runtime/debug"
@@ -16,10 +15,6 @@ func GoroutineID() uint64 {
 	field := strings.Fields(string(bytes.TrimPrefix(b, []byte("goroutine "))))
 	n, _ := strconv.ParseUint(field[0], 10, 64)
 	return n
-}
-
-func Ax() {
-	fmt.Println(GoroutineID())
 }
 
 func CallStack(skip int) *runtime.Frames {
