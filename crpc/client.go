@@ -13,7 +13,7 @@ import (
 
 var lbc = httplb.NewClient(
 	httplb.WithPicker(picker.NewPowerOfTwo),
-	httplb.WithTLSConfig(&tls.Config{InsecureSkipVerify: true}, time.Second*3),
+	httplb.WithTLSConfig(&tls.Config{InsecureSkipVerify: true, MinVersion: tls.VersionTLS12}, time.Second*3),
 )
 
 type gRPCClient[T any] func(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) T

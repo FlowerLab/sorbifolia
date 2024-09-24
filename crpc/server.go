@@ -49,7 +49,7 @@ func NewServer(opt ...ApplyToServer) (*Server, error) {
 		s.s.Handler = so.cors(s.s.Handler)
 	}
 	if so.cert != nil {
-		s.s.TLSConfig = &tls.Config{Certificates: []tls.Certificate{*so.cert}}
+		s.s.TLSConfig = &tls.Config{Certificates: []tls.Certificate{*so.cert}, MinVersion: tls.VersionTLS12}
 	}
 	if so.addr != "" {
 		s.s.Addr = so.addr
