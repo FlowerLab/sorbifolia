@@ -24,7 +24,7 @@ func main() {
 	writeFunc(buf, "Update", (&bun.DB{DB: &sql.DB{}}).NewUpdate())
 	writeFunc(buf, "Delete", (&bun.DB{DB: &sql.DB{}}).NewDelete())
 
-	os.WriteFile("bun_gen.go", buf.Bytes(), 0644)
+	os.WriteFile("bun_gen.go", buf.Bytes(), 0o644)
 }
 
 func _pt(req, res string) *template.Template {

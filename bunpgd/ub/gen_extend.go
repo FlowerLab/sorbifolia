@@ -21,7 +21,7 @@ func main() {
 	tpl.Execute(buf, map[string]string{"Query": "Insert"})
 	tpl.Execute(buf, map[string]string{"Query": "Delete"})
 
-	os.WriteFile("bun_gen_extend.go", buf.Bytes(), 0644)
+	os.WriteFile("bun_gen_extend.go", buf.Bytes(), 0o644)
 }
 
 func writeHead(w io.Writer) {

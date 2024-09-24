@@ -1,5 +1,6 @@
 //go:generate go run gen_bun.go
 //go:generate go run gen_extend.go
+//go:generate gofumpt -l -w .
 package ub
 
 import (

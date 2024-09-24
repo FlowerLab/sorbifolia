@@ -6,7 +6,8 @@ import (
 
 func (x *Select) Pagination(v interface {
 	Pagination() (limit *int, offset *int, err error)
-}) *Select {
+},
+) *Select {
 	if v == nil {
 		return x
 	}
