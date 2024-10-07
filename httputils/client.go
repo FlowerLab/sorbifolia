@@ -27,7 +27,8 @@ func (h *HTTP) SetProxy(addr string) *HTTP {
 	switch {
 	case _url == nil:
 	case _url.Scheme == "http", _url.Scheme == "https":
-		h.client.Dial = fasthttpproxy.FasthttpHTTPDialer(addr)
+		_url.Scheme = ""
+		h.client.Dial = fasthttpproxy.FasthttpHTTPDialer(_url.String())
 	case _url.Scheme == "socks5", _url.Scheme == "socks5h":
 		h.client.Dial = fasthttpproxy.FasthttpSocksDialer(addr)
 	}
