@@ -6,11 +6,9 @@ require (
 	github.com/uptrace/bun v1.2.3
 	github.com/uptrace/bun/driver/pgdriver v1.2.3
 	github.com/uptrace/bun/extra/bunslog v1.2.3
-	google.golang.org/protobuf v1.33.0
 )
 
 require (
-	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/puzpuzpuz/xsync/v3 v3.4.0 // indirect
 	github.com/stretchr/testify v1.9.0 // indirect
