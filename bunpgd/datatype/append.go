@@ -37,13 +37,13 @@ func TypeAppender(rt reflect.Type) (sf schema.AppenderFunc) {
 	}
 
 	kind := rt.Kind()
-	if kind == reflect.Ptr {
+	if kind == reflect.Pointer {
 		if sf = TypeAppender(rt.Elem()); sf != nil {
 			return schema.PtrAppender(sf)
 		}
 	}
 
-	if kind != reflect.Ptr {
+	if kind != reflect.Pointer {
 		typ := reflect.PointerTo(rt)
 		switch {
 		case rt.Implements(reflectype.QueryAppender):

@@ -28,21 +28,21 @@ type encoderBinary interface {
 }
 
 var (
-	EncoderSQL    = reflect.TypeOf((*encoderSQL)(nil)).Elem()
-	EncoderJSON   = reflect.TypeOf((*encoderJSON)(nil)).Elem()
-	EncoderText   = reflect.TypeOf((*encoderText)(nil)).Elem()
-	EncoderBinary = reflect.TypeOf((*encoderBinary)(nil)).Elem()
+	EncoderSQL    = reflect.TypeFor[encoderSQL]()
+	EncoderJSON   = reflect.TypeFor[encoderJSON]()
+	EncoderText   = reflect.TypeFor[encoderText]()
+	EncoderBinary = reflect.TypeFor[encoderBinary]()
 
-	Valuer  = reflect.TypeOf((*driver.Valuer)(nil)).Elem()
-	Scanner = reflect.TypeOf((*sql.Scanner)(nil)).Elem()
+	Valuer  = reflect.TypeFor[driver.Valuer]()
+	Scanner = reflect.TypeFor[sql.Scanner]()
 
-	JSONUnmarshaler   = reflect.TypeOf((*json.Unmarshaler)(nil)).Elem()
-	TextUnmarshaler   = reflect.TypeOf((*encoding.TextUnmarshaler)(nil)).Elem()
-	BinaryUnmarshaler = reflect.TypeOf((*encoding.BinaryUnmarshaler)(nil)).Elem()
+	JSONUnmarshaler   = reflect.TypeFor[json.Unmarshaler]()
+	TextUnmarshaler   = reflect.TypeFor[encoding.TextUnmarshaler]()
+	BinaryUnmarshaler = reflect.TypeFor[encoding.BinaryUnmarshaler]()
 
-	JSONMarshaler   = reflect.TypeOf((*json.Marshaler)(nil)).Elem()
-	TextMarshaler   = reflect.TypeOf((*encoding.TextMarshaler)(nil)).Elem()
-	BinaryMarshaler = reflect.TypeOf((*encoding.BinaryMarshaler)(nil)).Elem()
+	JSONMarshaler   = reflect.TypeFor[json.Marshaler]()
+	TextMarshaler   = reflect.TypeFor[encoding.TextMarshaler]()
+	BinaryMarshaler = reflect.TypeFor[encoding.BinaryMarshaler]()
 
-	QueryAppender = reflect.TypeOf((*schema.QueryAppender)(nil)).Elem()
+	QueryAppender = reflect.TypeFor[schema.QueryAppender]()
 )

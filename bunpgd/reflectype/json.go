@@ -5,4 +5,4 @@ import (
 	"reflect"
 )
 
-var JSONRawMessage = reflect.TypeOf((*json.RawMessage)(nil)).Elem()
+var JSONRawMessage = reflect.TypeFor[json.RawMessage]()

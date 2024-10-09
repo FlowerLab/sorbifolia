@@ -6,6 +6,6 @@ import (
 )
 
 var (
-	Time         = reflect.TypeOf((*time.Time)(nil)).Elem()
-	TimeDuration = reflect.TypeOf((*time.Duration)(nil)).Elem()
+	Time         = reflect.TypeFor[time.Time]()
+	TimeDuration = reflect.TypeFor[time.Duration]()
 )

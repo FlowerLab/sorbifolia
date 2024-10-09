@@ -5,6 +5,6 @@ import (
 )
 
 var (
-	Byte = reflect.TypeOf((*byte)(nil)).Elem()
-	Rune = reflect.TypeOf((*rune)(nil)).Elem()
+	Byte = reflect.TypeFor[byte]()
+	Rune = reflect.TypeFor[rune]()
 )

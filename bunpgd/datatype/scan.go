@@ -22,7 +22,7 @@ func TypeScanner(rt reflect.Type) (sf schema.ScannerFunc) {
 	}()
 
 	kind := rt.Kind()
-	if kind == reflect.Ptr {
+	if kind == reflect.Pointer {
 		if sf = TypeScanner(rt.Elem()); sf != nil {
 			return schema.PtrScanner(sf)
 		}
@@ -41,7 +41,7 @@ func TypeScanner(rt reflect.Type) (sf schema.ScannerFunc) {
 		return scanINetIP
 	}
 
-	if kind != reflect.Ptr {
+	if kind != reflect.Pointer {
 		typ := reflect.PointerTo(rt)
 		switch {
 		case typ.Implements(reflectype.Scanner):
