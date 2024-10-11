@@ -7,6 +7,7 @@ import (
 
 	"github.com/uptrace/bun"
 	"go.x2ox.com/sorbifolia/bunpgd/builder/internal/attribute"
+	"go.x2ox.com/sorbifolia/bunpgd/builder/internal/flag"
 	op "go.x2ox.com/sorbifolia/bunpgd/builder/internal/operator"
 )
 
@@ -57,6 +58,11 @@ func ParseField(sf reflect.StructField) (field Field) {
 
 	if field.Key == "" {
 		field.Key = bun.Ident(field.Name)
+	}
+
+	if field.Flag.From(field.Typ); field.Flag.Has(flag.BunQueryItr) {
+		field.Op = op.Unknown
+		return
 	}
 
 	if field.Op == op.Unknown {
