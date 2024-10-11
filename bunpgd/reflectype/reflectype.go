@@ -6,12 +6,11 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type BunQuery interface {
-	BunSelectQuery(*bun.SelectQuery) *bun.SelectQuery
+type BunQueryBuilder interface {
+	BunQueryBuilder(bun.QueryBuilder) bun.QueryBuilder
 }
 
 var (
 	MapStringString = reflect.TypeFor[map[string]string]()
-
-	BunSelectQuery = reflect.TypeFor[BunQuery]()
+	QueryBuilder    = reflect.TypeFor[BunQueryBuilder]()
 )
