@@ -17,6 +17,6 @@ jobs:
       - run: go version
       - run: diff -u <(echo -n) <(gofmt -d .)
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v6
         with:
           args: --timeout=5m -- $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values(. + "/...")[]')
