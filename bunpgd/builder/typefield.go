@@ -21,7 +21,7 @@ var fieldCache sync.Map // map[reflect.Type]StructFields
 func CachedTypeFields(t reflect.Type) StructFields {
 	val, ok := fieldCache.Load(t)
 	if !ok {
-		val, ok = fieldCache.LoadOrStore(t, TypeFields(t))
+		val, _ = fieldCache.LoadOrStore(t, TypeFields(t))
 	}
 	return val.(StructFields)
 }
