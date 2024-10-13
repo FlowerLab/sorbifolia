@@ -1,12 +1,14 @@
 module go.x2ox.com/sorbifolia/bunpgd
 
-go 1.22
+go 1.23
+
+toolchain go1.23.2
 
 require (
 	github.com/uptrace/bun v1.2.3
 	github.com/uptrace/bun/driver/pgdriver v1.2.3
 	github.com/uptrace/bun/extra/bunslog v1.2.3
-	google.golang.org/protobuf v1.33.0
+	google.golang.org/protobuf v1.35.1
 )
 
 require (

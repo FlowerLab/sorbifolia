@@ -1,30 +1,26 @@
 package builder
 
 import (
-	"reflect"
-
 	"github.com/uptrace/bun"
 )
 
-func Query(q *bun.SelectQuery, v any) {
-	var (
-		rv = reflect.Indirect(reflect.ValueOf(v))
-		rt = rv.Type()
-	)
-
-	tf := CachedTypeFields(rt)
-	for _, field := range tf.List {
-		fv := rv.FieldByIndex(field.Index)
-		itr := field.ReflectQuery(fv)
-
-		if itr == nil {
-			continue
-		}
-
-		q.ApplyQueryBuilder(itr.BunQueryBuilder)
+func Select(q *bun.SelectQuery, v any) *bun.SelectQuery {
+	for val := range Generate(v) {
+		q.ApplyQueryBuilder(val)
 	}
+	return q
 }
 
-type HandleFunc func(bun.QueryBuilder) bun.QueryBuilder
+func Update(q *bun.UpdateQuery, v any) *bun.UpdateQuery {
+	for val := range Generate(v) {
+		q.ApplyQueryBuilder(val)
+	}
+	return q
+}
 
-func (f HandleFunc) BunQueryBuilder(q bun.QueryBuilder) bun.QueryBuilder { return f(q) }
+func Delete(q *bun.DeleteQuery, v any) *bun.DeleteQuery {
+	for val := range Generate(v) {
+		q.ApplyQueryBuilder(val)
+	}
+	return q
+}

@@ -1,6 +1,8 @@
 package builder
 
 import (
+	"net"
+	"net/netip"
 	"reflect"
 	"testing"
 	"time"
@@ -28,9 +30,26 @@ type testParseFieldA struct {
 	SearchUsername *[]string `json:"search_username" query:"op:like,key:username"`
 	QueryUser      *[]string `json:"query_user" query:"op:like,key:username,attr:L"`
 
-	DataContain    *structpb.Value `json:"data_contain" query:"key:data,op:contain"`
-	DataKey        *string         `json:"data_key" query:"key:data,op:exist"`
-	DataContainKey *[]string       `json:"data_contain_key" query:"key:data,op:contain_key"`
+	DataContain       *structpb.Value `json:"data_contain" query:"key:data,op:contain"`
+	DataKey           *string         `json:"data_key" query:"key:data,op:exist"`
+	DataContainKey    *[]string       `json:"data_contain_key" query:"key:data,op:contain_key"`
+	DataContainAllKey *[]string       `json:"data_contain_all_key" query:"key:data,op:contain_all_key"`
+
+	AddrContain       *netip.Addr `json:"addr_contain" query:"key:addr,op:subnet_contain"`
+	AddrContainOrEq   *netip.Addr `json:"addr_contain_or_eq" query:"key:addr,op:subnet_contain_or_eq"`
+	AddrContainBy     *netip.Addr `json:"addr_contain_by" query:"key:addr,op:subnet_contain_by"`
+	AddrContainByOrEq *netip.Addr `json:"addr_contain_by_or_eq" query:"key:addr,op:subnet_contain_by_or_eq"`
+	AddrOverlap       *netip.Addr `json:"addr_overlap" query:"key:addr,op:subnet_overlap"`
+
+	AddrFa *netip.Prefix `json:"addr_fa" query:"key:addr,op:subnet_overlap"`
+	AddrFb *net.IP       `json:"addr_fb" query:"key:addr,op:subnet_overlap"`
+	AddrFc *net.IPNet    `json:"addr_fc" query:"key:addr,op:subnet_overlap"`
+
+	KeyPrefix       *string `json:"key_prefix" query:"key:key,op:starts_with"`
+	KeyMatch        *string `json:"key_match" query:"key:key,op:regex"`
+	KeyNotMatch     *string `json:"key_not_match" query:"key:key,op:not_regex"`
+	KeyMatchCase    *string `json:"key_match_case" query:"key:key,op:regex_i"`
+	KeyNotMatchCase *string `json:"key_not_match_case" query:"key:key,op:not_regex_i"`
 }
 
 var testParseFieldData = []Field{
@@ -50,6 +69,23 @@ var testParseFieldData = []Field{
 	{Name: "data_contain", Flag: flag.Pointer | flag.JSON, Op: "@>", Key: "data"},
 	{Name: "data_key", Flag: flag.Pointer | flag.String, Op: "?", Key: "data"},
 	{Name: "data_contain_key", Flag: flag.Pointer | flag.String | flag.Slice, Op: "?|", Key: "data"},
+	{Name: "data_contain_all_key", Flag: flag.Pointer | flag.String | flag.Slice, Op: "?&", Key: "data"},
+
+	{Name: "addr_contain", Flag: flag.Pointer | flag.IP, Op: ">>", Key: "addr"},
+	{Name: "addr_contain_or_eq", Flag: flag.Pointer | flag.IP, Op: ">>=", Key: "addr"},
+	{Name: "addr_contain_by", Flag: flag.Pointer | flag.IP, Op: "<<", Key: "addr"},
+	{Name: "addr_contain_by_or_eq", Flag: flag.Pointer | flag.IP, Op: "<<=", Key: "addr"},
+	{Name: "addr_overlap", Flag: flag.Pointer | flag.IP, Op: "&&", Key: "addr"},
+
+	{Name: "addr_fa", Flag: flag.Pointer | flag.IP, Op: "&&", Key: "addr"},
+	{Name: "addr_fb", Flag: flag.Pointer | flag.IP, Op: "&&", Key: "addr"},
+	{Name: "addr_fc", Flag: flag.Pointer | flag.IP, Op: "&&", Key: "addr"},
+
+	{Name: "key_prefix", Flag: flag.Pointer | flag.String, Op: "^@", Key: "key"},
+	{Name: "key_match", Flag: flag.Pointer | flag.String, Op: "~", Key: "key"},
+	{Name: "key_not_match", Flag: flag.Pointer | flag.String, Op: "!~", Key: "key"},
+	{Name: "key_match_case", Flag: flag.Pointer | flag.String, Op: "~*", Key: "key"},
+	{Name: "key_not_match_case", Flag: flag.Pointer | flag.String, Op: "!~*", Key: "key"},
 }
 
 func TestParseField(t *testing.T) {
