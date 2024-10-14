@@ -4,6 +4,7 @@ import (
 	"net"
 	"net/netip"
 	"reflect"
+	"strconv"
 	"testing"
 	"time"
 
@@ -35,11 +36,11 @@ type testParseFieldA struct {
 	DataContainKey    *[]string       `json:"data_contain_key" query:"key:data,op:contain_key"`
 	DataContainAllKey *[]string       `json:"data_contain_all_key" query:"key:data,op:contain_all_key"`
 
-	AddrContain       *netip.Addr `json:"addr_contain" query:"key:addr,op:subnet_contain"`
-	AddrContainOrEq   *netip.Addr `json:"addr_contain_or_eq" query:"key:addr,op:subnet_contain_or_eq"`
-	AddrContainBy     *netip.Addr `json:"addr_contain_by" query:"key:addr,op:subnet_contain_by"`
-	AddrContainByOrEq *netip.Addr `json:"addr_contain_by_or_eq" query:"key:addr,op:subnet_contain_by_or_eq"`
-	AddrOverlap       *netip.Addr `json:"addr_overlap" query:"key:addr,op:subnet_overlap"`
+	AddrContain       *netip.Addr   `json:"addr_contain" query:"key:addr,op:subnet_contain"`
+	AddrContainOrEq   *netip.Prefix `json:"addr_contain_or_eq" query:"key:addr,op:subnet_contain_or_eq"`
+	AddrContainBy     *netip.Addr   `json:"addr_contain_by" query:"key:addr,op:subnet_contain_by"`
+	AddrContainByOrEq *netip.Prefix `json:"addr_contain_by_or_eq" query:"key:addr,op:subnet_contain_by_or_eq"`
+	AddrOverlap       *netip.Addr   `json:"addr_overlap" query:"key:addr,op:subnet_overlap"`
 
 	AddrFa *netip.Prefix `json:"addr_fa" query:"key:addr,op:subnet_overlap"`
 	AddrFb *net.IP       `json:"addr_fb" query:"key:addr,op:subnet_overlap"`
@@ -99,5 +100,60 @@ func TestParseField(t *testing.T) {
 		if !reflect.DeepEqual(res, val) {
 			t.Errorf("ParseField(%v) returned %v, wanted %v", sf, res, val)
 		}
+	}
+}
+
+var testParseFieldErrData = []struct {
+	panic bool
+	null  bool
+	v     any
+}{
+	{panic: false, null: true, v: struct {
+		A string `json:"a" query:"-"`
+	}{}},
+	{panic: false, null: false, v: struct {
+		A string `json:"-" query:"-"`
+	}{}},
+	{panic: false, null: false, v: struct {
+		A string `json:"" query:"-"`
+	}{}},
+	{panic: false, null: false, v: struct {
+		A string `json:"" query:"a"`
+	}{}},
+
+	{panic: false, null: false, v: struct {
+		A string `json:"" query:"a,op:in"`
+	}{}},
+
+	{panic: true, null: false, v: struct {
+		A string `json:"" query:"a,opx:in"`
+	}{}},
+	{panic: true, null: false, v: struct {
+		A string `json:"" query:"a,op:op"`
+	}{}},
+}
+
+func TestParseFieldErr(t *testing.T) {
+	for i, val := range testParseFieldErrData {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			defer func() {
+				if r := recover(); r != nil {
+					if !val.panic {
+						t.Errorf("err")
+					}
+				}
+			}()
+
+			rt := reflect.ValueOf(val.v).Type()
+
+			sf := rt.Field(0)
+			res := ParseField(sf)
+
+			if val.null {
+				if res.Name != "" {
+					t.Errorf("Expected null, got %s", res.Name)
+				}
+			}
+		})
 	}
 }
