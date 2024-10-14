@@ -131,6 +131,12 @@ var testParseFieldErrData = []struct {
 	{panic: true, null: false, v: struct {
 		A string `json:"" query:"a,op:op"`
 	}{}},
+	{panic: true, null: false, v: struct {
+		A string `json:"" query:"a,opop"`
+	}{}},
+	{panic: false, null: false, v: struct {
+		A string
+	}{}},
 }
 
 func TestParseFieldErr(t *testing.T) {
@@ -156,4 +162,10 @@ func TestParseFieldErr(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGenerate(t *testing.T) {
+	var v testParseFieldA
+	iter := Generate(v)
+	iter(func(_ HandleFunc) bool { return false })
 }
