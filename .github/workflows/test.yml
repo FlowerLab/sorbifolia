@@ -22,4 +22,6 @@ jobs:
       - run: go test $(go work edit -json | jq -c -r -f filter.jq)
       - run: go test -race -cover -coverprofile="coverage.txt" $(go work edit -json | jq -c -r -f filter.jq)
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
