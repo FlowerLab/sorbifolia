@@ -3,7 +3,9 @@ package builder
 import (
 	"database/sql"
 	"net"
+	"net/netip"
 	"testing"
+	"time"
 
 	"github.com/uptrace/bun"
 	"go.x2ox.com/sorbifolia/bunpgd"
@@ -18,7 +20,47 @@ type User struct {
 	ID            uint64 `json:"id" bun:",pk"`
 }
 
-var testQueryData = []struct {
+type jsonAble struct{}
+
+func (*jsonAble) MarshalJSON() ([]byte, error) { return nil, nil }
+
+type testParseFieldA struct {
+	ID       string              `json:"id"`
+	Username *string             `json:"username"`
+	Password []string            `json:"password"`
+	Name     *[]string           `json:"name"`
+	JSON     *jsonAble           `json:"json"`
+	Itr      *example.Pagination `json:"itr"`
+
+	StartAt *time.Time `json:"start_at" query:"key:at,op:greater_than_or_eq"`
+	EndAt   *time.Time `json:"end_at" query:"key:at,op:loe"`
+
+	SearchUsername *[]string `json:"search_username" query:"op:like,key:username"`
+	QueryUser      *[]string `json:"query_user" query:"op:like,key:username,attr:L"`
+
+	DataContain       *structpb.Value `json:"data_contain" query:"key:data,op:contain"`
+	DataKey           *string         `json:"data_key" query:"key:data,op:exist"`
+	DataContainKey    *[]string       `json:"data_contain_key" query:"key:data,op:contain_key"`
+	DataContainAllKey *[]string       `json:"data_contain_all_key" query:"key:data,op:contain_all_key"`
+
+	AddrContain       *netip.Addr   `json:"addr_contain" query:"key:addr,op:subnet_contain"`
+	AddrContainOrEq   *netip.Prefix `json:"addr_contain_or_eq" query:"key:addr,op:subnet_contain_or_eq"`
+	AddrContainBy     *netip.Addr   `json:"addr_contain_by" query:"key:addr,op:subnet_contain_by"`
+	AddrContainByOrEq *netip.Prefix `json:"addr_contain_by_or_eq" query:"key:addr,op:subnet_contain_by_or_eq"`
+	AddrOverlap       *netip.Addr   `json:"addr_overlap" query:"key:addr,op:subnet_overlap"`
+
+	AddrFa *netip.Prefix `json:"addr_fa" query:"key:addr,op:subnet_overlap"`
+	AddrFb *net.IP       `json:"addr_fb" query:"key:addr,op:subnet_overlap"`
+	AddrFc *net.IPNet    `json:"addr_fc" query:"key:addr,op:subnet_overlap"`
+
+	KeyPrefix       *string `json:"key_prefix" query:"key:key,op:starts_with"`
+	KeyMatch        *string `json:"key_match" query:"key:key,op:regex"`
+	KeyNotMatch     *string `json:"key_not_match" query:"key:key,op:not_regex"`
+	KeyMatchCase    *string `json:"key_match_case" query:"key:key,op:regex_i"`
+	KeyNotMatchCase *string `json:"key_not_match_case" query:"key:key,op:not_regex_i"`
+}
+
+var testSelectData = []struct {
 	sql string
 	val []func(*testParseFieldA)
 }{
@@ -201,14 +243,92 @@ var testQueryData = []struct {
 	},
 }
 
-func TestQuery(t *testing.T) {
-	for _, data := range testQueryData {
+func TestSelect(t *testing.T) {
+	for _, data := range testSelectData {
 		var val testParseFieldA
 		for _, fn := range data.val {
 			fn(&val)
 		}
 
 		queryBytes, err := Select(db.NewSelect().Model(&User{}), val).AppendQuery(db.Formatter(), nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if string(queryBytes) != data.sql {
+			t.Errorf("\n got: %v\nwant: %v", string(queryBytes), data.sql)
+		}
+	}
+}
+
+var testUpdateData = []struct {
+	sql string
+	val []func(*testParseFieldA)
+}{
+	{
+		sql: `UPDATE "user" AS "user" SET a = 'b' WHERE ("id" = '12')`,
+		val: []func(*testParseFieldA){
+			func(a *testParseFieldA) { a.Itr = &example.Pagination{PageSize: -1} },
+			func(a *testParseFieldA) { a.ID = "12" },
+		},
+	},
+	{
+		sql: `UPDATE "user" AS "user" SET a = 'b' WHERE ("id" = '12')`,
+		val: []func(*testParseFieldA){
+			func(a *testParseFieldA) { a.Itr = &example.Pagination{PageSize: 100} },
+			func(a *testParseFieldA) { a.ID = "12" },
+		},
+	},
+}
+
+func TestUpdate(t *testing.T) {
+	for _, data := range testUpdateData {
+		var val testParseFieldA
+		for _, fn := range data.val {
+			fn(&val)
+		}
+
+		queryBytes, err := Update(db.NewUpdate().Model(&User{}), val).Set("a = ?", "b").
+			AppendQuery(db.Formatter(), nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if string(queryBytes) != data.sql {
+			t.Errorf("\n got: %v\nwant: %v", string(queryBytes), data.sql)
+		}
+	}
+}
+
+var testDeleteData = []struct {
+	sql string
+	val []func(*testParseFieldA)
+}{
+	{
+		sql: `DELETE FROM "user" AS "user" WHERE ("id" = '12')`,
+		val: []func(*testParseFieldA){
+			func(a *testParseFieldA) { a.Itr = &example.Pagination{PageSize: -1} },
+			func(a *testParseFieldA) { a.ID = "12" },
+		},
+	},
+	{
+		sql: `DELETE FROM "user" AS "user" WHERE ("id" = '12')`,
+		val: []func(*testParseFieldA){
+			func(a *testParseFieldA) { a.Itr = &example.Pagination{PageSize: 100} },
+			func(a *testParseFieldA) { a.ID = "12" },
+		},
+	},
+}
+
+func TestDelete(t *testing.T) {
+	for _, data := range testDeleteData {
+		var val testParseFieldA
+		for _, fn := range data.val {
+			fn(&val)
+		}
+
+		queryBytes, err := Delete(db.NewDelete().Model(&User{}), val).
+			AppendQuery(db.Formatter(), nil)
 		if err != nil {
 			t.Fatal(err)
 		}
