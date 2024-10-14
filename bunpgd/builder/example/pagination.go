@@ -11,9 +11,9 @@ type Pagination struct {
 	PageSize int
 }
 
-func (x *Pagination) CalcLimitOffset() (int, int) {
+func (x *Pagination) CalcLimitOffset() (limit, offset int) {
 	if x == nil {
-		return 1, 10 // by default
+		return 10, 0 // by default
 	}
 
 	var (
