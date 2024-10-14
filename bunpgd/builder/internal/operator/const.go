@@ -124,6 +124,11 @@ var availableOp = map[string]Operator{
 	"less":    LessThan,
 	"greater": GreaterThan,
 
+	"lt":  LessThan,
+	"leq": LessThanOrEq,
+	"gt":  GreaterThan,
+	"geq": GreaterThanOrEq,
+
 	"less_than_or_eq": LessThanOrEq,
 	"less_or_eq":      LessThanOrEq,
 	"loe":             LessThanOrEq,
