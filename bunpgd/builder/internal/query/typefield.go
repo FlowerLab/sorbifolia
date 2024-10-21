@@ -6,8 +6,6 @@ import (
 	"slices"
 	"strings"
 	"sync"
-
-	"go.x2ox.com/sorbifolia/bunpgd/builder/internal/flag"
 )
 
 type StructFields struct {
@@ -75,7 +73,7 @@ func TypeFields(t reflect.Type) StructFields {
 				copy(field.Index, f.Index)
 				field.Index[len(f.Index)] = i
 
-				if field.Flag.Has(flag.Pointer) {
+				if field.Flag.Has(reflect.Pointer) {
 					field.Typ = field.Typ.Elem()
 				}
 

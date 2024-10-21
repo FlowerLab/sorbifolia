@@ -2,6 +2,7 @@ package example
 
 import (
 	"errors"
+	"strconv"
 
 	"github.com/uptrace/bun"
 )
@@ -56,4 +57,21 @@ func (x *Pagination) BunQueryBuilder(q bun.QueryBuilder) bun.QueryBuilder {
 	}
 
 	return q
+}
+
+type FromQueryParameters interface {
+	FromQueryParameters([]string) error
+}
+
+func (x *Pagination) FromQueryParameters(arr []string) (err error) {
+	switch {
+	case x == nil:
+		err = errors.New("x is nil")
+	case len(arr) > 0:
+		x.Page, err = strconv.Atoi(arr[0])
+		fallthrough
+	case len(arr) > 1 && err == nil:
+		x.PageSize, err = strconv.Atoi(arr[1])
+	}
+	return
 }

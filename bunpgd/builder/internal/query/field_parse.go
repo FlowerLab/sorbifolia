@@ -9,6 +9,7 @@ import (
 	"go.x2ox.com/sorbifolia/bunpgd/builder/internal/attribute"
 	"go.x2ox.com/sorbifolia/bunpgd/builder/internal/flag"
 	op "go.x2ox.com/sorbifolia/bunpgd/builder/internal/operator"
+	"go.x2ox.com/sorbifolia/bunpgd/reflectype"
 )
 
 func ParseField(sf reflect.StructField) (field Field) {
@@ -60,7 +61,7 @@ func ParseField(sf reflect.StructField) (field Field) {
 		field.Key = bun.Ident(field.Name)
 	}
 
-	if field.Flag.From(field.Typ); field.Flag.Has(flag.BunQueryItr) {
+	if field.Flag = flag.From(field.Typ); field.Flag.Has(reflectype.QueryBuilder) {
 		field.Op = op.Unknown
 		return
 	}
