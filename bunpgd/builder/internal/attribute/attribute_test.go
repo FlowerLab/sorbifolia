@@ -39,6 +39,5 @@ func TestAttribute_FormatValue(t *testing.T) {
 				t.Errorf("FormatValue(%v, %v): got %v, want %v", data.op, val, data.res, val)
 			}
 		})
-
 	}
 }

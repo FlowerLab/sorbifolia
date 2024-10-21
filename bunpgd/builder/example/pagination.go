@@ -64,13 +64,14 @@ type FromQueryParameters interface {
 }
 
 func (x *Pagination) FromQueryParameters(arr []string) (err error) {
-	switch {
-	case x == nil:
-		err = errors.New("x is nil")
-	case len(arr) > 0:
+	if x == nil {
+		return errors.New("x is nil")
+	}
+
+	if len(arr) > 0 {
 		x.Page, err = strconv.Atoi(arr[0])
-		fallthrough
-	case len(arr) > 1 && err == nil:
+	}
+	if err != nil && len(arr) > 1 {
 		x.PageSize, err = strconv.Atoi(arr[1])
 	}
 	return
