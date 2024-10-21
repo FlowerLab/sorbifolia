@@ -23,13 +23,13 @@ type Field struct {
 }
 
 func (f Field) ReflectQuery(v reflect.Value) reflectype.BunQueryBuilder {
-	if f.Flag.Has(reflectype.QueryBuilder) {
+	if f.Flag.And(reflectype.QueryBuilder) {
 		return HandleFunc(func(q bun.QueryBuilder) bun.QueryBuilder {
 			v.MethodByName("BunQueryBuilder").Call([]reflect.Value{reflect.ValueOf(q)})
 			return q
 		})
 	}
-	if v.IsZero() || (f.Flag.Has(reflect.Pointer) && v.Elem().IsZero()) {
+	if v.IsZero() || (f.Flag.And(reflect.Pointer) && v.Elem().IsZero()) {
 		return nil
 	}
 
@@ -61,7 +61,7 @@ func (f Field) handle(v reflect.Value) HandleFunc {
 }
 
 func (f Field) handleLike(v reflect.Value) HandleFunc {
-	if f.Flag.Has(reflect.Slice) {
+	if f.Flag.And(reflect.Slice) {
 		length := v.Len()
 		switch length {
 		case 0:

@@ -61,7 +61,7 @@ func ParseField(sf reflect.StructField) (field Field) {
 		field.Key = bun.Ident(field.Name)
 	}
 
-	if field.Flag = flag.From(field.Typ); field.Flag.Has(reflectype.QueryBuilder) {
+	if field.Flag = flag.From(field.Typ); field.Flag.And(reflectype.QueryBuilder) {
 		field.Op = op.Unknown
 		return
 	}

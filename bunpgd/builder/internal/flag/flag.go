@@ -34,8 +34,28 @@ var (
 	}
 )
 
-func Bit(a any) Flag           { return bitmap[a] }
-func (f *Flag) Has(a any) bool { return *f&Bit(a) != 0 }
+func Bit(a any) Flag { return bitmap[a] }
+
+func (f *Flag) And(a ...any) bool {
+	if len(a) == 0 {
+		return false
+	}
+	for _, v := range a {
+		if *f&Bit(v) == 0 {
+			return false
+		}
+	}
+	return true
+}
+
+func (f *Flag) Or(a ...any) bool {
+	for _, v := range a {
+		if *f&Bit(v) != 0 {
+			return true
+		}
+	}
+	return false
+}
 
 func From(rt reflect.Type) Flag {
 	var f Flag

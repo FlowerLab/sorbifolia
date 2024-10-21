@@ -73,7 +73,7 @@ func TypeFields(t reflect.Type) StructFields {
 				copy(field.Index, f.Index)
 				field.Index[len(f.Index)] = i
 
-				if field.Flag.Has(reflect.Pointer) {
+				if field.Flag.And(reflect.Pointer) {
 					field.Typ = field.Typ.Elem()
 				}
 
