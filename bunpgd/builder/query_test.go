@@ -66,6 +66,14 @@ var testSelectData = []struct {
 }{
 	{sql: `SELECT "user"."id" FROM "user" LIMIT 10`},
 	{
+		sql: `SELECT "user"."id" FROM "user" WHERE ("password" = 'a') LIMIT 10`,
+		val: []func(*testParseFieldA){func(a *testParseFieldA) { a.Password = []string{"a"} }},
+	},
+	{
+		sql: `SELECT "user"."id" FROM "user" WHERE ("password" IN ('a', 'b')) LIMIT 10`,
+		val: []func(*testParseFieldA){func(a *testParseFieldA) { a.Password = []string{"a", "b"} }},
+	},
+	{
 		sql: `SELECT "user"."id" FROM "user" WHERE ("id" = '12') LIMIT 10`,
 		val: []func(*testParseFieldA){func(a *testParseFieldA) { a.ID = "12" }},
 	},

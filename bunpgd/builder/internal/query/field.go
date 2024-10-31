@@ -44,7 +44,8 @@ func (f Field) handle(v reflect.Value) HandleFunc {
 		switch v.Len() {
 		case 0:
 			return nil
-		case 1: // use equal
+		case 1:
+			return where("? = ?", f.Key, v.Index(0).Interface())
 		default:
 			return where("? ? (?)", f.Key, f.Op, bun.In(v.Interface()))
 		}
