@@ -22,6 +22,7 @@ func New() *Dialect {
 
 func (d *Dialect) Init(_ *sql.DB)         {}
 func (d *Dialect) Name() dialect.Name     { return dialect.PG }
+func (d *Dialect) DefaultSchema() string  { return "public" }
 func (d *Dialect) IdentQuote() byte       { return '"' }
 func (d *Dialect) DefaultVarcharLen() int { return 0 }
 func (d *Dialect) Tables() *schema.Tables { return d.tables }
