@@ -7,7 +7,7 @@ toolchain go1.23.2
 require (
 	github.com/uptrace/bun v1.2.6
 	github.com/uptrace/bun/driver/pgdriver v1.2.6
-	github.com/uptrace/bun/extra/bunslog v1.2.5
+	github.com/uptrace/bun/extra/bunslog v1.2.6
 	google.golang.org/protobuf v1.35.2
 )
 
