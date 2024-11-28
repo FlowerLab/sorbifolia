@@ -13,8 +13,6 @@ func (d *Dialect) OnTable(table *schema.Table) {
 }
 
 func (d *Dialect) onField(field *schema.Field) {
-	if err := sqltype.Set(field); err != nil {
-		panic(err)
-	}
+	sqltype.Set(field)
 	datatype.Set(field)
 }

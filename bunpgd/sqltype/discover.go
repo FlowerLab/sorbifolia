@@ -1,7 +1,6 @@
 package sqltype
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 
@@ -9,13 +8,14 @@ import (
 	"go.x2ox.com/sorbifolia/bunpgd/reflectype"
 )
 
-func Set(field *schema.Field) error {
+func Set(field *schema.Field) {
 	field.DiscoveredSQLType, _ = field.Tag.Option("type")
 	if field.DiscoveredSQLType == "" {
 		field.DiscoveredSQLType = DiscoverType(field.IndirectType)
 	}
 	if field.DiscoveredSQLType == UnknownType {
-		return fmt.Errorf("unknown type %s", field.IndirectType.String())
+		field.DiscoveredSQLType = ""
+		return
 	}
 	field.DiscoveredSQLType = strings.ToUpper(field.DiscoveredSQLType)
 
@@ -29,8 +29,6 @@ func Set(field *schema.Field) error {
 			field.CreateTableSQLType = BigSerial
 		}
 	}
-
-	return nil
 }
 
 func DiscoverType(typ reflect.Type) (st string) {
