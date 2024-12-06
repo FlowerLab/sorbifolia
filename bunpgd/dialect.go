@@ -47,5 +47,6 @@ func (d *Dialect) Features() feature.Feature {
 		feature.InsertOnConflict |
 		feature.SelectExists |
 		feature.GeneratedIdentity |
-		feature.CompositeIn
+		feature.CompositeIn |
+		feature.DeleteReturning
 }
