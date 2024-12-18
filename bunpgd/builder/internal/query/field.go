@@ -29,7 +29,7 @@ func (f Field) ReflectQuery(v reflect.Value) reflectype.BunQueryBuilder {
 			return q
 		})
 	}
-	if v.IsZero() || (f.Flag.And(reflect.Pointer) && v.Elem().IsZero()) {
+	if v.IsZero() {
 		return nil
 	}
 

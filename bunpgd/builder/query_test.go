@@ -58,6 +58,8 @@ type testParseFieldA struct {
 	KeyNotMatch     *string `json:"key_not_match" query:"key:key,op:not_regex"`
 	KeyMatchCase    *string `json:"key_match_case" query:"key:key,op:regex_i"`
 	KeyNotMatchCase *string `json:"key_not_match_case" query:"key:key,op:not_regex_i"`
+
+	TypeID *uint16 `json:"type_id"`
 }
 
 var testSelectData = []struct {
@@ -246,6 +248,14 @@ var testSelectData = []struct {
 			func(a *testParseFieldA) {
 				v := "key_"
 				a.KeyPrefix = &v
+			},
+		},
+	},
+	{
+		sql: `SELECT "user"."id" FROM "user" WHERE ("type_id" = 0) LIMIT 10`,
+		val: []func(*testParseFieldA){
+			func(a *testParseFieldA) {
+				a.TypeID = new(uint16)
 			},
 		},
 	},
