@@ -259,6 +259,15 @@ var testSelectData = []struct {
 			},
 		},
 	},
+	{
+		sql: `SELECT "user"."id" FROM "user" LIMIT 10`,
+		val: []func(*testParseFieldA){
+			func(a *testParseFieldA) {
+				name := []string{}
+				a.Name = &name
+			},
+		},
+	},
 }
 
 func TestSelect(t *testing.T) {

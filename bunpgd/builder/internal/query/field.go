@@ -36,7 +36,7 @@ func (f Field) ReflectQuery(v reflect.Value) reflectype.BunQueryBuilder {
 	return f.handle(v)
 }
 
-func (f Field) handle(v reflect.Value) HandleFunc {
+func (f Field) handle(v reflect.Value) reflectype.BunQueryBuilder {
 	switch f.Op {
 	case op.In, op.NotIn:
 		v = reflect.Indirect(v)
