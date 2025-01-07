@@ -8,7 +8,7 @@ require (
 	github.com/uptrace/bun v1.2.7
 	github.com/uptrace/bun/driver/pgdriver v1.2.7
 	github.com/uptrace/bun/extra/bunslog v1.2.7
-	google.golang.org/protobuf v1.36.1
+	google.golang.org/protobuf v1.36.2
 )
 
 require (
