@@ -14,8 +14,8 @@ github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc h1:9lRDQMhESg+zvGYm
 github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc/go.mod h1:bciPuU6GHm1iF1pBvUfxfsH0Wmnc2VbpgvbI9ZWuIRs=
 github.com/uptrace/bun v1.2.8 h1:HEiLvy9wc7ehU5S02+O6NdV5BLz48lL4REPhTkMX3Dg=
 github.com/uptrace/bun v1.2.8/go.mod h1:JBq0uBKsKqNT0Ccce1IAFZY337Wkf08c6F6qlmfOHE8=
-github.com/uptrace/bun/driver/pgdriver v1.2.7 h1:vJhF+GSQ56xKzfxG9wjxzF09Uzt8fjSRyD0+iJfTUoI=
-github.com/uptrace/bun/driver/pgdriver v1.2.7/go.mod h1:CEdwB+15ol+yc8xjrckftjEdnB5Uy8bkw4jlATdFzJc=
+github.com/uptrace/bun/driver/pgdriver v1.2.8 h1:5XrNn/9enSrWhhrUpz+6PY9S1vcg/jhCQPJu+ZmsKX4=
+github.com/uptrace/bun/driver/pgdriver v1.2.8/go.mod h1:cwRRwqabgePwYBiLlXtbeNmPD7LGJnqP21J2ZKP4ah8=
 github.com/uptrace/bun/extra/bunslog v1.2.8 h1:16kzB9nvzBxrCglroOE2Txne2FqiFBgJqovsP/WGurw=
 github.com/uptrace/bun/extra/bunslog v1.2.8/go.mod h1:eYCA8YLLCerPd75x5AFK/Qsdk+CPcMmqkA63vriwMMM=
 github.com/vmihailenco/msgpack/v5 v5.4.1 h1:cQriyiUvjTwOHg8QZaPihLWeRAAVoCpE00IUPn0Bjt8=
