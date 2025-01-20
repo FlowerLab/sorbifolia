@@ -18,12 +18,11 @@ func TestHTTP(t *testing.T) {
 	t.Parallel()
 
 	var resp X2oxIPResp
-	err := Get("https://api.ip.x2ox.com/api/ip?type=json").
+	err := Get("https://ip.x2ox.com/geoip").
 		SetContentType(AppJSON).
 		Request(1, nil, 5*time.Second).
 		ParserData(JSONParser(&resp)).
 		DoRelease()
-
 	if err != nil {
 		t.Error(err)
 	}
@@ -34,12 +33,11 @@ func TestHTTPRetry(t *testing.T) {
 	t.Parallel()
 
 	var resp X2oxIPResp
-	err := Get("https://api.ip.x2ox.com/api/ip?type=json").
+	err := Get("https://ip.x2ox.com/geoip").
 		SetContentType(AppJSON).
 		Request(-1, nil, 5*time.Second).
 		ParserData(JSONParser(&resp)).
 		DoRelease()
-
 	if err != nil {
 		t.Error(err)
 	}
@@ -50,7 +48,7 @@ func TestHTTPError(t *testing.T) {
 	t.Parallel()
 
 	var resp X2oxIPResp
-	err := Post("https://api.ip.x2ox.com/api/ip?type=json").
+	err := Post("https://ip.x2ox.com/geoip").
 		SetContentType(AppJSON).
 		SetBodyWithEncoder(JSON(), struct {
 			A chan struct{}
