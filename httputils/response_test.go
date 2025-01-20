@@ -12,7 +12,7 @@ func TestHTTP_ParseData(t *testing.T) {
 	t.Parallel()
 
 	var resp X2oxIPResp
-	err := Get("https://api.ip.x2ox.com/api/ip?type=json").
+	err := Get("https://api.x2ox.com/geoip").
 		SetContentType(AppJSON).
 		Request(1, nil, 5*time.Second).
 		ParserData(JSONParser(&resp)).
@@ -22,7 +22,7 @@ func TestHTTP_ParseData(t *testing.T) {
 	}
 	t.Log(resp.IP)
 
-	if err = Get("https://api.ip.x2ox.com/api/ip?type=json").
+	if err = Get("https://api.x2ox.com/geoip").
 		SetContentType(AppJSON).
 		Request(1, nil, 5*time.Second).
 		ParserData(func(resp *fasthttp.Response) error { return errors.New("err") }).
