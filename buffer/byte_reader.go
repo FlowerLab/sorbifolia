@@ -5,8 +5,6 @@ import (
 	"io"
 )
 
-func (b *Byte) Reader() *ByteReader { return &ByteReader{Byte: b} }
-
 type ByteReader struct {
 	*Byte
 	offset int64
@@ -56,4 +54,5 @@ var (
 	_ io.Reader   = (*ByteReader)(nil)
 	_ io.Seeker   = (*ByteReader)(nil)
 	_ io.ReaderAt = (*ByteReader)(nil)
+	_ Reader      = (*ByteReader)(nil)
 )

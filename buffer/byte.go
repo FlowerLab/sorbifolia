@@ -58,6 +58,8 @@ func (b *Byte) Cap() int       { return cap(b.B) }
 func (b *Byte) Bytes() []byte  { return b.B }
 func (b *Byte) Reset()         { b.B = b.B[:0] }
 
+func (b *Byte) Reader() Reader { return &ByteReader{Byte: b} }
+
 var (
 	_ io.Writer       = (*Byte)(nil)
 	_ io.StringWriter = (*Byte)(nil)
