@@ -166,7 +166,7 @@ func (t testBlock) Decrypt(dst, src []byte) {}
 func TestCCM(t *testing.T) {
 	t.Parallel()
 
-	var testDataRfc3610 = []struct {
+	testDataRfc3610 := []struct {
 		key        string
 		nonce      string
 		adata      string

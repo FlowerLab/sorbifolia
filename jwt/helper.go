@@ -20,10 +20,12 @@ func (c *Claims[T]) SetExpiresAt(t time.Time) *Claims[T] {
 	c.ExpiresAt = jwt.NewNumericDate(t)
 	return c
 }
+
 func (c *Claims[T]) SetNotBefore(t time.Time) *Claims[T] {
 	c.NotBefore = jwt.NewNumericDate(t)
 	return c
 }
+
 func (c *Claims[T]) SetIssuedAt(t time.Time) *Claims[T] {
 	c.IssuedAt = jwt.NewNumericDate(t)
 	return c

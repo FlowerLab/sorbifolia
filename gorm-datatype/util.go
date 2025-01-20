@@ -56,7 +56,7 @@ Element:
 			dims[depth-1] = 0
 			i++
 		case '"':
-			var elem = []byte{}
+			elem := []byte{}
 			var escape bool
 			for i++; i < len(src); i++ {
 				if escape {

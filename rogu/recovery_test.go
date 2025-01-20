@@ -33,5 +33,4 @@ func TestRecover(t *testing.T) {
 	fmt.Println("\n 5 \n", string(stack()))
 	fmt.Println("\n 6 \n", string(stack()))
 	fmt.Println("\n 7 \n", string(stack()))
-
 }

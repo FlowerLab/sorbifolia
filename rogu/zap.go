@@ -37,7 +37,8 @@ func DefaultZapEncoderConfig() zapcore.EncoderConfig {
 }
 
 func ZapConfig(level zapcore.Level, dev bool, encoding string, encoderConfig zapcore.EncoderConfig,
-	outputPaths, errorOutputPaths []string) zap.Config {
+	outputPaths, errorOutputPaths []string,
+) zap.Config {
 	return zap.Config{
 		Level:            zap.NewAtomicLevelAt(level),
 		Development:      dev,

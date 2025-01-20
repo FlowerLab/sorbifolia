@@ -17,7 +17,6 @@ func TestHTTP_ParseData(t *testing.T) {
 		Request(1, nil, 5*time.Second).
 		ParserData(JSONParser(&resp)).
 		DoRelease()
-
 	if err != nil {
 		t.Error(err)
 	}

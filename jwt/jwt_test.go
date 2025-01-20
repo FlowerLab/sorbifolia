@@ -25,7 +25,6 @@ func TestJWT(t *testing.T) {
 		},
 		Data: &Info{ID: 1},
 	})
-
 	if err != nil {
 		t.Fatal(err)
 	}

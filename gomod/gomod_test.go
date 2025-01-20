@@ -8,7 +8,6 @@ import (
 )
 
 func TestPackage_FindModule(t *testing.T) {
-
 	pkg, err := Parse("example.data.json")
 	if err != nil {
 		t.Error(err)

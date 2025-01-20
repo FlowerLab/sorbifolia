@@ -12,6 +12,4 @@ var (
 	ErrAddressRangeConflict     = errors.New("cidr: address range conflict")
 )
 
-var (
-	invalidIP netip.Addr
-)
+var invalidIP netip.Addr

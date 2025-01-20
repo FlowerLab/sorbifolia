@@ -8,8 +8,7 @@ import (
 	"crypto/rsa"
 )
 
-type Generator struct {
-}
+type Generator struct{}
 
 func (g Generator) Ed25519() (ed25519.PrivateKey, error) {
 	_, pri, err := ed25519.GenerateKey(nil)

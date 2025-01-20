@@ -65,7 +65,8 @@ func NewOCB(block cipher.Block) (cipher.AEAD, error) {
 //
 // It is recommended to use at least 12 bytes as tag length.
 func NewOCBWithNonceAndTagSize(
-	block cipher.Block, nonceSize, tagSize int) (cipher.AEAD, error) {
+	block cipher.Block, nonceSize, tagSize int,
+) (cipher.AEAD, error) {
 	if block.BlockSize() != 16 {
 		return nil, ocbError("Block cipher must have 128-bit blocks")
 	}

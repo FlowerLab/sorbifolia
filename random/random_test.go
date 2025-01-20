@@ -64,7 +64,7 @@ func TestReverse(t *testing.T) {
 func TestRandom_Number(t *testing.T) {
 	t.Parallel()
 
-	var arr = []Random{Safe(), Fast(), Math()}
+	arr := []Random{Safe(), Fast(), Math()}
 	for _, v := range arr {
 		v.Uint()
 		v.Uint64()

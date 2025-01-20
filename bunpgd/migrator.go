@@ -8,9 +8,7 @@ import (
 	"github.com/uptrace/bun/migrate/sqlschema"
 )
 
-var (
-	_ sqlschema.MigratorDialect = (*Dialect)(nil)
-)
+var _ sqlschema.MigratorDialect = (*Dialect)(nil)
 
 type migratorFunc func(b []byte, op any) ([]byte, error)
 

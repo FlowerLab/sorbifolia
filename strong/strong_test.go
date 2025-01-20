@@ -114,12 +114,18 @@ func TestFormat(t *testing.T) {
 		t any
 		v string
 	}{
-		{true, "true"}, {false, "false"},
-		{int(1), "1"}, {uint(1), "1"},
-		{int8(1), "1"}, {uint8(1), "1"},
-		{int16(1), "1"}, {uint16(1), "1"},
-		{int32(1), "1"}, {uint32(1), "1"},
-		{int64(1), "1"}, {uint64(1), "1"},
+		{true, "true"},
+		{false, "false"},
+		{int(1), "1"},
+		{uint(1), "1"},
+		{int8(1), "1"},
+		{uint8(1), "1"},
+		{int16(1), "1"},
+		{uint16(1), "1"},
+		{int32(1), "1"},
+		{uint32(1), "1"},
+		{int64(1), "1"},
+		{uint64(1), "1"},
 	}
 	for _, v := range arr {
 		t.Run("", func(t *testing.T) {
@@ -142,12 +148,18 @@ func TestAppend(t *testing.T) {
 		t any
 		v string
 	}{
-		{true, "true"}, {false, "false"},
-		{int(1), "1"}, {uint(1), "1"},
-		{int8(1), "1"}, {uint8(1), "1"},
-		{int16(1), "1"}, {uint16(1), "1"},
-		{int32(1), "1"}, {uint32(1), "1"},
-		{int64(1), "1"}, {uint64(1), "1"},
+		{true, "true"},
+		{false, "false"},
+		{int(1), "1"},
+		{uint(1), "1"},
+		{int8(1), "1"},
+		{uint8(1), "1"},
+		{int16(1), "1"},
+		{uint16(1), "1"},
+		{int32(1), "1"},
+		{uint32(1), "1"},
+		{int64(1), "1"},
+		{uint64(1), "1"},
 	}
 	for _, v := range arr {
 		t.Run("", func(t *testing.T) {

@@ -37,7 +37,7 @@ func main() {
 				SetPriority(1.0),
 			)
 		}
-		file, err := os.OpenFile(filepath.Join(config.OutputDirectory, "sitemap.xml"), os.O_CREATE|os.O_WRONLY, 0600)
+		file, err := os.OpenFile(filepath.Join(config.OutputDirectory, "sitemap.xml"), os.O_CREATE|os.O_WRONLY, 0o600)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -62,7 +62,7 @@ func main() {
 				SetChangeFreq(sitemap.Daily),
 		)
 	}
-	file, err := os.OpenFile(filepath.Join(config.OutputDirectory, "sitemap.xml"), os.O_CREATE|os.O_WRONLY, 0600)
+	file, err := os.OpenFile(filepath.Join(config.OutputDirectory, "sitemap.xml"), os.O_CREATE|os.O_WRONLY, 0o600)
 	if err != nil {
 		log.Fatal(err)
 	}

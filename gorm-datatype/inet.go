@@ -21,6 +21,7 @@ func (*INetPrefix) GormDataType() string { return "INetPrefix" }
 func (*INetPrefix) GormDBDataType(db *gorm.DB, _ *schema.Field) string {
 	return isPostgres(db, "inet")
 }
+
 func (*INetAddr) GormDBDataType(db *gorm.DB, _ *schema.Field) string {
 	return isPostgres(db, "inet")
 }

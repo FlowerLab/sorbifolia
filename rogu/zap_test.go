@@ -21,8 +21,7 @@ func TestDefaultZapConfig(t *testing.T) {
 	logger.Info("test")
 }
 
-type TestSink struct {
-}
+type TestSink struct{}
 
 func (ts *TestSink) String() string                  { return "TestSink" }
 func (ts *TestSink) Sink(*url.URL) (zap.Sink, error) { return ts, nil }
@@ -77,5 +76,4 @@ func TestMustReplaceGlobals(t *testing.T) {
 			EncodeTime: nil,
 		},
 	})
-
 }

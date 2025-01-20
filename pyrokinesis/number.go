@@ -4,8 +4,7 @@ import (
 	"unsafe"
 )
 
-type Number[T int | int64 | int32 | int16 | int8 | uint | uint64 | uint32 | uint16 | uint8] struct {
-}
+type Number[T int | int64 | int32 | int16 | int8 | uint | uint64 | uint32 | uint16 | uint8] struct{}
 
 func (Number[T]) ToBytes(num T) []byte {
 	var (

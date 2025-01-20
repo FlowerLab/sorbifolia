@@ -44,7 +44,7 @@ func TestCompareToStd(t *testing.T) {
 		"{\"abc\":\"abc\"}",
 	} {
 		b := []byte(test)
-		var ourV, stdV = make(map[int]string), make(map[int]string)
+		ourV, stdV := make(map[int]string), make(map[int]string)
 		ourErr := Unmarshal(b, &ourV)
 		stdErr := json.Unmarshal(b, &stdV)
 		if (ourErr == nil) != (stdErr == nil) {

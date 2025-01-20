@@ -153,8 +153,7 @@ var testExcludeContains = []struct {
 	},
 }
 
-type unknownContainsStatus struct {
-}
+type unknownContainsStatus struct{}
 
 func (unknownContainsStatus) ContainsIP(_ netip.Addr) bool   { panic("implement me") }
 func (unknownContainsStatus) NextIP(_ netip.Addr) netip.Addr { panic("implement me") }
