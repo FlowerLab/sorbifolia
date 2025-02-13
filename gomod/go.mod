@@ -7,7 +7,7 @@ toolchain go1.23.2
 require (
 	github.com/go-git/go-git/v5 v5.13.2
 	go.x2ox.com/sorbifolia/random v0.0.0-20220908024204-f7f3f4ee5338
-	golang.org/x/mod v0.22.0
+	golang.org/x/mod v0.23.0
 )
 
 require (
