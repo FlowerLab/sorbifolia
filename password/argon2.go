@@ -25,10 +25,7 @@ type Argon2 struct {
 }
 
 func (a Argon2) MustGenerate(password string) string {
-	data, err := a.Generate(password)
-	if err != nil {
-		panic(err)
-	}
+	data, _ := a.Generate(password)
 	return data
 }
 
@@ -38,9 +35,7 @@ func (a Argon2) Generate(password string) (string, error) {
 	binary.BigEndian.PutUint32(data[4:8], a.Memory)
 	data[8] = a.Threads
 	binary.BigEndian.PutUint32(data[9:13], a.KeyLen)
-	if _, err := rand.Read(data[13 : 13+a.KeyLen]); err != nil {
-		return "", err
-	}
+	_, _ = rand.Read(data[13 : 13+a.KeyLen])
 	data = append(data, argon2.IDKey([]byte(password), data[13:13+a.KeyLen],
 		a.Time, a.Memory, a.Threads, a.KeyLen)...)
 

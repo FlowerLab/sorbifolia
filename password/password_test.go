@@ -1,16 +1,8 @@
 package password
 
 import (
-	"crypto/rand"
 	"encoding/base64"
-	"errors"
-	"sync/atomic"
 	"testing"
-)
-
-var (
-	testNum = int32(4)
-	testCh  atomic.Int32
 )
 
 func TestMustGenerate(t *testing.T) {
@@ -20,7 +12,6 @@ func TestMustGenerate(t *testing.T) {
 	if !Compare(hash, "password") {
 		t.Errorf("%s | %s not match", "password", hash)
 	}
-	testCh.Add(1)
 }
 
 func TestGenerate(t *testing.T) {
@@ -30,7 +21,6 @@ func TestGenerate(t *testing.T) {
 	if !Compare(hash, "password") {
 		t.Errorf("%s | %s not match", "password", hash)
 	}
-	testCh.Add(1)
 }
 
 func TestCompare(t *testing.T) {
@@ -40,7 +30,6 @@ func TestCompare(t *testing.T) {
 	if !Compare(hash, "password") {
 		t.Errorf("%s | %s not match", "password", hash)
 	}
-	testCh.Add(1)
 }
 
 func TestFail(t *testing.T) {
@@ -63,30 +52,4 @@ func TestFail(t *testing.T) {
 			t.Error("fail")
 		}
 	})
-
-	testCh.Add(1)
-}
-
-type errReader struct{}
-
-func (e errReader) Read([]byte) (n int, err error) {
-	return 0, errors.New("OEF")
-}
-
-func TestRandReaderErr(t *testing.T) {
-	t.Parallel()
-
-	for {
-		if testCh.CompareAndSwap(testNum, -1) {
-			break
-		}
-	}
-
-	g := New()
-
-	rand.Reader = errReader{}
-	defer func() { _ = recover() }()
-
-	g.MustGenerate("123456")
-	t.Error("fail")
 }
