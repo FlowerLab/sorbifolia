@@ -26,11 +26,6 @@ updates:
       interval: "daily"
 
   - package-ecosystem: "gomod"
-    directory: "/cryptutils"
-    schedule:
-      interval: "daily"
-
-  - package-ecosystem: "gomod"
     directory: "/datastructures"
     schedule:
       interval: "daily"
