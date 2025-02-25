@@ -1,1 +1,1 @@
-[.Use[].DiskPath | select(. != "gomod")] | map_values("./" + . + "/...")[]
+[.Use[].DiskPath | select(. != "gomod") | select(. != "cryptutils")] | map_values("./" + . + "/...")[]

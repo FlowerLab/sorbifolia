@@ -4,7 +4,6 @@
 
 - [_cidr_](https://go.x2ox.com/sorbifolia/cidr)
 - [_coarsetime_](https://go.x2ox.com/sorbifolia/coarsetime) is a package for getting time under high performance.
-- [_cryptutils_](https://go.x2ox.com/sorbifolia/cryptutils)
 - [_datastructures_](https://go.x2ox.com/sorbifolia/datastructures)
 - [_finder_](https://go.x2ox.com/sorbifolia/finder) is a set of utility functions based on generics.
 - [_gomod_](https://go.x2ox.com/sorbifolia/gomod)
