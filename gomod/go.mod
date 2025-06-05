@@ -1,10 +1,11 @@
 module go.x2ox.com/sorbifolia/gomod
 
-go 1.22.0
+go 1.23.0
+
 toolchain go1.24.1
 
 require (
-	github.com/go-git/go-git/v5 v5.16.0
+	github.com/go-git/go-git/v5 v5.16.1
 	go.x2ox.com/sorbifolia/random v0.0.0-20220908024204-f7f3f4ee5338
 	golang.org/x/mod v0.24.0
 )
