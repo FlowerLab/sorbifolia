@@ -19,7 +19,17 @@ func appendArray(sf schema.AppenderFunc) func(fmter schema.Formatter, b []byte, 
 				b = append(b, "'{"...)
 			}
 
+			s := len(b)
 			b = sf(fmter, b, v.Index(i))
+			e := len(b)
+
+			if s == e {
+				continue
+			}
+
+			if b[s] == '\'' && b[e-1] == '\'' {
+				b[s], b[e-1] = '"', '"' // schema.AppenderFunc will also append `''`
+			}
 
 			if i+1 == length {
 				b = append(b, "}'"...)
