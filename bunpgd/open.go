@@ -8,6 +8,7 @@ import (
 
 	"github.com/uptrace/bun"
 	_ "github.com/uptrace/bun/driver/pgdriver"
+	"github.com/uptrace/bun/extra/bunotel"
 	"github.com/uptrace/bun/extra/bunslog"
 )
 
@@ -23,6 +24,10 @@ func WithMaxOpenConns(n int) bun.DBOption { return func(db *bun.DB) { db.DB.SetM
 func WithMaxIdleConns(n int) bun.DBOption { return func(db *bun.DB) { db.DB.SetMaxIdleConns(n) } }
 func WithConnMaxIdleTime(d time.Duration) bun.DBOption {
 	return func(db *bun.DB) { db.DB.SetConnMaxIdleTime(d) }
+}
+
+func WithOTEL(option ...bunotel.Option) bun.DBOption {
+	return func(db *bun.DB) { db.AddQueryHook(bunotel.NewQueryHook(option...)) }
 }
 
 func WithSLog(opts ...bunslog.Option) bun.DBOption {
