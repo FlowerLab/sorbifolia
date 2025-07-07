@@ -7,6 +7,20 @@ import (
 	"go.x2ox.com/sorbifolia/bunpgd/internal/b2s"
 )
 
+type arrayQueryAppender struct {
+	af schema.AppenderFunc
+	v  reflect.Value
+}
+
+func (x arrayQueryAppender) AppendQuery(fmter schema.Formatter, b []byte) ([]byte, error) {
+	return x.af(fmter, b, x.v), nil
+}
+
+func Array[T any](arr []T) schema.QueryAppender {
+	v := reflect.ValueOf(arr)
+	return &arrayQueryAppender{af: TypeAppender(v.Type()), v: v}
+}
+
 func appendArray(sf schema.AppenderFunc) func(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
 	return func(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
 		length := v.Len()
