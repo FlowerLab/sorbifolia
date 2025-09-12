@@ -6,7 +6,7 @@ toolchain go1.24.4
 
 require (
 	go.x2ox.com/sorbifolia/strong v0.0.0-20220628090723-5c08926d2f93
-	gorm.io/gorm v1.30.2
+	gorm.io/gorm v1.31.0
 )
 
 require (
