@@ -4,6 +4,7 @@ import (
 	"reflect"
 
 	"github.com/uptrace/bun"
+	"go.x2ox.com/sorbifolia/bunpgd"
 	"go.x2ox.com/sorbifolia/bunpgd/builder/internal/attribute"
 	"go.x2ox.com/sorbifolia/bunpgd/builder/internal/flag"
 	op "go.x2ox.com/sorbifolia/bunpgd/builder/internal/operator"
@@ -56,6 +57,16 @@ func (f Field) handle(v reflect.Value) reflectype.BunQueryBuilder {
 	case op.IsDistinct, op.IsNotDistinct, op.IsNull, op.IsNotNull, op.IsTrue, op.IsNotTrue,
 		op.IsFalse, op.IsNotFalse, op.IsUnknown, op.IsNotUnknown:
 		return where("? ?", f.Key, f.Op)
+
+	case op.Contain, op.ContainBy: // array or jsonb
+		if f.Typ.Kind() == reflect.Slice {
+			return where("? ? ?", f.Key, f.Op, bunpgd.ArrayFormReflect(f.Typ, v))
+		}
+
+	case op.Overlap:
+		if f.Typ.Kind() == reflect.Slice && f.Typ != reflectype.IP {
+			return where("? ? ?", f.Key, f.Op, bunpgd.ArrayFormReflect(f.Typ, v))
+		}
 	}
 
 	return where("? ? ?", f.Key, f.Op, v.Interface())
