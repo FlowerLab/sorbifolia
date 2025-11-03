@@ -6,5 +6,5 @@ go.x2ox.com/sorbifolia/strong v0.0.0-20220628090723-5c08926d2f93 h1:qyUFzA6pKTLx
 go.x2ox.com/sorbifolia/strong v0.0.0-20220628090723-5c08926d2f93/go.mod h1:sLzU0kvJSzXFwqGzShl64YLDx1yYzdBh2jdvv/IiiyM=
 golang.org/x/text v0.24.0 h1:dd5Bzh4yt5KYA8f9CJHCP4FB4D51c2c6JvN37xJJkJ0=
 golang.org/x/text v0.24.0/go.mod h1:L8rBsPeo2pSS+xqN0d5u2ikmjtmoJbDBT1b7nHvFCdU=
-gorm.io/gorm v1.31.0 h1:0VlycGreVhK7RF/Bwt51Fk8v0xLiiiFdbGDPIZQ7mJY=
-gorm.io/gorm v1.31.0/go.mod h1:XyQVbO2k6YkOis7C2437jSit3SsDK72s7n7rsSHd+Gs=
+gorm.io/gorm v1.31.1 h1:7CA8FTFz/gRfgqgpeKIBcervUn3xSyPUmr6B2WXJ7kg=
+gorm.io/gorm v1.31.1/go.mod h1:XyQVbO2k6YkOis7C2437jSit3SsDK72s7n7rsSHd+Gs=
