@@ -5,7 +5,7 @@ go 1.23.0
 toolchain go1.24.4
 
 require (
-	go.uber.org/zap v1.27.0
+	go.uber.org/zap v1.27.1
 	go.x2ox.com/sorbifolia/coarsetime v0.0.0-20220901085912-d53b708be0cc
 	gorm.io/gorm v1.31.1
 )
