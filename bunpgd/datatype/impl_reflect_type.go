@@ -73,12 +73,12 @@ func scanINetIP(dest reflect.Value, src any) error {
 	return ErrNotSupportValueType
 }
 
-func appendHardwareAddr(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
+func appendHardwareAddr(gen schema.QueryGen, b []byte, v reflect.Value) []byte {
 	bts, _ := v.Interface().(net.HardwareAddr)
-	return fmter.Dialect().AppendString(b, bts.String())
+	return gen.Dialect().AppendString(b, bts.String())
 }
 
-func appendINetIP(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
+func appendINetIP(gen schema.QueryGen, b []byte, v reflect.Value) []byte {
 	bts, _ := v.Interface().(net.IP)
-	return fmter.Dialect().AppendString(b, bts.String())
+	return gen.Dialect().AppendString(b, bts.String())
 }

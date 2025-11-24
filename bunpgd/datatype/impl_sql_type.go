@@ -50,7 +50,7 @@ func scanJSON(dest reflect.Value, src any) error {
 	return ErrNotSupportValueType
 }
 
-func appendJSON(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
+func appendJSON(gen schema.QueryGen, b []byte, v reflect.Value) []byte {
 	bb, err := json.Marshal(v.Interface())
 	if err != nil {
 		return dialect.AppendError(b, err)
@@ -60,10 +60,10 @@ func appendJSON(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
 		bb = bb[:len(bb)-1]
 	}
 
-	return fmter.Dialect().AppendJSON(b, bb)
+	return gen.Dialect().AppendJSON(b, bb)
 }
 
-func appendBytes(_ schema.Formatter, b []byte, v reflect.Value) []byte {
+func appendBytes(_ schema.QueryGen, b []byte, v reflect.Value) []byte {
 	bs := v.Bytes()
 	if bs == nil {
 		return dialect.AppendNull(b)

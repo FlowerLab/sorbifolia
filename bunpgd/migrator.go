@@ -16,7 +16,7 @@ func (f migratorFunc) AppendSQL(b []byte, op any) ([]byte, error) { return f(b, 
 
 func (d *Dialect) NewMigrator(db *bun.DB, schemaName string) sqlschema.Migrator {
 	return migratorFunc(func(b []byte, op any) (_ []byte, err error) {
-		fmter := db.Formatter()
+		gen := db.QueryGen()
 
 		switch op := op.(type) {
 		case *migrate.CreateTableOp:
@@ -27,27 +27,27 @@ func (d *Dialect) NewMigrator(db *bun.DB, schemaName string) sqlschema.Migrator 
 
 		case *migrate.RenameTableOp:
 			b = append(b, "ALTER TABLE "...)
-			b = fmter.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName))
+			b = gen.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName))
 			b = append(b, " RENAME TO "...)
-			b = fmter.AppendName(b, op.NewName)
+			b = gen.AppendName(b, op.NewName)
 
 		case *migrate.RenameColumnOp:
 			b = append(b, "ALTER TABLE "...)
-			b = fmter.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName))
+			b = gen.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName))
 			b = append(b, " RENAME COLUMN "...)
-			b = fmter.AppendName(b, op.OldName)
+			b = gen.AppendName(b, op.OldName)
 
 			b = append(b, " TO "...)
-			b = fmter.AppendName(b, op.NewName)
+			b = gen.AppendName(b, op.NewName)
 
 		case *migrate.AddColumnOp:
 			b = append(b, "ALTER TABLE "...)
-			b = fmter.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName))
+			b = gen.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName))
 			b = append(b, " ADD COLUMN "...)
-			b = fmter.AppendName(b, op.ColumnName)
+			b = gen.AppendName(b, op.ColumnName)
 			b = append(b, " "...)
 
-			b, err = op.Column.AppendQuery(fmter, b)
+			b, err = op.Column.AppendQuery(gen, b)
 			if err != nil {
 				return nil, err
 			}
@@ -64,64 +64,64 @@ func (d *Dialect) NewMigrator(db *bun.DB, schemaName string) sqlschema.Migrator 
 
 		case *migrate.DropColumnOp:
 			b = append(b, "ALTER TABLE "...)
-			b = fmter.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName))
+			b = gen.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName))
 			b = append(b, " DROP COLUMN "...)
-			b = fmter.AppendName(b, op.ColumnName)
+			b = gen.AppendName(b, op.ColumnName)
 
 		case *migrate.AddPrimaryKeyOp:
 			b = append(b, "ALTER TABLE "...)
-			b = fmter.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName))
+			b = gen.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName))
 
 			b = append(b, " ADD PRIMARY KEY ("...)
-			b, _ = op.PrimaryKey.Columns.AppendQuery(fmter, b)
+			b, _ = op.PrimaryKey.Columns.AppendQuery(gen, b)
 			b = append(b, ")"...)
 
 		case *migrate.ChangePrimaryKeyOp:
 			b = append(b, "ALTER TABLE "...)
-			b = fmter.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName))
+			b = gen.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName))
 
 			b = append(b, " DROP CONSTRAINT "...)
-			b = fmter.AppendName(b, op.Old.Name)
+			b = gen.AppendName(b, op.Old.Name)
 
 			b = append(b, ",  ADD PRIMARY KEY ("...)
-			b, _ = op.New.Columns.AppendQuery(fmter, b)
+			b, _ = op.New.Columns.AppendQuery(gen, b)
 			b = append(b, ")"...)
 
 		case *migrate.DropPrimaryKeyOp:
 			b = append(b, "ALTER TABLE "...)
-			b = fmter.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName))
+			b = gen.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName))
 
 			b = append(b, " DROP CONSTRAINT "...)
-			b = fmter.AppendName(b, op.PrimaryKey.Name)
+			b = gen.AppendName(b, op.PrimaryKey.Name)
 
 		case *migrate.AddUniqueConstraintOp:
 			b = append(b, "ALTER TABLE "...)
-			b = fmter.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName))
+			b = gen.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName))
 
 			b = append(b, " ADD CONSTRAINT "...)
 			if op.Unique.Name != "" {
-				b = fmter.AppendName(b, op.Unique.Name)
+				b = gen.AppendName(b, op.Unique.Name)
 			} else {
-				b = fmter.AppendName(b, fmt.Sprintf("%s_%s_key", op.TableName, op.Unique.Columns))
+				b = gen.AppendName(b, fmt.Sprintf("%s_%s_key", op.TableName, op.Unique.Columns))
 			}
 
 			b = append(b, " UNIQUE ("...)
-			b, _ = op.Unique.Columns.AppendQuery(fmter, b)
+			b, _ = op.Unique.Columns.AppendQuery(gen, b)
 			b = append(b, ")"...)
 
 		case *migrate.DropUniqueConstraintOp:
 			b = append(b, "ALTER TABLE "...)
-			b = fmter.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName))
+			b = gen.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName))
 
 			b = append(b, " DROP CONSTRAINT "...)
-			b = fmter.AppendName(b, op.Unique.Name)
+			b = gen.AppendName(b, op.Unique.Name)
 
 		case *migrate.DropForeignKeyOp:
 			b = append(b, "ALTER TABLE "...)
-			b = fmter.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName()))
+			b = gen.AppendQuery(b, "?.?", bun.Ident(schemaName), bun.Ident(op.TableName()))
 
 			b = append(b, " DROP CONSTRAINT "...)
-			b = fmter.AppendName(b, op.ConstraintName)
+			b = gen.AppendName(b, op.ConstraintName)
 
 		// case *migrate.ChangeColumnTypeOp:
 		// case *migrate.AddForeignKeyOp:

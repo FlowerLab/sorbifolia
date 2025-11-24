@@ -12,7 +12,7 @@ func Parse(v string) Operator {
 
 var _ schema.QueryAppender = Operator("")
 
-func (o Operator) AppendQuery(_ schema.Formatter, b []byte) ([]byte, error) {
+func (o Operator) AppendQuery(_ schema.QueryGen, b []byte) ([]byte, error) {
 	return append(b, o...), nil
 }
 

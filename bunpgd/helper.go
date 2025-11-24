@@ -12,8 +12,8 @@ type Array struct {
 	rv reflect.Value
 }
 
-func (a *Array) AppendQuery(fmter schema.Formatter, b []byte) ([]byte, error) {
-	return datatype.TypeAppender(a.rt)(fmter, b, a.rv), nil
+func (a *Array) AppendQuery(gen schema.QueryGen, b []byte) ([]byte, error) {
+	return datatype.TypeAppender(a.rt)(gen, b, a.rv), nil
 }
 
 func ToArray[T any](arr []T) *Array {

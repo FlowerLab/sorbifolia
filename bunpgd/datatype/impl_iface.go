@@ -20,16 +20,16 @@ func ifTextUnmarshaler(dest reflect.Value, src any) error {
 	return dest.Interface().(encoding.TextUnmarshaler).UnmarshalText(b2s.A(src))
 }
 
-func ifJSONMarshaler(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
+func ifJSONMarshaler(gen schema.QueryGen, b []byte, v reflect.Value) []byte {
 	bts, _ := v.Interface().(json.Marshaler).MarshalJSON()
-	return fmter.Dialect().AppendString(b, b2s.B(bts))
+	return gen.Dialect().AppendString(b, b2s.B(bts))
 }
 
-func ifTextMarshaler(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
+func ifTextMarshaler(gen schema.QueryGen, b []byte, v reflect.Value) []byte {
 	bts, _ := v.Interface().(encoding.TextMarshaler).MarshalText()
-	return fmter.Dialect().AppendString(b, b2s.B(bts))
+	return gen.Dialect().AppendString(b, b2s.B(bts))
 }
 
-func ifQueryAppender(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
-	return schema.AppendQueryAppender(fmter, b, v.Interface().(schema.QueryAppender))
+func ifQueryAppender(gen schema.QueryGen, b []byte, v reflect.Value) []byte {
+	return schema.AppendQueryAppender(gen, b, v.Interface().(schema.QueryAppender))
 }

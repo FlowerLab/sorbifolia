@@ -28,7 +28,7 @@ func TestOptionalUpdate(t *testing.T) {
 			XID:    nil,
 			Enable: false,
 			JSON:   &jsonAbleX{},
-		}, "sub_id").AppendQuery(db.Formatter(), nil)
+		}, "sub_id").AppendQuery(db.QueryGen(), nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -38,7 +38,7 @@ func TestOptionalUpdate(t *testing.T) {
 	}
 
 	{
-		_, err := OptionalUpdate(db.NewUpdate().Model(&User{}), map[string]any{}).AppendQuery(db.Formatter(), nil)
+		_, err := OptionalUpdate(db.NewUpdate().Model(&User{}), map[string]any{}).AppendQuery(db.QueryGen(), nil)
 		if err == nil {
 			t.Fatal(errors.New("expected error"))
 		}
@@ -53,7 +53,7 @@ func TestOptionalForceUpdate(t *testing.T) {
 			XID:    nil,
 			Enable: false,
 			JSON:   &jsonAbleX{},
-		}, []string{"disable"}, []string{"sub_id"}).AppendQuery(db.Formatter(), nil)
+		}, []string{"disable"}, []string{"sub_id"}).AppendQuery(db.QueryGen(), nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -63,7 +63,7 @@ func TestOptionalForceUpdate(t *testing.T) {
 	}
 
 	{
-		_, err := OptionalForceUpdate(db.NewUpdate().Model(&User{}), map[string]any{}, nil, nil).AppendQuery(db.Formatter(), nil)
+		_, err := OptionalForceUpdate(db.NewUpdate().Model(&User{}), map[string]any{}, nil, nil).AppendQuery(db.QueryGen(), nil)
 		if err == nil {
 			t.Fatal(errors.New("expected error"))
 		}

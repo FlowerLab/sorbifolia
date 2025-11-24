@@ -277,7 +277,7 @@ func TestSelect(t *testing.T) {
 			fn(&val)
 		}
 
-		queryBytes, err := Select(db.NewSelect().Model(&User{}), val).AppendQuery(db.Formatter(), nil)
+		queryBytes, err := Select(db.NewSelect().Model(&User{}), val).AppendQuery(db.QueryGen(), nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -316,7 +316,7 @@ func TestUpdate(t *testing.T) {
 		}
 
 		queryBytes, err := Update(db.NewUpdate().Model(&User{}), val).Set("a = ?", "b").
-			AppendQuery(db.Formatter(), nil)
+			AppendQuery(db.QueryGen(), nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -355,7 +355,7 @@ func TestDelete(t *testing.T) {
 		}
 
 		queryBytes, err := Delete(db.NewDelete().Model(&User{}), val).
-			AppendQuery(db.Formatter(), nil)
+			AppendQuery(db.QueryGen(), nil)
 		if err != nil {
 			t.Fatal(err)
 		}

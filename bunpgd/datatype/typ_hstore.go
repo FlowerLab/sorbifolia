@@ -80,7 +80,7 @@ func scanHstore(dest reflect.Value, src any) error {
 	return nil
 }
 
-func appendHstore(_ schema.Formatter, b []byte, v reflect.Value) []byte {
+func appendHstore(_ schema.QueryGen, b []byte, v reflect.Value) []byte {
 	m := v.Convert(reflectype.MapStringString).Interface().(map[string]string)
 	if m == nil {
 		return append(b, "NULL"...)

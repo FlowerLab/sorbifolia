@@ -23,7 +23,7 @@ func TestParse(t *testing.T) {
 }
 
 func TestOperator_AppendQuery(t *testing.T) {
-	b, err := In.AppendQuery(schema.NewNopFormatter(), nil)
+	b, err := In.AppendQuery(schema.NewNopQueryGen(), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -33,7 +33,7 @@ func TestOperator_AppendQuery(t *testing.T) {
 
 	buf := make([]byte, 0, 32)
 
-	b, err = In.AppendQuery(schema.NewNopFormatter(), buf)
+	b, err = In.AppendQuery(schema.NewNopQueryGen(), buf)
 	if err != nil {
 		t.Fatal(err)
 	}

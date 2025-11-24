@@ -12,8 +12,8 @@ type arrayQueryAppender struct {
 	v  reflect.Value
 }
 
-func (x arrayQueryAppender) AppendQuery(fmter schema.Formatter, b []byte) ([]byte, error) {
-	return x.af(fmter, b, x.v), nil
+func (x arrayQueryAppender) AppendQuery(gen schema.QueryGen, b []byte) ([]byte, error) {
+	return x.af(gen, b, x.v), nil
 }
 
 func Array[T any](arr []T) schema.QueryAppender {
@@ -21,8 +21,8 @@ func Array[T any](arr []T) schema.QueryAppender {
 	return &arrayQueryAppender{af: TypeAppender(v.Type()), v: v}
 }
 
-func appendArray(sf schema.AppenderFunc) func(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
-	return func(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
+func appendArray(sf schema.AppenderFunc) func(gen schema.QueryGen, b []byte, v reflect.Value) []byte {
+	return func(gen schema.QueryGen, b []byte, v reflect.Value) []byte {
 		length := v.Len()
 		if length == 0 {
 			return append(b, "'{}'"...)
@@ -34,7 +34,7 @@ func appendArray(sf schema.AppenderFunc) func(fmter schema.Formatter, b []byte, 
 			}
 
 			s := len(b)
-			b = sf(fmter, b, v.Index(i))
+			b = sf(gen, b, v.Index(i))
 			e := len(b)
 
 			if s == e {
