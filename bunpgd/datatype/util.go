@@ -14,7 +14,7 @@ func scanLinearArray(src []byte) ([][]byte, error) {
 		return nil, err
 	}
 	if len(dims) > 1 {
-		return nil, fmt.Errorf("cannot convert ARRAY%s", strings.Replace(fmt.Sprint(dims), " ", "][", -1))
+		return nil, fmt.Errorf("cannot convert ARRAY%s", strings.ReplaceAll(fmt.Sprint(dims), " ", "]["))
 	}
 	return elems, err
 }
@@ -167,7 +167,7 @@ func hQuote(s any) string {
 	}
 
 	str = strings.ReplaceAll(str, "\\", "\\\\")
-	return `"` + strings.Replace(str, "\"", "\\\"", -1) + `"`
+	return `"` + strings.ReplaceAll(str, "\"", "\\\"") + `"`
 }
 
 func setNil(rv reflect.Value) {

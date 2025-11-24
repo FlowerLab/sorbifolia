@@ -15,7 +15,7 @@ func Fast() Random {
 func (r fastRand) RandString(length int) string {
 	arr := make([]int, length)
 	for i := range arr {
-		arr[i] = int(uint64(_fastRand()) * uint64(r.randString.randBytesLen) >> 32)
+		arr[i] = int(uint64(_fastRand()) * uint64(r.randBytesLen) >> 32)
 	}
 	return r.randString.RandString(arr)
 }

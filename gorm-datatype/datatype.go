@@ -16,7 +16,7 @@ type gormItr interface {
 }
 
 func isPostgres(db *gorm.DB, res string) string {
-	switch db.Dialector.Name() {
+	switch db.Name() {
 	case "postgres":
 		return res
 	}

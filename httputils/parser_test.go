@@ -42,7 +42,7 @@ func TestHeaderParser(t *testing.T) {
 		t.Error("err")
 	}
 	for _, v := range m {
-		if !(v == "a" || v == "b") {
+		if v != "a" && v != "b" {
 			t.Error("expected")
 		}
 	}

@@ -42,12 +42,12 @@ func addrScanner(fn schema.ScannerFunc) schema.ScannerFunc {
 }
 
 func addrAppender(fn schema.AppenderFunc) schema.AppenderFunc {
-	return func(fmter schema.Formatter, b []byte, v reflect.Value) []byte {
+	return func(gen schema.QueryGen, b []byte, v reflect.Value) []byte {
 		if !v.CanAddr() {
 			err := fmt.Errorf("bunpgd: Append(nonaddressable %T)", v.Interface())
 			return dialect.AppendError(b, err)
 		}
-		return fn(fmter, b, v.Addr())
+		return fn(gen, b, v.Addr())
 	}
 }
 

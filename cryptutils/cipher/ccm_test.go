@@ -316,7 +316,7 @@ func TestCcmGetTag(t *testing.T) {
 		plaintext := []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
 
 		data := _ccm.getTag(Ctr, add, plaintext)
-		fmt.Println(data)
+		fmt.Println(string(data))
 	})
 
 	t.Run("", func(t *testing.T) {
