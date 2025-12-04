@@ -28,7 +28,7 @@ func OptionalUpdate(q *bun.UpdateQuery, v any, skip ...string) *bun.UpdateQuery 
 	if rt.Kind() != reflect.Struct {
 		return q.Err(fmt.Errorf("expected a struct, got %T", v))
 	}
-
+	updateFlags := getUpdateFlags(rv, rt)
 	for i := 0; i < rt.NumField(); i++ {
 		field := rt.Field(i)
 		if field.Anonymous || !field.IsExported() {
@@ -46,12 +46,23 @@ func OptionalUpdate(q *bun.UpdateQuery, v any, skip ...string) *bun.UpdateQuery 
 		)
 
 		switch kind {
+		case reflect.Slice, reflect.Map:
+			if updateFlag, exists := updateFlags[tag]; !exists || !updateFlag {
+				continue
+			}
+
+			if val.IsNil() {
+				q.Set("? = NULL", bun.Ident(tag))
+			} else {
+				q.Set("? = ?", bun.Ident(tag), val.Interface())
+			}
+
 		case reflect.Bool,
 			reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
 			reflect.Float32, reflect.Float64,
 			reflect.Complex64, reflect.Complex128,
-			reflect.Array, reflect.Map, reflect.Slice, reflect.String, reflect.Struct:
+			reflect.Array, reflect.String, reflect.Struct:
 			q.Set("? = ?", bun.Ident(tag), val.Interface())
 
 		case reflect.Pointer:
@@ -117,12 +128,23 @@ func OptionalForceUpdate(q *bun.UpdateQuery, v any, force, skip []string) *bun.U
 		)
 
 		switch kind {
+		case reflect.Slice, reflect.Map:
+			if !isForce(tag) && val.IsNil() {
+				continue
+			}
+
+			if val.IsNil() {
+				q.Set("? = NULL", bun.Ident(tag))
+			} else {
+				q.Set("? = ?", bun.Ident(tag), val.Interface())
+			}
+
 		case reflect.Bool,
 			reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
 			reflect.Float32, reflect.Float64,
 			reflect.Complex64, reflect.Complex128,
-			reflect.Array, reflect.Map, reflect.Slice, reflect.String, reflect.Struct:
+			reflect.Array, reflect.String, reflect.Struct:
 			q.Set("? = ?", bun.Ident(tag), val.Interface())
 
 		case reflect.Pointer:
@@ -186,12 +208,18 @@ func SelectUpdate(q *bun.UpdateQuery, v any, selectKey ...string) *bun.UpdateQue
 		)
 
 		switch kind {
+		case reflect.Slice, reflect.Map:
+			if val.IsNil() {
+				q.Set("? = NULL", bun.Ident(tag))
+			} else {
+				q.Set("? = ?", bun.Ident(tag), val.Interface())
+			}
 		case reflect.Bool,
 			reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
 			reflect.Float32, reflect.Float64,
 			reflect.Complex64, reflect.Complex128,
-			reflect.Array, reflect.Map, reflect.Slice, reflect.String, reflect.Struct:
+			reflect.Array, reflect.String, reflect.Struct:
 			q.Set("? = ?", bun.Ident(tag), val.Interface())
 
 		case reflect.Pointer:
@@ -212,4 +240,31 @@ func SelectUpdate(q *bun.UpdateQuery, v any, selectKey ...string) *bun.UpdateQue
 	}
 
 	return q
+}
+
+// 获取结构体中的 update_xxx 标记字段
+func getUpdateFlags(rv reflect.Value, rt reflect.Type) map[string]bool {
+	flags := make(map[string]bool)
+
+	for i := 0; i < rt.NumField(); i++ {
+		field := rt.Field(i)
+		if !field.IsExported() {
+			continue
+		}
+
+		// 优化：先判断类型是否为布尔类型
+		if field.Type.Kind() != reflect.Bool {
+			continue
+		}
+
+		tag, _, _ := strings.Cut(field.Tag.Get("json"), ",")
+		// 再判断是否以 update_ 开头
+		if strings.HasPrefix(tag, "update_") {
+			flagName := strings.TrimPrefix(tag, "update_")
+			val := rv.Field(i)
+			flags[flagName] = val.Bool()
+		}
+	}
+
+	return flags
 }
