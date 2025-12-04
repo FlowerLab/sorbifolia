@@ -36,7 +36,7 @@ func OptionalUpdate(q *bun.UpdateQuery, v any, skip ...string) *bun.UpdateQuery 
 		}
 
 		tag, _, _ := strings.Cut(field.Tag.Get("json"), ",")
-		if tag == "-" || needSkip(tag) {
+		if tag == "-" || needSkip(tag) || strings.HasPrefix(tag, "up_flg_") {
 			continue
 		}
 
@@ -118,7 +118,7 @@ func OptionalForceUpdate(q *bun.UpdateQuery, v any, force, skip []string) *bun.U
 		}
 
 		tag, _, _ := strings.Cut(field.Tag.Get("json"), ",")
-		if tag == "-" || needSkip(tag) {
+		if tag == "-" || needSkip(tag) || strings.HasPrefix(tag, "up_flg_") {
 			continue
 		}
 
@@ -198,7 +198,7 @@ func SelectUpdate(q *bun.UpdateQuery, v any, selectKey ...string) *bun.UpdateQue
 		}
 
 		tag, _, _ := strings.Cut(field.Tag.Get("json"), ",")
-		if tag == "-" || !has(tag) {
+		if tag == "-" || !has(tag) || strings.HasPrefix(tag, "up_flg_") {
 			continue
 		}
 
@@ -242,7 +242,7 @@ func SelectUpdate(q *bun.UpdateQuery, v any, selectKey ...string) *bun.UpdateQue
 	return q
 }
 
-// 获取结构体中的 update_xxx 标记字段
+// 获取结构体中的 up_flg_xxx 标记字段
 func getUpdateFlags(rv reflect.Value, rt reflect.Type) map[string]bool {
 	flags := make(map[string]bool)
 
@@ -258,9 +258,9 @@ func getUpdateFlags(rv reflect.Value, rt reflect.Type) map[string]bool {
 		}
 
 		tag, _, _ := strings.Cut(field.Tag.Get("json"), ",")
-		// 再判断是否以 update_ 开头
-		if strings.HasPrefix(tag, "update_") {
-			flagName := strings.TrimPrefix(tag, "update_")
+		// 再判断是否以 up_flg_ 开头
+		if strings.HasPrefix(tag, "up_flg_") {
+			flagName := strings.TrimPrefix(tag, "up_flg_")
 			val := rv.Field(i)
 			flags[flagName] = val.Bool()
 		}
