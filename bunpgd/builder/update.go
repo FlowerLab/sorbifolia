@@ -28,15 +28,15 @@ func OptionalUpdate(q *bun.UpdateQuery, v any, skip ...string) *bun.UpdateQuery 
 	if rt.Kind() != reflect.Struct {
 		return q.Err(fmt.Errorf("expected a struct, got %T", v))
 	}
-	updateFlags := getUpdateFlags(rv, rt)
+
 	for i := 0; i < rt.NumField(); i++ {
 		field := rt.Field(i)
 		if field.Anonymous || !field.IsExported() {
 			continue
 		}
 
-		tag, _, _ := strings.Cut(field.Tag.Get("json"), ",")
-		if tag == "-" || needSkip(tag) || strings.HasPrefix(tag, "up_flg_") {
+		tag := getTagName(field)
+		if tag == "-" || needSkip(tag) {
 			continue
 		}
 
@@ -47,10 +47,6 @@ func OptionalUpdate(q *bun.UpdateQuery, v any, skip ...string) *bun.UpdateQuery 
 
 		switch kind {
 		case reflect.Slice, reflect.Map:
-			if updateFlag, exists := updateFlags[tag]; !exists || !updateFlag {
-				continue
-			}
-
 			if val.IsNil() {
 				q.Set("? = NULL", bun.Ident(tag))
 			} else {
@@ -117,8 +113,8 @@ func OptionalForceUpdate(q *bun.UpdateQuery, v any, force, skip []string) *bun.U
 			continue
 		}
 
-		tag, _, _ := strings.Cut(field.Tag.Get("json"), ",")
-		if tag == "-" || needSkip(tag) || strings.HasPrefix(tag, "up_flg_") {
+		tag := getTagName(field)
+		if tag == "-" || needSkip(tag) {
 			continue
 		}
 
@@ -197,8 +193,8 @@ func SelectUpdate(q *bun.UpdateQuery, v any, selectKey ...string) *bun.UpdateQue
 			continue
 		}
 
-		tag, _, _ := strings.Cut(field.Tag.Get("json"), ",")
-		if tag == "-" || !has(tag) || strings.HasPrefix(tag, "up_flg_") {
+		tag := getTagName(field)
+		if tag == "-" || !has(tag) {
 			continue
 		}
 
@@ -242,29 +238,11 @@ func SelectUpdate(q *bun.UpdateQuery, v any, selectKey ...string) *bun.UpdateQue
 	return q
 }
 
-// 获取结构体中的 up_flg_xxx 标记字段
-func getUpdateFlags(rv reflect.Value, rt reflect.Type) map[string]bool {
-	flags := make(map[string]bool)
-
-	for i := 0; i < rt.NumField(); i++ {
-		field := rt.Field(i)
-		if !field.IsExported() {
-			continue
-		}
-
-		// 优化：先判断类型是否为布尔类型
-		if field.Type.Kind() != reflect.Bool {
-			continue
-		}
-
-		tag, _, _ := strings.Cut(field.Tag.Get("json"), ",")
-		// 再判断是否以 up_flg_ 开头
-		if strings.HasPrefix(tag, "up_flg_") {
-			flagName := strings.TrimPrefix(tag, "up_flg_")
-			val := rv.Field(i)
-			flags[flagName] = val.Bool()
-		}
+func getTagName(field reflect.StructField) string {
+	tag, _, _ := strings.Cut(field.Tag.Get("update"), ",")
+	if tag == "" {
+		tag, _, _ = strings.Cut(field.Tag.Get("json"), ",")
 	}
 
-	return flags
+	return tag
 }
