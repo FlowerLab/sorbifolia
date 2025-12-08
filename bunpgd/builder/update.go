@@ -11,7 +11,7 @@ import (
 
 // OptionalUpdate updates the fields of the target struct with values from the update struct.
 //
-// If field in the struct is a pointer and is nil, it is not updated, else is always updated.
+// Deprecated: use UseUpdater(q, v).Ignore(skip).Exec()
 func OptionalUpdate(q *bun.UpdateQuery, v any, skip ...string) *bun.UpdateQuery {
 	needSkip := func(key string) bool {
 		for _, s := range skip {
@@ -74,6 +74,9 @@ func OptionalUpdate(q *bun.UpdateQuery, v any, skip ...string) *bun.UpdateQuery 
 	return q
 }
 
+// OptionalForceUpdate
+//
+// Deprecated: use UseUpdater(q, v).Exec()
 func OptionalForceUpdate(q *bun.UpdateQuery, v any, force, skip []string) *bun.UpdateQuery {
 	needSkip := func(key string) bool {
 		for _, s := range skip {
@@ -148,6 +151,9 @@ func OptionalForceUpdate(q *bun.UpdateQuery, v any, force, skip []string) *bun.U
 	return q
 }
 
+// SelectUpdate
+//
+// Deprecated: use UseUpdater(q, v).Select(selectKey).Exec()
 func SelectUpdate(q *bun.UpdateQuery, v any, selectKey ...string) *bun.UpdateQuery {
 	if len(selectKey) == 0 {
 		return q
@@ -228,7 +234,7 @@ func UseUpdater(q *bun.UpdateQuery, v any) *Updater { return &Updater{q: q, v: v
 func (x *Updater) Ignore(arr []string) *Updater     { x.key, x.mode = arr, 0; return x }
 func (x *Updater) Select(arr []string) *Updater     { x.key, x.mode = arr, 1; return x }
 func (x *Updater) PB() *Updater                     { x.pbc = true; return x }
-func (x *Updater) Exec() *bun.UpdateQuery           { return x.q }
+func (x *Updater) Exec() *bun.UpdateQuery           { return x.exec() }
 
 func (x *Updater) parseKey(tag reflect.StructTag) (key string, sqlKey bun.Ident) {
 	if key, _, _ = strings.Cut(tag.Get("json"), ","); key == "-" {
