@@ -4,8 +4,10 @@ go 1.24.0
 
 toolchain go1.24.4
 
+replace go.x2ox.com/sorbifolia/strong => ../strong
+
 require (
-	go.x2ox.com/sorbifolia/strong v0.0.0-20220628090723-5c08926d2f93
+	go.x2ox.com/sorbifolia/strong v0.0.0
 	gorm.io/gorm v1.31.1
 )
 
