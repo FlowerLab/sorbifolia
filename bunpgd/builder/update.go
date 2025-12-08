@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/uptrace/bun"
+	"go.x2ox.com/sorbifolia/bunpgd"
 )
 
 // OptionalUpdate updates the fields of the target struct with values from the update struct.
@@ -315,7 +316,14 @@ func (x *Updater) exec() *bun.UpdateQuery {
 		)
 
 		switch kind {
-		case reflect.Slice, reflect.Map:
+		case reflect.Slice:
+			if val.IsNil() {
+				q.Set("? = NULL", sqlKey)
+				continue
+			}
+			q.Set("? = ?", sqlKey, bunpgd.ArrayFormReflect(field.Type, val))
+
+		case reflect.Map:
 			if val.IsNil() {
 				q.Set("? = NULL", sqlKey)
 				continue
