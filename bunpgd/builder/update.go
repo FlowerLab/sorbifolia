@@ -221,12 +221,12 @@ type Updater struct {
 
 	pbc  bool  // protobuf compatible: Updater.key is protobuf tag json key, bun.UpdateQuery.Set use json key
 	mode uint8 // 0: ignore mode, 1: select mode
-	key  *[]string
+	key  []string
 }
 
 func UseUpdater(q *bun.UpdateQuery, v any) *Updater { return &Updater{q: q, v: v} }
-func (x *Updater) Ignore(arr []string) *Updater     { x.key, x.mode = &arr, 0; return x }
-func (x *Updater) Select(arr []string) *Updater     { x.key, x.mode = &arr, 1; return x }
+func (x *Updater) Ignore(arr []string) *Updater     { x.key, x.mode = arr, 0; return x }
+func (x *Updater) Select(arr []string) *Updater     { x.key, x.mode = arr, 1; return x }
 func (x *Updater) PB() *Updater                     { x.pbc = true; return x }
 func (x *Updater) Exec() *bun.UpdateQuery           { return x.q }
 
@@ -261,11 +261,7 @@ func (x *Updater) parseKey(tag reflect.StructTag) (key string, sqlKey bun.Ident)
 }
 
 func (x *Updater) has(key string) bool {
-	if x.key == nil || len(*x.key) == 0 {
-		return false
-	}
-
-	for _, k := range *x.key {
+	for _, k := range x.key {
 		if k == key {
 			return true
 		}
