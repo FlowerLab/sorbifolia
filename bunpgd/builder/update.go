@@ -295,6 +295,7 @@ func (x *Updater) exec() *bun.UpdateQuery {
 		rv = reflect.Indirect(reflect.ValueOf(x.v))
 		rt = rv.Type()
 	)
+
 	if rt.Kind() != reflect.Struct {
 		return q.Err(fmt.Errorf("expected a struct, got %T", x.v))
 	}
@@ -339,15 +340,13 @@ func (x *Updater) exec() *bun.UpdateQuery {
 			q.Set("? = ?", sqlKey, val.Interface())
 
 		case reflect.Pointer:
-			if val.IsNil() {
+			switch {
+			case val.IsNil():
 				q.Set("? = NULL", sqlKey)
-				continue
-			}
-
-			if field.Type.Elem().Kind() != reflect.Struct {
-				q.Set("? = ?", sqlKey, val.Elem().Interface())
-			} else {
+			case field.Type.Elem().Kind() == reflect.Struct:
 				q.Set("? = ?", sqlKey, val.Interface())
+			default:
+				q.Set("? = ?", sqlKey, val.Elem().Interface())
 			}
 
 		default:
