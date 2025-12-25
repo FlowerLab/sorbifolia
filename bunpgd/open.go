@@ -27,7 +27,7 @@ func WithConnMaxIdleTime(d time.Duration) bun.DBOption {
 }
 
 func WithOTEL(option ...bunotel.Option) bun.DBOption {
-	return func(db *bun.DB) { db.WithQueryHook(bunotel.NewQueryHook(option...)) }
+	return func(db *bun.DB) { *db = *db.WithQueryHook(bunotel.NewQueryHook(option...)) }
 }
 
 func WithSLog(opts ...bunslog.Option) bun.DBOption {
@@ -39,7 +39,7 @@ func WithSLog(opts ...bunslog.Option) bun.DBOption {
 			bunslog.WithSlowQueryThreshold(3 * time.Second),
 		}
 	}
-	return func(db *bun.DB) { db.WithQueryHook(bunslog.NewQueryHook(opts...)) }
+	return func(db *bun.DB) { *db = *db.WithQueryHook(bunslog.NewQueryHook(opts...)) }
 }
 
 func WithCreateTable(ctx context.Context, cancel context.CancelCauseFunc, model ...any) bun.DBOption {
