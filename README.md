@@ -1,6 +1,6 @@
 <h1 align="center">Sorbifolia</h1>
 
-**Sorbifolia** is a set of toolkits based on Golang 1.24.
+**Sorbifolia** is a set of toolkits for Golang.
 
 - [_cidr_](https://go.x2ox.com/sorbifolia/cidr)
 - [_coarsetime_](https://go.x2ox.com/sorbifolia/coarsetime) is a package for getting time under high performance.
