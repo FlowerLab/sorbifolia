@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
-          go-version: go.work
+          go-version-file: go.work
 
       - run: go test $(go work edit -json | jq -c -r -f filter.jq)
       - run: go test -race -cover -coverprofile="coverage.txt" $(go work edit -json | jq -c -r -f filter.jq)
