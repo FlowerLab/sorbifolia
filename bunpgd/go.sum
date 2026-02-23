@@ -25,8 +25,8 @@ github.com/uptrace/bun/driver/pgdriver v1.2.17 h1:mKpkdAd31tT5tIJYdLENoFYjgU8mXH
 github.com/uptrace/bun/driver/pgdriver v1.2.17/go.mod h1:NUq7hv9dndVNFTKYzb+WRt4UORL0AglQ65Ezz7fcr+A=
 github.com/uptrace/bun/extra/bunotel v1.2.17 h1:kL80lVBvz19/NNnQUmws9ym0nElly9XpYL4TS2LclMg=
 github.com/uptrace/bun/extra/bunotel v1.2.17/go.mod h1:vdKInyiWpUipVl164Lm28fvpJq2Zx3uy+zQ1AbRPaxs=
-github.com/uptrace/bun/extra/bunslog v1.2.16 h1:PwzU9HRuiXqK7myOagVap+8zgNVCHZ+2u4SziRqHs08=
-github.com/uptrace/bun/extra/bunslog v1.2.16/go.mod h1:FWxwjuVHNImst+ClAzHiIxSS2Hvbpo47hlBVf0+GPJ8=
+github.com/uptrace/bun/extra/bunslog v1.2.17 h1:ASfXNM8Owh2NQXe48KuLxAljmpC1IBxg2MPjPOt/0Lc=
+github.com/uptrace/bun/extra/bunslog v1.2.17/go.mod h1:5gORtxaSue0Zj7DiPTKnteXk5FsrBfBxWQR2Ay+35IQ=
 github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2 h1:ZjUj9BLYf9PEqBn8W/OapxhPjVRdC6CsXTdULHsyk5c=
 github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2/go.mod h1:O8bHQfyinKwTXKkiKNGmLQS7vRsqRxIQTFZpYpHK3IQ=
 github.com/vmihailenco/msgpack/v5 v5.4.1 h1:cQriyiUvjTwOHg8QZaPihLWeRAAVoCpE00IUPn0Bjt8=
