@@ -3,7 +3,7 @@ module go.x2ox.com/sorbifolia/bunpgd
 go 1.25
 
 require (
-	github.com/uptrace/bun v1.2.16
+	github.com/uptrace/bun v1.2.17
 	github.com/uptrace/bun/driver/pgdriver v1.2.16
 	github.com/uptrace/bun/extra/bunotel v1.2.16
 	github.com/uptrace/bun/extra/bunslog v1.2.16
