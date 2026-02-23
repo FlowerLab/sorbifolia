@@ -21,8 +21,8 @@ github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc h1:9lRDQMhESg+zvGYm
 github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc/go.mod h1:bciPuU6GHm1iF1pBvUfxfsH0Wmnc2VbpgvbI9ZWuIRs=
 github.com/uptrace/bun v1.2.17 h1:3AV30/MrgVIL8haNbIQ7Z4I/eQGmaSlfK2T8W8ZprhM=
 github.com/uptrace/bun v1.2.17/go.mod h1:wNltaKJk4JtOt4SG5I5zmA7v0/Mzjh1+/S906Rayd3Y=
-github.com/uptrace/bun/driver/pgdriver v1.2.16 h1:b1kpXKUxtTSGYow5Vlsb+dKV3z0R7aSAJNfMfKp61ZU=
-github.com/uptrace/bun/driver/pgdriver v1.2.16/go.mod h1:H6lUZ9CBfp1X5Vq62YGSV7q96/v94ja9AYFjKvdoTk0=
+github.com/uptrace/bun/driver/pgdriver v1.2.17 h1:mKpkdAd31tT5tIJYdLENoFYjgU8mXHE1DFgqsx+Shas=
+github.com/uptrace/bun/driver/pgdriver v1.2.17/go.mod h1:NUq7hv9dndVNFTKYzb+WRt4UORL0AglQ65Ezz7fcr+A=
 github.com/uptrace/bun/extra/bunotel v1.2.17 h1:kL80lVBvz19/NNnQUmws9ym0nElly9XpYL4TS2LclMg=
 github.com/uptrace/bun/extra/bunotel v1.2.17/go.mod h1:vdKInyiWpUipVl164Lm28fvpJq2Zx3uy+zQ1AbRPaxs=
 github.com/uptrace/bun/extra/bunslog v1.2.16 h1:PwzU9HRuiXqK7myOagVap+8zgNVCHZ+2u4SziRqHs08=
