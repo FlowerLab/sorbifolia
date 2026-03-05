@@ -48,7 +48,7 @@ func (f Field) handle(v reflect.Value) reflectype.BunQueryBuilder {
 		case 1:
 			return where("? = ?", f.Key, v.Index(0).Interface())
 		default:
-			return where("? ? (?)", f.Key, f.Op, bun.In(v.Interface()))
+			return where("? ? (?)", f.Key, f.Op, bun.List(v.Interface()))
 		}
 
 	case op.NotLike, op.Like:
