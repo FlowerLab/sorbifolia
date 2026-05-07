@@ -1,8 +1,6 @@
 module go.x2ox.com/sorbifolia/crpc
 
-go 1.24.0
-
-toolchain go1.24.4
+go 1.25.0
 
 require (
 	connectrpc.com/connect v1.16.2
