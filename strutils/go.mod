@@ -1,5 +1,5 @@
 module go.x2ox.com/sorbifolia/strutils
 
-go 1.20
+go 1.23.0
 
 require go.x2ox.com/sorbifolia/pyrokinesis v0.0.0-20221014093951-f66cec7d13d0
