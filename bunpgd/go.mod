@@ -1,6 +1,6 @@
 module go.x2ox.com/sorbifolia/bunpgd
 
-go 1.25
+go 1.25.0
 
 require (
 	github.com/uptrace/bun v1.2.18
