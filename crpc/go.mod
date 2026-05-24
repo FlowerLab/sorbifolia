@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	connectrpc.com/connect v1.20.0
 	github.com/VictoriaMetrics/metrics v1.35.1
-	github.com/bufbuild/httplb v0.3.0
+	github.com/bufbuild/httplb v0.4.1
 	github.com/rs/cors v1.11.1
 	golang.org/x/net v0.55.0
 )
