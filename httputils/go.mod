@@ -1,8 +1,6 @@
 module go.x2ox.com/sorbifolia/httputils
 
-go 1.24.0
-
-toolchain go1.24.4
+go 1.25.0
 
 require github.com/valyala/fasthttp v1.70.0
 
@@ -10,6 +8,6 @@ require (
 	github.com/andybalholm/brotli v1.2.1 // indirect
 	github.com/klauspost/compress v1.18.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	golang.org/x/net v0.50.0 // indirect
-	golang.org/x/text v0.34.0 // indirect
+	golang.org/x/net v0.54.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 )
