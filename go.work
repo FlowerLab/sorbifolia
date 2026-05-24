@@ -5,7 +5,6 @@ use (
 	bunpgd
 	cidr
 	coarsetime
-	crpc
 	cryptutils
 	datastructures
 	debugger

@@ -10,7 +10,7 @@ func Call[T any](s T, name string, args []reflect.Value) []reflect.Value {
 		p = reflect.Value{}
 	)
 
-	if v.Kind() == reflect.Ptr {
+	if v.Kind() == reflect.Pointer {
 		p = v
 		v = p.Elem()
 	} else {
