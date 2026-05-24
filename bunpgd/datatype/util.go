@@ -172,7 +172,7 @@ func hQuote(s any) string {
 
 func setNil(rv reflect.Value) {
 	switch rv.Kind() {
-	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
 		if rv.IsNil() {
 			return
 		}
