@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	go.uber.org/zap v1.28.0
 	go.x2ox.com/sorbifolia/coarsetime v0.0.0-20220901085912-d53b708be0cc
-	gorm.io/gorm v1.31.1
+	gorm.io/gorm v1.31.2
 )
 
 require (
