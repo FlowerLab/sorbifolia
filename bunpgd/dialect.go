@@ -48,5 +48,6 @@ func (d *Dialect) Features() feature.Feature {
 		feature.SelectExists |
 		feature.GeneratedIdentity |
 		feature.CompositeIn |
-		feature.DeleteReturning
+		feature.DeleteReturning |
+		feature.CreateIndexIfNotExists
 }
