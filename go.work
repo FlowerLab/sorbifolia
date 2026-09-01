@@ -13,7 +13,6 @@ use (
 	jsonutils
 	jwt
 	password
-	pool
 	pyrokinesis
 	random
 	rogu
