@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/go-git/go-git/v5 v5.19.2
-	go.x2ox.com/sorbifolia/random v0.0.0-20260901041326-b11d85ffc2d3
+	go.x2ox.com/sorbifolia/random v1.25.0
 	golang.org/x/mod v0.40.0
 )
 
@@ -26,7 +26,7 @@ require (
 	github.com/skeema/knownhosts v1.3.3 // indirect
 	github.com/stretchr/testify v1.12.1 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
-	go.x2ox.com/sorbifolia/pyrokinesis v0.0.0-20260901041326-b11d85ffc2d3 // indirect
+	go.x2ox.com/sorbifolia/pyrokinesis v1.25.0 // indirect
 	golang.org/x/crypto v0.55.0 // indirect
 	golang.org/x/net v0.58.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
