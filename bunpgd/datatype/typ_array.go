@@ -28,7 +28,7 @@ func appendArray(sf schema.AppenderFunc) func(gen schema.QueryGen, b []byte, v r
 			return append(b, "'{}'"...)
 		}
 
-		for i := 0; i < length; i++ {
+		for i := range length {
 			if i == 0 {
 				b = append(b, "'{"...)
 			}
@@ -76,7 +76,7 @@ func scanArray(sf schema.ScannerFunc) func(dest reflect.Value, src any) error {
 
 		slice := reflect.MakeSlice(dest.Type(), length, length)
 
-		for i := 0; i < length; i++ {
+		for i := range length {
 			if err = sf(slice.Index(i), arr[i]); err != nil {
 				return err
 			}

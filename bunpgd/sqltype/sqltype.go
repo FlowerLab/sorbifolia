@@ -14,6 +14,7 @@ const (
 	INet    = "INET"
 	CIDR    = "CIDR"
 	MacAddr = "MACADDR"
+	UUID    = "UUID"
 
 	SmallSerial = "SMALLSERIAL"
 	Serial      = "SERIAL"

@@ -248,13 +248,7 @@ func (x *Updater) parseKey(tag reflect.StructTag) (key string, sqlKey bun.Ident)
 }
 
 func (x *Updater) has(key string) bool {
-	for _, k := range x.key {
-		if k == key {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(x.key, key)
 }
 
 func (x *Updater) check(key string) bool {

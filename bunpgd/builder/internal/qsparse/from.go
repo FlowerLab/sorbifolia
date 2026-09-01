@@ -148,7 +148,7 @@ func fromArray(val []string, rt reflect.Type, v reflect.Value) error {
 	if v.Len() < length {
 		return errors.New("invalid array length")
 	}
-	for i := 0; i < length; i++ {
+	for i := range length {
 		if err := fromUnknown(val[i:], rt, v.Index(i)); err != nil {
 			return err
 		}

@@ -2,6 +2,7 @@ package reflectype
 
 import (
 	"reflect"
+	"uuid"
 
 	"github.com/uptrace/bun"
 )
@@ -18,4 +19,5 @@ var (
 	MapStringString = reflect.TypeFor[map[string]string]()
 	QueryBuilder    = reflect.TypeFor[BunQueryBuilder]()
 	FromQS          = reflect.TypeFor[FromQueryParameters]()
+	UUID            = reflect.TypeFor[uuid.UUID]()
 )

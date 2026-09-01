@@ -8,18 +8,18 @@ import (
 
 // Test structs for Updater tests
 type testUpdaterStruct struct {
-	ID        uint64                 `json:"id"`
-	Name      string                 `json:"name"`
-	Age       int                    `json:"age"`
-	Score     float64                `json:"score"`
-	Active    bool                   `json:"active"`
-	Tags      []string               `json:"tags"`
-	Data      map[string]interface{} `json:"data"`
-	Email     *string                `json:"email"`
-	Phone     *string                `json:"phone"`
-	Metadata  *testMetadata          `json:"metadata"`
-	CreatedAt time.Time              `json:"created_at"`
-	Ignored   string                 `json:"-"`
+	ID        uint64         `json:"id"`
+	Name      string         `json:"name"`
+	Age       int            `json:"age"`
+	Score     float64        `json:"score"`
+	Active    bool           `json:"active"`
+	Tags      []string       `json:"tags"`
+	Data      map[string]any `json:"data"`
+	Email     *string        `json:"email"`
+	Phone     *string        `json:"phone"`
+	Metadata  *testMetadata  `json:"metadata"`
+	CreatedAt time.Time      `json:"created_at"`
+	Ignored   string         `json:"-"`
 	Anonymous struct {
 		Value string `json:"value"`
 	} `json:"anonymous"`
@@ -200,7 +200,7 @@ func TestUpdater_Exec_MapTypes(t *testing.T) {
 	q := db.NewUpdate().Model(&User{}).Where("1=1")
 	v := &testUpdaterStruct{
 		ID: 1,
-		Data: map[string]interface{}{
+		Data: map[string]any{
 			"key1": "value1",
 			"key2": 42,
 		},
@@ -325,7 +325,7 @@ func TestUpdater_Exec_IgnoresJsonDashTag(t *testing.T) {
 
 func TestUpdater_Exec_ErrorOnNonStruct(t *testing.T) {
 	q := db.NewUpdate().Model(&User{})
-	v := map[string]interface{}{"id": 1}
+	v := map[string]any{"id": 1}
 
 	query := UseUpdater(q, v).Exec()
 	_, err := query.AppendQuery(db.QueryGen(), nil)

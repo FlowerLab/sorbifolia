@@ -101,6 +101,8 @@ func DiscoverComplexType(typ reflect.Type) string {
 		return CIDR
 	case reflectype.HardwareAddr:
 		return MacAddr
+	case reflectype.UUID:
+		return UUID
 	default:
 		return UnknownType
 	}
