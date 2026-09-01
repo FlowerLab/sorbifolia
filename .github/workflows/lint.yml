@@ -5,11 +5,16 @@ on:
       - main
   pull_request:
 
+env:
+  GO_MODULES: >-
+    ./buffer/... ./bunpgd/... ./coarsetime/... ./debugger/... ./jwt/...
+    ./password/... ./pyrokinesis/... ./random/... ./strong/... ./strutils/...
+
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-go@v6
         with:
           go-version-file: go.work
@@ -18,4 +23,4 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
-          args: --timeout=5m -- $(go work edit -json | jq -c -r '[.Use[].DiskPath] | map_values(. + "/...")[]')
+          args: --timeout=5m -- ${{ env.GO_MODULES }}

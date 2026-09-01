@@ -5,6 +5,11 @@ on:
       - main
   pull_request:
 
+env:
+  GO_MODULES: >-
+    ./buffer/... ./bunpgd/... ./coarsetime/... ./debugger/... ./jwt/...
+    ./password/... ./pyrokinesis/... ./random/... ./strong/... ./strutils/...
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -14,8 +19,8 @@ jobs:
         with:
           go-version-file: go.work
 
-      - run: go test $(go work edit -json | jq -c -r -f filter.jq)
-      - run: go test -race -cover -coverprofile="coverage.txt" $(go work edit -json | jq -c -r -f filter.jq)
+      - run: go test $GO_MODULES
+      - run: go test -race -cover -coverprofile="coverage.txt" $GO_MODULES
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         env:
