@@ -6,13 +6,9 @@ use (
 	cidr
 	coarsetime
 	cryptutils
-	datastructures
 	debugger
-	finder
 	gomod
 	gorm-datatype
-	gorm-pure-sqlite
-	httprouter
 	httputils
 	jsonutils
 	jwt
