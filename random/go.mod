@@ -2,4 +2,4 @@ module go.x2ox.com/sorbifolia/random
 
 go 1.25.0
 
-require go.x2ox.com/sorbifolia/pyrokinesis v0.0.0-20220908092021-3d6ca7922988
+require go.x2ox.com/sorbifolia/pyrokinesis v1.25.0
