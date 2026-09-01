@@ -3,12 +3,12 @@ module go.x2ox.com/sorbifolia/gorm-datatype
 go 1.25.0
 
 require (
-	go.x2ox.com/sorbifolia/strong v0.0.0-20220628090723-5c08926d2f93
-	gorm.io/gorm v1.31.1
+	go.x2ox.com/sorbifolia/strong v0.0.0-20260901041326-b11d85ffc2d3
+	gorm.io/gorm v1.31.2
 )
 
 require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	golang.org/x/text v0.37.0 // indirect
+	golang.org/x/text v0.41.0 // indirect
 )

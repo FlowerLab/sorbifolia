@@ -2,6 +2,6 @@ module go.x2ox.com/sorbifolia/password
 
 go 1.25.0
 
-require golang.org/x/crypto v0.52.0
+require golang.org/x/crypto v0.55.0
 
-require golang.org/x/sys v0.45.0 // indirect
+require golang.org/x/sys v0.47.0 // indirect
