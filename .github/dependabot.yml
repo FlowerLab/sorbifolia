@@ -26,16 +26,6 @@ updates:
       interval: "daily"
 
   - package-ecosystem: "gomod"
-    directory: "/datastructures"
-    schedule:
-      interval: "daily"
-
-  - package-ecosystem: "gomod"
-    directory: "/finder"
-    schedule:
-      interval: "daily"
-
-  - package-ecosystem: "gomod"
     directory: "/gomod"
     schedule:
       interval: "daily"
@@ -62,11 +52,6 @@ updates:
 
   - package-ecosystem: "gomod"
     directory: "/password"
-    schedule:
-      interval: "daily"
-
-  - package-ecosystem: "gomod"
-    directory: "/pool"
     schedule:
       interval: "daily"
 
