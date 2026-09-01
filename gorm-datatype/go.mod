@@ -3,7 +3,7 @@ module go.x2ox.com/sorbifolia/gorm-datatype
 go 1.25.0
 
 require (
-	go.x2ox.com/sorbifolia/strong v0.0.0-20260901041326-b11d85ffc2d3
+	go.x2ox.com/sorbifolia/strong v1.0.0
 	gorm.io/gorm v1.31.2
 )
 
