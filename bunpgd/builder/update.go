@@ -3,6 +3,7 @@ package builder
 import (
 	"fmt"
 	"reflect"
+	"slices"
 	"strings"
 
 	"github.com/uptrace/bun"
@@ -14,12 +15,7 @@ import (
 // Deprecated: use UseUpdater(q, v).Ignore(skip).Exec()
 func OptionalUpdate(q *bun.UpdateQuery, v any, skip ...string) *bun.UpdateQuery {
 	needSkip := func(key string) bool {
-		for _, s := range skip {
-			if key == s {
-				return true
-			}
-		}
-		return false
+		return slices.Contains(skip, key)
 	}
 
 	var (
@@ -79,21 +75,11 @@ func OptionalUpdate(q *bun.UpdateQuery, v any, skip ...string) *bun.UpdateQuery 
 // Deprecated: use UseUpdater(q, v).Exec()
 func OptionalForceUpdate(q *bun.UpdateQuery, v any, force, skip []string) *bun.UpdateQuery {
 	needSkip := func(key string) bool {
-		for _, s := range skip {
-			if key == s {
-				return true
-			}
-		}
-		return false
+		return slices.Contains(skip, key)
 	}
 
 	isForce := func(key string) bool {
-		for _, s := range force {
-			if key == s {
-				return true
-			}
-		}
-		return false
+		return slices.Contains(force, key)
 	}
 
 	var (
@@ -160,12 +146,7 @@ func SelectUpdate(q *bun.UpdateQuery, v any, selectKey ...string) *bun.UpdateQue
 	}
 
 	has := func(key string) bool {
-		for _, s := range selectKey {
-			if key == s {
-				return true
-			}
-		}
-		return false
+		return slices.Contains(selectKey, key)
 	}
 
 	var (
