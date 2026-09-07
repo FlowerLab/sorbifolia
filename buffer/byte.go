@@ -65,7 +65,7 @@ func (b *Byte) Reset()         { b.B = b.B[:0] }
 
 func (b *Byte) Free() { b.Reset(); bytePool.Put(b) }
 
-func (b *Byte) Reader() Reader { return &ByteReader{Byte: b} }
+func (b *Byte) Reader() *ByteReader { return &ByteReader{Byte: b} }
 
 var (
 	_ io.Writer       = (*Byte)(nil)
@@ -73,5 +73,4 @@ var (
 	_ io.ByteWriter   = (*Byte)(nil)
 	_ io.ReaderFrom   = (*Byte)(nil)
 	_ fmt.Stringer    = (*Byte)(nil)
-	_ Buffer          = (*Byte)(nil)
 )

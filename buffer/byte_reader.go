@@ -13,7 +13,7 @@ type ByteReader struct {
 
 func (r *ByteReader) Close() error {
 	r.Byte.Free()
-	r.B = nil
+	r.Byte = nil
 	r.offset = 0
 	return nil
 }
@@ -43,10 +43,10 @@ func (r *ByteReader) Seek(offset int64, whence int) (abs int64, _ error) {
 	case io.SeekEnd:
 		abs = int64(r.Len()) + offset
 	default:
-		return 0, errors.New("buffer.ByteReader.Seek: invalid whence")
+		return 0, ErrInvalidWhence
 	}
 	if abs < 0 {
-		return 0, errors.New("buffer.ByteReader.Seek: negative position")
+		return 0, ErrNegativePosition
 	}
 
 	r.offset = abs
@@ -59,7 +59,7 @@ func (r *ByteReader) ReadAt(b []byte, off int64) (n int, err error) {
 	}
 
 	if off < 0 {
-		return 0, errors.New("buffer.ByteReader.ReadAt: negative offset")
+		return 0, ErrNegativeOffset
 	}
 	if off >= int64(r.Len()) {
 		return 0, io.EOF
@@ -75,5 +75,8 @@ var (
 	_ io.Seeker   = (*ByteReader)(nil)
 	_ io.ReaderAt = (*ByteReader)(nil)
 	_ io.Closer   = (*ByteReader)(nil)
-	_ Reader      = (*ByteReader)(nil)
+
+	ErrInvalidWhence    = errors.New("buffer.ByteReader: invalid whence")
+	ErrNegativePosition = errors.New("buffer.ByteReader: negative position")
+	ErrNegativeOffset   = errors.New("buffer.ByteReader: negative offset")
 )
