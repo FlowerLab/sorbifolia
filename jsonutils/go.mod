@@ -1,3 +1,3 @@
 module go.x2ox.com/sorbifolia/jsonutils
 
-go 1.25.0
+go 1.26.0

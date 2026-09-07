@@ -1,6 +1,6 @@
 module go.x2ox.com/sorbifolia/rogu
 
-go 1.25.0
+go 1.26.0
 
 require (
 	go.uber.org/zap v1.28.0
