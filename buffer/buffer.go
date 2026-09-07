@@ -16,4 +16,5 @@ type Buffer interface {
 type Reader interface {
 	Buffer
 	io.ReadSeeker
+	io.Closer
 }

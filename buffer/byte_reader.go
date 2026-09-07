@@ -3,6 +3,7 @@ package buffer
 import (
 	"errors"
 	"io"
+	"io/fs"
 )
 
 type ByteReader struct {
@@ -10,7 +11,18 @@ type ByteReader struct {
 	offset int64
 }
 
+func (r *ByteReader) Close() error {
+	r.Byte.Free()
+	r.B = nil
+	r.offset = 0
+	return nil
+}
+
 func (r *ByteReader) Read(p []byte) (n int, err error) {
+	if r.Byte == nil {
+		return 0, fs.ErrClosed
+	}
+
 	if n = copy(p, r.B[r.offset:]); n < len(p) {
 		err = io.EOF
 	}
@@ -19,6 +31,10 @@ func (r *ByteReader) Read(p []byte) (n int, err error) {
 }
 
 func (r *ByteReader) Seek(offset int64, whence int) (abs int64, _ error) {
+	if r.Byte == nil {
+		return 0, fs.ErrClosed
+	}
+
 	switch whence {
 	case io.SeekStart:
 		abs = offset
@@ -38,6 +54,10 @@ func (r *ByteReader) Seek(offset int64, whence int) (abs int64, _ error) {
 }
 
 func (r *ByteReader) ReadAt(b []byte, off int64) (n int, err error) {
+	if r.Byte == nil {
+		return 0, fs.ErrClosed
+	}
+
 	if off < 0 {
 		return 0, errors.New("buffer.ByteReader.ReadAt: negative offset")
 	}
@@ -54,5 +74,6 @@ var (
 	_ io.Reader   = (*ByteReader)(nil)
 	_ io.Seeker   = (*ByteReader)(nil)
 	_ io.ReaderAt = (*ByteReader)(nil)
+	_ io.Closer   = (*ByteReader)(nil)
 	_ Reader      = (*ByteReader)(nil)
 )

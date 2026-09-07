@@ -3,11 +3,16 @@ package buffer
 import (
 	"fmt"
 	"io"
+	"sync"
 )
 
 type Byte struct {
 	B []byte
 }
+
+var bytePool = sync.Pool{New: func() any { return &Byte{B: make([]byte, 0, 64)} }}
+
+func GetByte() *Byte { return bytePool.Get().(*Byte) }
 
 func (b *Byte) ReadFrom(r io.Reader) (int64, error) {
 	var (
@@ -57,6 +62,8 @@ func (b *Byte) Len() int       { return len(b.B) }
 func (b *Byte) Cap() int       { return cap(b.B) }
 func (b *Byte) Bytes() []byte  { return b.B }
 func (b *Byte) Reset()         { b.B = b.B[:0] }
+
+func (b *Byte) Free() { b.Reset(); bytePool.Put(b) }
 
 func (b *Byte) Reader() Reader { return &ByteReader{Byte: b} }
 
