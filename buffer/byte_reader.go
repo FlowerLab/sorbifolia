@@ -11,11 +11,12 @@ type ByteReader struct {
 	offset int64
 }
 
-func (r *ByteReader) Close() error {
+func (r *ByteReader) Close() error { r.Free(); return nil }
+
+func (r *ByteReader) Free() {
 	r.Byte.Free()
 	r.Byte = nil
 	r.offset = 0
-	return nil
 }
 
 func (r *ByteReader) Read(p []byte) (n int, err error) {
