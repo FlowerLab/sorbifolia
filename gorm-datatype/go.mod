@@ -1,6 +1,6 @@
 module go.x2ox.com/sorbifolia/gorm-datatype
 
-go 1.25.0
+go 1.26.0
 
 require (
 	go.x2ox.com/sorbifolia/strong v1.0.0
