@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/go-git/go-git/v5 v5.19.2
 	go.x2ox.com/sorbifolia/random v1.25.0
-	golang.org/x/mod v0.40.0
+	golang.org/x/mod v0.41.0
 )
 
 require (
