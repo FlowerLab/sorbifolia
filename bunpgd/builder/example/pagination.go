@@ -47,11 +47,11 @@ func (x *Pagination) BunQueryBuilder(q bun.QueryBuilder) bun.QueryBuilder {
 		case limit+offset > 100*10000:
 			q.Err(errors.New("page too big"))
 		case limit > 0 && offset > 0:
-			q.Limit(limit).Offset(offset)
+			q.Limit(int64(limit)).Offset(int64(offset))
 		case limit > 0:
-			q.Limit(limit)
+			q.Limit(int64(limit))
 		case offset > 0:
-			q.Offset(offset)
+			q.Offset(int64(offset))
 		}
 	default:
 	}
