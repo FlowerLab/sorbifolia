@@ -1,9 +1,12 @@
 package builder
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/uptrace/bun"
 )
 
 // Test structs for Updater tests
@@ -37,7 +40,7 @@ type testProtobufStruct struct {
 }
 
 func TestUpdater_UseUpdater(t *testing.T) {
-	q := db.NewUpdate().Model(&User{})
+	q := db.NewUpdate().Model(&user{})
 	v := &testUpdaterStruct{ID: 1}
 
 	updater := UseUpdater(q, v)
@@ -53,7 +56,7 @@ func TestUpdater_UseUpdater(t *testing.T) {
 }
 
 func TestUpdater_Ignore(t *testing.T) {
-	q := db.NewUpdate().Model(&User{}).Where("1=1")
+	q := db.NewUpdate().Model(&user{}).Where("1=1")
 	v := &testUpdaterStruct{
 		ID:   1,
 		Name: "test",
@@ -73,7 +76,7 @@ func TestUpdater_Ignore(t *testing.T) {
 }
 
 func TestUpdater_Select(t *testing.T) {
-	q := db.NewUpdate().Model(&User{}).Where("1=1")
+	q := db.NewUpdate().Model(&user{}).Where("1=1")
 	v := &testUpdaterStruct{
 		ID:   1,
 		Name: "test",
@@ -93,7 +96,7 @@ func TestUpdater_Select(t *testing.T) {
 }
 
 func TestUpdater_Exec_BasicTypes(t *testing.T) {
-	q := db.NewUpdate().Model(&User{}).Where("1=1")
+	q := db.NewUpdate().Model(&user{}).Where("1=1")
 	v := &testUpdaterStruct{
 		ID:     1,
 		Name:   "test",
@@ -118,7 +121,7 @@ func TestUpdater_Exec_PointerTypes(t *testing.T) {
 	email := "test@example.com"
 	phone := "1234567890"
 
-	q := db.NewUpdate().Model(&User{}).Where("1=1")
+	q := db.NewUpdate().Model(&user{}).Where("1=1")
 	v := &testUpdaterStruct{
 		ID:    1,
 		Email: &email,
@@ -138,7 +141,7 @@ func TestUpdater_Exec_PointerTypes(t *testing.T) {
 }
 
 func TestUpdater_Exec_NilPointer(t *testing.T) {
-	q := db.NewUpdate().Model(&User{}).Where("1=1")
+	q := db.NewUpdate().Model(&user{}).Where("1=1")
 	v := &testUpdaterStruct{
 		ID:    1,
 		Email: nil,
@@ -158,7 +161,7 @@ func TestUpdater_Exec_NilPointer(t *testing.T) {
 }
 
 func TestUpdater_Exec_SliceTypes(t *testing.T) {
-	q := db.NewUpdate().Model(&User{}).Where("1=1")
+	q := db.NewUpdate().Model(&user{}).Where("1=1")
 	v := &testUpdaterStruct{
 		ID:   1,
 		Tags: []string{"tag1", "tag2", "tag3"},
@@ -178,7 +181,7 @@ func TestUpdater_Exec_SliceTypes(t *testing.T) {
 }
 
 func TestUpdater_Exec_NilSlice(t *testing.T) {
-	q := db.NewUpdate().Model(&User{}).Where("1=1")
+	q := db.NewUpdate().Model(&user{}).Where("1=1")
 	v := &testUpdaterStruct{
 		ID:   1,
 		Tags: nil,
@@ -197,7 +200,7 @@ func TestUpdater_Exec_NilSlice(t *testing.T) {
 }
 
 func TestUpdater_Exec_MapTypes(t *testing.T) {
-	q := db.NewUpdate().Model(&User{}).Where("1=1")
+	q := db.NewUpdate().Model(&user{}).Where("1=1")
 	v := &testUpdaterStruct{
 		ID: 1,
 		Data: map[string]any{
@@ -220,7 +223,7 @@ func TestUpdater_Exec_MapTypes(t *testing.T) {
 }
 
 func TestUpdater_Exec_NilMap(t *testing.T) {
-	q := db.NewUpdate().Model(&User{}).Where("1=1")
+	q := db.NewUpdate().Model(&user{}).Where("1=1")
 	v := &testUpdaterStruct{
 		ID:   1,
 		Data: nil,
@@ -244,7 +247,7 @@ func TestUpdater_Exec_StructPointer(t *testing.T) {
 		Value: "test_value",
 	}
 
-	q := db.NewUpdate().Model(&User{}).Where("1=1")
+	q := db.NewUpdate().Model(&user{}).Where("1=1")
 	v := &testUpdaterStruct{
 		ID:       1,
 		Metadata: metadata,
@@ -265,7 +268,7 @@ func TestUpdater_Exec_StructPointer(t *testing.T) {
 func TestUpdater_Exec_TimeType(t *testing.T) {
 	now := time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC)
 
-	q := db.NewUpdate().Model(&User{}).Where("1=1")
+	q := db.NewUpdate().Model(&user{}).Where("1=1")
 	v := &testUpdaterStruct{
 		ID:        1,
 		CreatedAt: now,
@@ -284,7 +287,7 @@ func TestUpdater_Exec_TimeType(t *testing.T) {
 }
 
 func TestUpdater_Exec_IgnoresAnonymousFields(t *testing.T) {
-	q := db.NewUpdate().Model(&User{}).Where("1=1")
+	q := db.NewUpdate().Model(&user{}).Where("1=1")
 	v := &testUpdaterStruct{
 		ID: 1,
 	}
@@ -304,7 +307,7 @@ func TestUpdater_Exec_IgnoresAnonymousFields(t *testing.T) {
 }
 
 func TestUpdater_Exec_IgnoresJsonDashTag(t *testing.T) {
-	q := db.NewUpdate().Model(&User{}).Where("1=1")
+	q := db.NewUpdate().Model(&user{}).Where("1=1")
 	v := &testUpdaterStruct{
 		ID:      1,
 		Ignored: "should be ignored",
@@ -324,7 +327,7 @@ func TestUpdater_Exec_IgnoresJsonDashTag(t *testing.T) {
 }
 
 func TestUpdater_Exec_ErrorOnNonStruct(t *testing.T) {
-	q := db.NewUpdate().Model(&User{})
+	q := db.NewUpdate().Model(&user{})
 	v := map[string]any{"id": 1}
 
 	query := UseUpdater(q, v).Exec()
@@ -340,7 +343,7 @@ func TestUpdater_Exec_ErrorOnNonStruct(t *testing.T) {
 }
 
 func TestUpdater_PB_ProtobufTag(t *testing.T) {
-	q := db.NewUpdate().Model(&User{}).Where("1=1")
+	q := db.NewUpdate().Model(&user{}).Where("1=1")
 	v := &testProtobufStruct{
 		SearchKey: "test_search",
 		UserName:  "test_user",
@@ -363,7 +366,7 @@ func TestUpdater_PB_ProtobufTag(t *testing.T) {
 }
 
 func TestUpdater_Ignore_EmptyList(t *testing.T) {
-	q := db.NewUpdate().Model(&User{}).Where("1=1")
+	q := db.NewUpdate().Model(&user{}).Where("1=1")
 	v := &testUpdaterStruct{
 		ID:   1,
 		Name: "test",
@@ -391,7 +394,7 @@ func TestUpdater_Ignore_EmptyList(t *testing.T) {
 }
 
 func TestUpdater_Select_EmptyList(t *testing.T) {
-	q := db.NewUpdate().Model(&User{}).Where("1=1")
+	q := db.NewUpdate().Model(&user{}).Where("1=1")
 	v := &testUpdaterStruct{
 		ID:   1,
 		Name: "test",
@@ -411,7 +414,7 @@ func TestUpdater_Select_EmptyList(t *testing.T) {
 }
 
 func TestUpdater_Exec_EmptySlice(t *testing.T) {
-	q := db.NewUpdate().Model(&User{}).Where("1=1")
+	q := db.NewUpdate().Model(&user{}).Where("1=1")
 	v := &testUpdaterStruct{
 		ID:   1,
 		Tags: []string{},
@@ -431,7 +434,7 @@ func TestUpdater_Exec_EmptySlice(t *testing.T) {
 }
 
 func TestUpdater_Exec_ComplexTypes(t *testing.T) {
-	q := db.NewUpdate().Model(&User{}).Where("1=1")
+	q := db.NewUpdate().Model(&user{}).Where("1=1")
 	v := &testUpdaterStruct{
 		ID:     1,
 		Active: true,
@@ -454,5 +457,61 @@ func TestUpdater_Exec_ComplexTypes(t *testing.T) {
 	}
 	if !strings.Contains(queryStr, `"score" = 99.99`) {
 		t.Error("query should contain score")
+	}
+}
+
+type relationType struct {
+	bun.BaseModel `bun:"table:relation_type"`
+	Policy        []policy `json:"policy" bun:"type:jsonb"`
+}
+
+type policy struct {
+	Module    string `json:"module"`
+	Required  bool   `json:"required"`
+	Exclusive bool   `json:"exclusive"`
+}
+
+func TestUpdater_Exec_JSONBTaggedSlice(t *testing.T) {
+	q := db.NewUpdate().Model(&relationType{}).Where("1 = 1")
+	v := &relationType{
+		Policy: []policy{{
+			Module:    "user",
+			Required:  true,
+			Exclusive: true,
+		}},
+	}
+
+	queryBytes, err := UseUpdater(q, v).Exec().
+		AppendQuery(db.QueryGen(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := `UPDATE "relation_type" AS "relation_type" SET "policy" = '[{"module":"user","required":true,"exclusive":true}]' WHERE (1 = 1)`
+
+	if string(queryBytes) != expected {
+		t.Errorf("got: %s, want: %s", string(queryBytes), expected)
+	}
+}
+
+func TestIsJSONTag(t *testing.T) {
+	for _, v := range []struct {
+		bun  string
+		want bool
+	}{
+		{"type:jsonb", true},
+		{"type:json", true},
+		{"type:JSONB", true},
+		{"column:meta,type:jsonb", true},
+		{"type:jsonb,notnull", true},
+		{"type:jsonb,default:'{}'", true},
+		{"", false},
+		{"pk", false},
+		{"type:varchar", false},
+		{"type:jsonb[]", false},
+	} {
+		if got := isJSONTag(reflect.StructTag(`bun:"` + v.bun + `"`)); got != v.want {
+			t.Errorf("bun:%q: got %v, want %v", v.bun, got, v.want)
+		}
 	}
 }
