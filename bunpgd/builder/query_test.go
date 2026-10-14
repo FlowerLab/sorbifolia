@@ -15,7 +15,7 @@ import (
 
 var db = bun.NewDB(&sql.DB{}, bunpgd.New())
 
-type User struct {
+type user struct {
 	bun.BaseModel `bun:"table:user"`
 	ID            uint64 `json:"id" bun:",pk"`
 }
@@ -277,7 +277,7 @@ func TestSelect(t *testing.T) {
 			fn(&val)
 		}
 
-		queryBytes, err := Select(db.NewSelect().Model(&User{}), val).AppendQuery(db.QueryGen(), nil)
+		queryBytes, err := Select(db.NewSelect().Model(&user{}), val).AppendQuery(db.QueryGen(), nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -315,7 +315,7 @@ func TestUpdate(t *testing.T) {
 			fn(&val)
 		}
 
-		queryBytes, err := Update(db.NewUpdate().Model(&User{}), val).Set("a = ?", "b").
+		queryBytes, err := Update(db.NewUpdate().Model(&user{}), val).Set("a = ?", "b").
 			AppendQuery(db.QueryGen(), nil)
 		if err != nil {
 			t.Fatal(err)
@@ -354,7 +354,7 @@ func TestDelete(t *testing.T) {
 			fn(&val)
 		}
 
-		queryBytes, err := Delete(db.NewDelete().Model(&User{}), val).
+		queryBytes, err := Delete(db.NewDelete().Model(&user{}), val).
 			AppendQuery(db.QueryGen(), nil)
 		if err != nil {
 			t.Fatal(err)
