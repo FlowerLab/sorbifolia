@@ -22,6 +22,6 @@ jobs:
       - run: go test $GO_MODULES
       - run: go test -race -cover -coverprofile="coverage.txt" $GO_MODULES
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
