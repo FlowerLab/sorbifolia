@@ -8,6 +8,7 @@ import (
 
 	"github.com/uptrace/bun"
 	"go.x2ox.com/sorbifolia/bunpgd"
+	"go.x2ox.com/sorbifolia/bunpgd/sqltype"
 )
 
 // OptionalUpdate updates the fields of the target struct with values from the update struct.
@@ -293,6 +294,19 @@ func (x *Updater) exec() *bun.UpdateQuery {
 			val  = rv.Field(i)
 		)
 
+		if isJSONField(field.Tag) {
+			switch kind {
+			case reflect.Pointer, reflect.Slice, reflect.Map, reflect.Interface:
+				if val.IsNil() {
+					q.Set("? = NULL", sqlKey)
+					continue
+				}
+			default:
+			}
+			q.Set("? = ?", sqlKey, bunpgd.JSONFormReflect(val))
+			continue
+		}
+
 		switch kind {
 		case reflect.Slice:
 			if val.IsNil() {
@@ -332,4 +346,20 @@ func (x *Updater) exec() *bun.UpdateQuery {
 	}
 
 	return q
+}
+
+func isJSONField(st reflect.StructTag) bool {
+	for opt := range strings.SplitSeq(st.Get("bun"), ",") {
+		n, v, _ := strings.Cut(opt, ":")
+		if n != "type" {
+			continue
+		}
+
+		v = strings.ToUpper(strings.TrimSpace(v))
+		if v == sqltype.JSON || v == sqltype.JSONB {
+			return true
+		}
+	}
+
+	return false
 }
