@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -454,5 +455,200 @@ func TestUpdater_Exec_ComplexTypes(t *testing.T) {
 	}
 	if !strings.Contains(queryStr, `"score" = 99.99`) {
 		t.Error("query should contain score")
+	}
+}
+
+type updaterRawJSON []byte
+
+func (v updaterRawJSON) MarshalJSON() ([]byte, error) {
+	return []byte(v), nil
+}
+
+func TestUpdater_Exec_JSONBTaggedByteSlice(t *testing.T) {
+	v := &struct {
+		Data updaterRawJSON `json:"data"`
+	}{
+		Data: updaterRawJSON(`{"a":1}`),
+	}
+
+	queryBytes, err := UseUpdater(
+		db.NewUpdate().Model(&User{}).Where("1=1"),
+		v,
+	).Exec().AppendQuery(db.QueryGen(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := `UPDATE "user" AS "user" SET "data" = '{"a":1}' WHERE (1=1)`
+	if string(queryBytes) != expected {
+		t.Errorf("got:  %s\nwant: %s", queryBytes, expected)
+	}
+}
+
+func TestUpdater_Exec_JSONBTaggedSlice(t *testing.T) {
+	v := &struct {
+		Data []string `json:"data" bun:"type:jsonb"`
+	}{
+		Data: []string{"a", "b"},
+	}
+	queryBytes, err := UseUpdater(
+		db.NewUpdate().Model(&User{}).Where("1=1"),
+		v,
+	).Exec().AppendQuery(db.QueryGen(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := `UPDATE "user" AS "user" SET "data" = '["a","b"]' WHERE (1=1)`
+	if string(queryBytes) != expected {
+		t.Errorf("got:  %s\nwant: %s", queryBytes, expected)
+	}
+}
+
+func TestUpdater_Exec_JSONBTaggedMap(t *testing.T) {
+	v := &struct {
+		Data map[string]int `json:"data" bun:"type:jsonb"`
+	}{
+		Data: map[string]int{"a": 1},
+	}
+
+	queryBytes, err := UseUpdater(
+		db.NewUpdate().Model(&User{}).Where("1=1"),
+		v,
+	).Exec().AppendQuery(db.QueryGen(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := `UPDATE "user" AS "user" SET "data" = '{"a":1}' WHERE (1=1)`
+	if string(queryBytes) != expected {
+		t.Errorf("got:  %s\nwant: %s", queryBytes, expected)
+	}
+}
+
+func TestUpdater_Exec_JSONBTaggedNilMap(t *testing.T) {
+	v := &struct {
+		Data map[string]int `json:"data" bun:"type:jsonb"`
+	}{
+		Data: nil,
+	}
+
+	queryBytes, err := UseUpdater(
+		db.NewUpdate().Model(&User{}).Where("1=1"),
+		v,
+	).Exec().AppendQuery(db.QueryGen(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := `UPDATE "user" AS "user" SET "data" = NULL WHERE (1=1)`
+	if string(queryBytes) != expected {
+		t.Errorf("got:  %s\nwant: %s", queryBytes, expected)
+	}
+}
+
+func TestUpdater_Exec_JSONBTaggedEmptyMap(t *testing.T) {
+	v := &struct {
+		Data map[string]int `json:"data" bun:"type:jsonb"`
+	}{
+		Data: map[string]int{},
+	}
+
+	queryBytes, err := UseUpdater(
+		db.NewUpdate().Model(&User{}).Where("1=1"),
+		v,
+	).Exec().AppendQuery(db.QueryGen(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := `UPDATE "user" AS "user" SET "data" = '{}' WHERE (1=1)`
+	if string(queryBytes) != expected {
+		t.Errorf("got:  %s\nwant: %s", queryBytes, expected)
+	}
+}
+
+func TestUpdater_Exec_JSONBTaggedStruct(t *testing.T) {
+	v := &struct {
+		Data testMetadata `json:"data" bun:"type:jsonb"`
+	}{
+		Data: testMetadata{Key: "k", Value: "v"},
+	}
+
+	queryBytes, err := UseUpdater(
+		db.NewUpdate().Model(&User{}).Where("1=1"),
+		v,
+	).Exec().AppendQuery(db.QueryGen(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := `UPDATE "user" AS "user" SET "data" = '{"key":"k","value":"v"}' WHERE (1=1)`
+	if string(queryBytes) != expected {
+		t.Errorf("got:  %s\nwant: %s", queryBytes, expected)
+	}
+}
+
+func TestUpdater_Exec_JSONBTaggedNilInterface(t *testing.T) {
+	v := &struct {
+		Data any `json:"data" bun:"type:jsonb"`
+	}{
+		Data: nil,
+	}
+
+	queryBytes, err := UseUpdater(
+		db.NewUpdate().Model(&User{}).Where("1=1"),
+		v,
+	).Exec().AppendQuery(db.QueryGen(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := `UPDATE "user" AS "user" SET "data" = NULL WHERE (1=1)`
+	if string(queryBytes) != expected {
+		t.Errorf("got:  %s\nwant: %s", queryBytes, expected)
+	}
+}
+
+func TestUpdater_Exec_JSONBTaggedInterface(t *testing.T) {
+	v := &struct {
+		Data any `json:"data" bun:"type:jsonb"`
+	}{
+		Data: map[string]int{"a": 1},
+	}
+
+	queryBytes, err := UseUpdater(
+		db.NewUpdate().Model(&User{}).Where("1=1"),
+		v,
+	).Exec().AppendQuery(db.QueryGen(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := `UPDATE "user" AS "user" SET "data" = '{"a":1}' WHERE (1=1)`
+	if string(queryBytes) != expected {
+		t.Errorf("got:  %s\nwant: %s", queryBytes, expected)
+	}
+}
+
+func Test_isJSONField(t *testing.T) {
+	for _, v := range []struct {
+		bun  string
+		want bool
+	}{
+		{"type:jsonb", true},
+		{"type:json", true},
+		{"type:JSONB", true},
+		{"column:meta,type:jsonb", true},
+		{"type:jsonb,notnull", true},
+		{"type:jsonb,default:'{}'", true},
+		{"", false},
+		{"pk", false},
+		{"type:varchar", false},
+		{"type:jsonb[]", false},
+	} {
+		if got := isJSONField(reflect.StructTag(`bun:"` + v.bun + `"`)); got != v.want {
+			t.Errorf("bun:%q: got %v, want %v", v.bun, got, v.want)
+		}
 	}
 }
