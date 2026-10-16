@@ -1,8 +1,10 @@
 package bunpgd
 
 import (
+	"encoding/json"
 	"reflect"
 
+	"github.com/uptrace/bun/dialect"
 	"github.com/uptrace/bun/schema"
 	"go.x2ox.com/sorbifolia/bunpgd/datatype"
 )
@@ -23,4 +25,21 @@ func ToArray[T any](arr []T) *Array {
 
 func ArrayFormReflect(rt reflect.Type, rv reflect.Value) *Array {
 	return &Array{rv: rv, rt: rt}
+}
+
+type JSON struct {
+	rv reflect.Value
+}
+
+func (j *JSON) AppendQuery(gen schema.QueryGen, b []byte) ([]byte, error) {
+	bb, err := json.Marshal(j.rv.Interface())
+	if err != nil {
+		return dialect.AppendError(b, err), nil
+	}
+
+	return gen.Dialect().AppendJSON(b, bb), nil
+}
+
+func JSONFormReflect(rv reflect.Value) *JSON {
+	return &JSON{rv: rv}
 }
