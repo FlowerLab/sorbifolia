@@ -1,17 +1,56 @@
 version: 2
 updates:
   - package-ecosystem: "gomod"
-    directories:
-      - "/bunpgd"
-      - "/debugger"
-      - "/pyrokinesis"
-      - "/random"
-
-      - "/coarsetime"
-      - "/buffer"
-      - "/jwt"
-      - "/password"
-      - "/strong"
-      - "/strutils"
+    directory: "/bunpgd"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+
+  - package-ecosystem: "gomod"
+    directory: "/debugger"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "gomod"
+    directory: "/pyrokinesis"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "gomod"
+    directory: "/random"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "gomod"
+    directory: "/coarsetime"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "gomod"
+    directory: "/buffer"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "gomod"
+    directory: "/jwt"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "gomod"
+    directory: "/password"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "gomod"
+    directory: "/strong"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "gomod"
+    directory: "/strutils"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
