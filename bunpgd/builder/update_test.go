@@ -505,6 +505,46 @@ func TestUpdater_Exec_JSONBTaggedSlice(t *testing.T) {
 	}
 }
 
+func TestUpdater_Exec_JSONBTaggedNilSlice(t *testing.T) {
+	v := &struct {
+		Data []string `json:"data" bun:"type:jsonb"`
+	}{
+		Data: nil,
+	}
+	queryBytes, err := UseUpdater(
+		db.NewUpdate().Model(&User{}).Where("1=1"),
+		v,
+	).Exec().AppendQuery(db.QueryGen(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := `UPDATE "user" AS "user" SET "data" = NULL WHERE (1=1)`
+	if string(queryBytes) != expected {
+		t.Errorf("got:  %s\nwant: %s", queryBytes, expected)
+	}
+}
+
+func TestUpdater_Exec_JSONBTaggedEmptySlice(t *testing.T) {
+	v := &struct {
+		Data []string `json:"data" bun:"type:jsonb"`
+	}{
+		Data: make([]string, 0),
+	}
+	queryBytes, err := UseUpdater(
+		db.NewUpdate().Model(&User{}).Where("1=1"),
+		v,
+	).Exec().AppendQuery(db.QueryGen(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := `UPDATE "user" AS "user" SET "data" = '[]' WHERE (1=1)`
+	if string(queryBytes) != expected {
+		t.Errorf("got:  %s\nwant: %s", queryBytes, expected)
+	}
+}
+
 func TestUpdater_Exec_JSONBTaggedMap(t *testing.T) {
 	v := &struct {
 		Data map[string]int `json:"data" bun:"type:jsonb"`
